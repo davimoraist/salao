@@ -1,15 +1,23 @@
-<?php
-$servidor = "localhost";
-$usuario = "root";
-$senha = "";
-$banco = "salao_db";
+ <?php
+include('conexao.php');
 
-// Criar conexão
-$conexao = new mysqli($servidor, $usuario, $senha, $banco);
+$nome = $_POST['nome'];
+$data = $_POST['data'];
+$hora = $_POST['hora'];
+$servico = $_POST['servico'];
+$obs = $_POST['observacao'];
 
-// Verificar conexão
-if ($conexao->connect_error) {
-    die("Erro na conexão: " . $conexao->connect_error);
+// Montar o comando SQL
+$sql = "INSERT INTO agendamentos (nome_cliente, data, hora, servico, observacao)
+        VALUES ('$nome', '$data', '$hora', '$servico', '$obs')";
+
+// Executar e verificar
+if ($conexao->query($sql) === TRUE) {
+    echo "<script>alert('✅ Agendamento realizado com sucesso!');
+          window.location.href='index.html';</script>";
+} else {
+    echo "Erro: " . $conexao->error;
 }
-//echo "Conexão bem-sucedida!";
+
+$conexao->close();
 ?>

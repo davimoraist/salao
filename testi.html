@@ -66,79 +66,60 @@
  </div>
 
  <script>
- const form = document.getElementById('agendamentoForm');
- const mensagem = document.getElementById('mensagem');
- const inputData = document.getElementById('data');
- const telefoneInput = document.getElementById('telefone');
+ // ... (mantenha setDataMinima e inputData.addEventListener) ...
 
- // Define data mínima como hoje às 7:00
- function setDataMinima() {
-   const hoje = new Date();
-   if(hoje.getHours() < 7) hoje.setHours(7,0,0,0);
-   else if(hoje.getHours() >= 18) { 
-     hoje.setDate(hoje.getDate()+1);
-     hoje.setHours(7,0,0,0);
-   }
-   const ano = hoje.getFullYear();
-   const mes = String(hoje.getMonth()+1).padStart(2,'0');
-   const dia = String(hoje.getDate()).padStart(2,'0');
-   const hora = String(hoje.getHours()).padStart(2,'0');
-   const min = String(hoje.getMinutes()).padStart(2,'0');
-   inputData.min = `${ano}-${mes}-${dia}T${hora}:${min}`;
- }
- setDataMinima();
+// Envio do formulário
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    mensagem.textContent = "";
 
- // Validação de data/hora
- inputData.addEventListener('change', function() {
-   mensagem.textContent = "";
-   const dataSelecionada = new Date(inputData.value);
-   const diaSemana = dataSelecionada.getDay();
-   const hora = dataSelecionada.getHours();
+    const nome = document.getElementById('nome').value.trim();
+    const telefone = telefoneInput.value.trim();
+    const servico = document.getElementById('servico').value;
+    const alergia = document.getElementById('alergia').value.trim();
+    const data = document.getElementById('data').value;
 
-   if(diaSemana === 0) {
-     mensagem.textContent = "Domingo não permitido. Escolha outro dia.";
-     inputData.value = "";
-     return;
-   }
-   if(hora < 7 || hora >= 18 || hora === 12) {
-     mensagem.textContent = "Horário inválido (7-12 ou 13-18).";
-     inputData.value = "";
-     return;
-   }
- });
+    // 1. Validação do telefone
+    const telefoneRegex = /^\(\d{2}\)\s?\d{4,5}-\d{4}$/;
+    if(!telefoneRegex.test(telefone)) {
+        mensagem.textContent = "Telefone inválido. Use o formato (61) 9575-6256.";
+        return;
+    }
 
- // Envio do formulário
- form.addEventListener('submit', function(e) {
-   e.preventDefault();
-   mensagem.textContent = "";
+    // 2. Coleta de dados
+    const formData = new FormData();
+    formData.append('nome', nome);
+    formData.append('telefone', telefone);
+    formData.append('servico', servico);
+    formData.append('alergia', alergia);
+    formData.append('data_hora', data); // Usamos 'data_hora' no PHP
 
-   const nome = document.getElementById('nome').value.trim();
-   const telefone = telefoneInput.value.trim();
-   const servico = document.getElementById('servico').value;
-   const alergia = document.getElementById('alergia').value.trim();
-   const data = document.getElementById('data').value;
-
-   // Validação do telefone no formato (61) 9575-6256
-   const telefoneRegex = /^\(\d{2}\)\s?\d{4,5}-\d{4}$/;
-   if(!telefoneRegex.test(telefone)) {
-     mensagem.textContent = "Telefone inválido. Use o formato (61) 9575-6256.";
-     return;
-   }
-
-   // Link fixo do WhatsApp com mensagem pronta
-   const numeroWhats = "556195756256";
-   const texto = encodeURIComponent(
-     `Novo agendamento:\nNome: ${nome}\nTelefone: ${telefone}\nServiço: ${servico}\nData e hora: ${data}` +
-     (alergia ? `\nAlergia: ${alergia}` : '')
-   );
-   const urlWhats = `https://wa.me/${numeroWhats}?text=${texto}`;
-   window.open(urlWhats, '_blank');
-
-   mensagem.style.color = "green";
-   mensagem.textContent = `Obrigado, ${nome}! Clique no WhatsApp para enviar seu agendamento.`;
-   form.reset();
-   setDataMinima(); 
- });
+    // 3. Envia os dados para o PHP para SALVAR no banco
+    fetch('salvar_e_enviar.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // 4. Se salvou no banco, ABRE o WhatsApp
+            window.open(data.whatsapp_url, '_blank');
+            
+            mensagem.style.color = "green";
+            mensagem.textContent = `Obrigado, ${nome}! Agendamento salvo. Clique na aba do WhatsApp para enviar a confirmação.`;
+            form.reset();
+            setDataMinima();
+        } else {
+            // Erro retornado pelo PHP
+            mensagem.textContent = "Erro ao salvar no banco de dados: " + data.message;
+        }
+    })
+    .catch(error => {
+        // Erro de comunicação com o servidor
+        mensagem.textContent = "Erro de rede ou servidor. Tente novamente.";
+        console.error('Fetch error:', error);
+    });
+});
  </script>
 
  </body>

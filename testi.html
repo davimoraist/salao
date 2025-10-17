@@ -7,24 +7,26 @@
     <link rel="stylesheet" href="style.css">
  </head>
  <body>
-    <h1>Salão do João</h1>
-    <form action="">
+   
+    <form action="salao" id="salao">
+          <h1>Salão do João</h1>
           <div class="dados-pessoais">
           <label for="nome">Nome Completa</label>
-          <input type="text" name="nome" id="nome">
+          <input type="text" name="nome" id="nome" required>
           <label for="Telefone">Telefone</label>
-          <input type="tel" name="telefone" id="telefone">
+          <input type="tel" name="telefone" id="telefone" required>
           <label for="data">Data</label>
-          <input type="date" name="" id="data">
+          <input type="date" name="" id="data" required>
           <label for="hora">Hora</label>
-          <input type="time" name="hora" id="hora">
+          <input type="time" name="hora" id="hora" required>
           <label for="alergia">Alergia</label>
           <input type="text" name="alergia">
         </div>
         
         <div class="dados-agendamento">
+            <h2>serviço</h2>
             <div>
-                <input type="checkbox" name="CC" id="cc">
+                <input type="checkbox" name="CC" id="cc" >
                 <label for="cc">Corte de Cabelo</label>
             </div>
             <div>
@@ -43,7 +45,13 @@
                 <input type="checkbox" name="ep" id="ep">
                 <label for="ep">Escova e Penteados</label>
             </div>
-        </div>
+           
+        </div> 
+            <div class="enviar">
+                <button type="submit" id="submit">enviar</button>
+            </div> 
+            <p id="mensagem" class="error"></p>
     </form>
+    <script src="script.js"></script>
  </body>
  </html>

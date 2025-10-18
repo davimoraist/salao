@@ -1,7 +1,7 @@
  <?php
 $localhost = "localhost";
-$usuario = "root"; // corrigido de $usar
-$senha = "";       // corrigido de $passw
+$usuario = "root";
+$senha = "";
 $banco = "salao";
 
 try {
@@ -9,8 +9,8 @@ try {
     $pdo = new PDO("mysql:host=$localhost;dbname=$banco", $usuario, $senha);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Consulta à tabela (verifique o nome correto da sua tabela)
-    $sql = $pdo->query("SELECT * FROM usuarios"); // substituir "usuarios" pelo nome real
+    // Consulta à tabela correta
+    $sql = $pdo->query("SELECT * FROM salaomt");
 
     echo "Número de registros: " . $sql->rowCount();
 

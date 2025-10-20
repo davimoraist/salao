@@ -20,6 +20,17 @@ function setDataMinima() {
 }
 setDataMinima();
 
+// LocalStorage para armazenar agendamentos
+function getAgendamentos() {
+  return JSON.parse(localStorage.getItem('agendamentos') || '[]');
+}
+
+function saveAgendamento(agendamento) {
+  const agendamentos = getAgendamentos();
+  agendamentos.push(agendamento);
+  localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
+}
+
 // Validação de data/hora
 inputData.addEventListener('change', function () {
   mensagem.textContent = "";
@@ -66,6 +77,17 @@ form.addEventListener('submit', function (e) {
     return;
   }
 
+  // Verifica se o horário já foi agendado
+  const agendamentos = getAgendamentos();
+  const existe = agendamentos.some(a => a.data === data);
+  if (existe) {
+    mensagem.textContent = "❌ Horário indisponível! Escolha outro horário.";
+    return;
+  }
+
+  // Salva o agendamento no LocalStorage
+  saveAgendamento({ nome, telefone, data, servicos: servicosSelecionados, alergia });
+
   // WhatsApp
   const numeroWhats = "556195756256";
   const texto = encodeURIComponent(
@@ -76,7 +98,7 @@ form.addEventListener('submit', function (e) {
   window.open(urlWhats, '_blank');
 
   mensagem.style.color = "green";
-  mensagem.textContent = `Obrigado, ${nome}! Clique no WhatsApp para enviar seu agendamento.`;
+  mensagem.textContent = `✅ Agendamento de ${nome} realizado! Clique no WhatsApp para enviar.`;
   form.reset();
   setDataMinima();
 });

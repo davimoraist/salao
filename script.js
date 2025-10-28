@@ -88,7 +88,7 @@ form.addEventListener('submit', function (e) {
   // Salva o agendamento no LocalStorage
   saveAgendamento({ nome, telefone, data, servicos: servicosSelecionados, alergia });
 
-  // WhatsApp
+  
   const numeroWhats = "556195756256";
   const texto = encodeURIComponent(
     `Novo agendamento:\nNome: ${nome}\nTelefone: ${telefone}\nServiço(s): ${servicosSelecionados}\nData e hora: ${data}` +

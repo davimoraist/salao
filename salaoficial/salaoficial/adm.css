@@ -1,0 +1,108 @@
+ @charset "UTF-8";
+
+/* Import das fontes */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+/* VARIÁVEIS */
+:root {
+    --cor1: #c88c8e; 
+    --cor2: #734440;
+    --cor3: #bf93be;
+    --cor4: #a67272;
+    --cor5: #c89991;
+
+    --fonte-logo: "Great Vibes", cursive;
+    --fonte-titulo: "Cinzel", serif;
+    --fonte-texto: "Nunito", sans-serif;
+}
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+    font-family: var(--fonte-texto);
+    background-color: #fafafa;
+}
+
+/* Cabeçalho */
+.cabeca {
+  background-color: var(--cor4);
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+}
+
+.cabeca h1 {
+  color: white;
+  font-family: var(--fonte-titulo);
+  font-size: 28px;
+}
+
+/* MENU LATERAL */
+.menu {
+  border-right: 2px solid #ddd;
+  width: 220px;
+  height: calc(100vh - 100px);
+  position: fixed;
+  top: 100px;
+  left: 0;
+  padding: 20px;
+  background-color: #fff;
+}
+
+.menu > a {
+    display: block;
+    color: #333;
+    text-decoration: none;
+    margin: 25px 0;
+    font-size: 18px;
+    transition: 0.2s;
+}
+
+.menu > a:hover {
+    color: var(--cor2);
+    font-weight: bold;
+}
+
+/* CONTEÚDO PRINCIPAL */
+.main {
+    margin-left: 260px;
+    padding: 20px;
+}
+
+/* Caixas */
+.box {
+    border: 2px solid #ddd;
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 20px;
+    width: 90%;
+    max-width: 900px;
+}
+
+/* Título dos marcados */
+.marcados h1 {
+    font-family: var(--fonte-titulo);
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+
+/* Caixa de cliente marcado */
+.cma {
+    border: 2px solid #ddd;
+    padding: 10px;
+    width: 90%;
+    max-width: 900px;
+}
+
+.cma p {
+    margin-bottom: 10px;
+}

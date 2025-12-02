@@ -72,37 +72,4 @@ body {
     font-weight: bold;
 }
 
-/* CONTEÚDO PRINCIPAL */
-.main {
-    margin-left: 260px;
-    padding: 20px;
-}
-
-/* Caixas */
-.box {
-    border: 2px solid #ddd;
-    background-color: #fff;
-    padding: 10px;
-    margin-bottom: 20px;
-    width: 90%;
-    max-width: 900px;
-}
-
-/* Título dos marcados */
-.marcados h1 {
-    font-family: var(--fonte-titulo);
-    margin-bottom: 15px;
-    font-size: 22px;
-}
-
-/* Caixa de cliente marcado */
-.cma {
-    border: 2px solid #ddd;
-    padding: 10px;
-    width: 90%;
-    max-width: 900px;
-}
-
-.cma p {
-    margin-bottom: 10px;
-}
+ 

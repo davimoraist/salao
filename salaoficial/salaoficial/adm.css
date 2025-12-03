@@ -87,3 +87,16 @@ body {
 .tela.ativa {
    display: block;
 }
+
+#servicos {
+    /* BORDAS */
+    border: 2px solid #000;     /* borda em todos os lados */
+    border-radius: 5px;        /* bordas arredondadas */
+   
+    /* ESPAÇAMENTO */
+    padding: 20px;
+    margin-top: 20px;
+
+    /* AJUSTE VISUAL */
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);  /* sombra leve */
+}

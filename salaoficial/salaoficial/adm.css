@@ -58,18 +58,32 @@ body {
   background-color: #fff;
 }
 
-.menu > a {
-    display: block;
-    color: #333;
-    text-decoration: none;
-    margin: 25px 0;
-    font-size: 18px;
-    transition: 0.2s;
+.menu button {
+   width: 100%;
+   padding: 15px;
+   border: none;
+   background: none;
+   text-align: left;
+   font-size: 18px;
+   cursor: pointer;
+   border-bottom: 1px solid #eee;
 }
 
-.menu > a:hover {
-    color: var(--cor2);
-    font-weight: bold;
+.menu button.active {
+   background: #d19a9a;
+   color: white;
 }
 
- 
+/* ÁREA DE CONTEÚDO */
+.conteudo {
+   margin-left: 240px; /* dá espaço para o menu */
+   padding: 20px;
+}
+
+.tela {
+   display: none;
+}
+
+.tela.ativa {
+   display: block;
+}

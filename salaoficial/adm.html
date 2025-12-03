@@ -13,12 +13,42 @@
     </div>
 
     <div class="menu">
-        <a href="#">Agenda</a>
-        <a href="#">Serviços e preços</a>
-        <a href="#">Dados</a>
-        <a href="#">Configurações</a>
-        <a href="#">Sair</a>
+         <button onclick="mostrarTela('agenda')" class="active">Agenda</button>
+         <button onclick="mostrarTela('servicos')">Serviços e preços</button>
+         <button onclick="mostrarTela('dados')">Dados</button>
+         <button onclick="mostrarTela('config')">Configurações</button>
+         <button onclick="mostrarTela('saida')">Sair</button>
     </div>
 
+    <div class="conteudo">
+
+        <div id="agenda" class="tela ativa">
+            <h1>Agenda</h1>
+            <p>Aqui aparece a agenda do salão.</p>
+        </div>
+
+        <div id="servicos" class="tela">
+            <h1>Serviços</h1>
+            <p>Lista de serviços e preços.</p>
+        </div>
+
+        <div id="dados" class="tela">
+            <h1>Dados</h1>
+            <p>Informações cadastradas.</p>
+        </div>
+
+        <div id="config" class="tela">
+            <h1>Configurações</h1>
+            <p>Configurações do sistema.</p>
+        </div>
+
+        <div id="saida" class="tela">
+            <h1>Sair</h1>
+            <p>Você saiu do painel.</p>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

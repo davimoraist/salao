@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>ADM</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            display: flex;
+        }
+
+        /* MENU ESQUERDO */
+        .menu {
+            width: 220px;
+            background: #fff;
+            border-right: 1px solid #ccc;
+            height: 100vh;
+            padding-top: 20px;
+        }
+
+        .menu button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 18px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .menu button.active {
+            background: #d19a9a;
+            color: white;
+        }
+
+        /* ÁREA DE CONTEÚDO */
+        .conteudo {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .tela {
+            display: none; /* todas ocultas */
+        }
+        
+        .tela.ativa {
+            display: block; /* só essa aparece */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MENU -->
+    <div class="menu">
+        <button onclick="mostrarTela('agenda')" class="active">Agenda</button>
+        <button onclick="mostrarTela('servicos')">Serviços e Preços</button>
+        <button onclick="mostrarTela('dados')">Dados</button>
+        <button onclick="mostrarTela('config')">Configurações</button>
+        <button onclick="mostrarTela('saida')">Saída</button>
+    </div>
+
+    <!-- CONTEÚDOS -->
+    <div class="conteudo">
+
+        <div id="agenda" class="tela ativa">
+            <h1>Agenda</h1>
+            <p>Aqui aparece a agenda do salão.</p>
+        </div>
+
+        <div id="servicos" class="tela">
+            <h1>Serviços</h1>
+            <p>Lista de serviços e preços.</p>
+        </div>
+
+        <div id="dados" class="tela">
+            <h1>Dados</h1>
+            <p>Informações do usuário ou da empresa.</p>
+        </div>
+
+        <div id="config" class="tela">
+            <h1>Configurações</h1>
+            <p>Configuração do sistema.</p>
+        </div>
+
+        <div id="saida" class="tela">
+            <h1>Saída</h1>
+            <p>Função de logout.</p>
+        </div>
+
+    </div>
+
+<script>
+    function mostrarTela(tela) {
+        // esconder todas as telas
+        document.querySelectorAll('.tela').forEach(div => {
+            div.classList.remove('ativa');
+        });
+
+        // mostrar a tela clicada
+        document.getElementById(tela).classList.add('ativa');
+
+        // remover active dos botões
+        document.querySelectorAll('.menu button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // adicionar active no botão clicado
+        event.target.classList.add('active');
+    }
+</script>
+
+</body>
+</html>

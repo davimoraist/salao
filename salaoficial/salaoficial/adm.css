@@ -87,16 +87,65 @@ body {
 .tela.ativa {
    display: block;
 }
-
+ /* CONTAINER DE SERVIÇOS */
 #servicos {
-    /* BORDAS */
-    border: 2px solid #000;     /* borda em todos os lados */
-    border-radius: 5px;        /* bordas arredondadas */
-   
-    /* ESPAÇAMENTO */
-    padding: 20px;
+    background: #ffffff;
+    border: 2px solid #000000;
+    border-radius: 10px;
+
+    padding: 25px;
     margin-top: 20px;
 
-    /* AJUSTE VISUAL */
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);  /* sombra leve */
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    position: relative;
+}
+
+/* TÍTULOS */
+.titulo-servicos {
+    font-family: var(--fonte-titulo);
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: var(--cor2);
+}
+
+.subtitulo-servicos {
+    font-family: var(--fonte-texto);
+    font-size: 18px;
+    color: #444;
+    margin-bottom: 20px;
+}
+
+/* ÁREA DOS CARDS */
+#servicos-area {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* BOTÃO FLUTUANTE (FAB) */
+#fab {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+
+    width: 55px;
+    height: 55px;
+
+    border: none;
+    cursor: pointer;
+
+    font-size: 28px;
+    color: white;
+
+    border-radius: 50%;
+    background-color: var(--cor2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+
+    transition: 0.2s;
+}
+
+/* efeito ao passar o mouse */
+#fab:hover {
+    background-color: var(--cor1);
+    transform: scale(1.1);
 }

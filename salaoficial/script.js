@@ -16,7 +16,7 @@
     // adicionar active no botão clicado
     event.target.classList.add('active');
 }
-
+ 
   const area = document.getElementById("servicos-area");
     const mais = document.getElementById("fab");
 

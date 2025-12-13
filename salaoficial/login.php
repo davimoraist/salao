@@ -1,29 +1,24 @@
-<?php
+ <?php
 
 $localhost = "localhost";
 $user = "root";
 $passw = "";
 $banco = "salao";
 
-// Conectar ao banco
-$conecta = mysqli_connect($localhost, $user, $passw, $banco);
+try {
+    $pdo = new PDO(
+        "mysql:dbname=".$banco.";host=".$localhost,
+        $user,
+        $passw
+    );
 
-// Verificar conexão
-if (mysqli_connect_errno()) {
-    echo "Erro ao conectar ao banco: " . mysqli_connect_error();
-    exit();
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    echo "Conectado com sucesso!";
+
+} catch (PDOException $e) {
+    echo "ERRO: " . $e->getMessage();
+    exit;
 }
-
-// Consultar tabela
-$sql = mysqli_query($conecta, "SELECT * FROM usuario");
-
-// Verificar se a consulta deu certo
-if (!$sql) {
-    echo "Erro na consulta SQL: " . mysqli_error($conecta);
-    exit();
-}
-
-// Mostrar quantidade de registros
-echo mysqli_num_rows($sql);
 
 ?>

@@ -10,7 +10,7 @@
 
 <body>
     <div class="login">
-        <form action="login.php" method="POST">
+        <form action="contra.php" method="POST">
 
             <h1>Login ADM</h1>
 

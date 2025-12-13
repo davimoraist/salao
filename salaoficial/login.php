@@ -3,7 +3,7 @@
 $localhost = "localhost";
 $user = "root";
 $passw = "";
-$banco = "salão";
+$banco = "salao";
 
 // Conectar ao banco
 $conecta = mysqli_connect($localhost, $user, $passw, $banco);
@@ -15,7 +15,7 @@ if (mysqli_connect_errno()) {
 }
 
 // Consultar tabela
-$sql = mysqli_query($conecta, "SELECT * FROM usuarios");
+$sql = mysqli_query($conecta, "SELECT * FROM usuario");
 
 // Verificar se a consulta deu certo
 if (!$sql) {

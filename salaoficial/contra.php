@@ -1,19 +1,25 @@
  <?php
 
+require_once 'login.php';
+require_once 'usuario.php';
+
 if (
     isset($_POST['email']) && !empty($_POST['email']) &&
     isset($_POST['senha']) && !empty($_POST['senha'])
 ) {
 
-    $email = addslashes($_POST['email']);
-    $senha = addslashes($_POST['senha']);
+    $usuario = new usuario();
 
-    echo "Email: " . $email . "<br>";
-    echo "Senha: " . $senha;
+    $email = $_POST['email'];
+    $senha = $_POST['senha'];
+
+    echo "Conectado com sucesso!<br>";
+
+    // teste
+    $usuario->login($email, $senha);
 
 } else {
     header("Location: index.php");
     exit;
 }
-
 ?>

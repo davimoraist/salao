@@ -5,6 +5,7 @@ $user = "root";
 $passw = "";
 $banco = "salao";
 
+global $pdo;
 try {
     $pdo = new PDO(
         "mysql:dbname=".$banco.";host=".$localhost,

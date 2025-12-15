@@ -10,18 +10,29 @@
 
 <body>
     <div class="login">
-        <form action="contra.php" method="POST">
+        <form action="contra.php" method="POST" autocomplete="off">
 
             <h1>Login ADM</h1>
 
             <label for="email">E-mail</label>
-            <input type="email" name="email" id="email" required>
+            <input 
+                type="email" 
+                name="email" 
+                id="email" 
+                autocomplete="off"
+                required
+            >
 
             <label for="senha">Senha</label>
-            <input type="password" name="senha" id="senha" required>
+            <input 
+                type="password" 
+                name="senha" 
+                id="senha" 
+                autocomplete="new-password"
+                required
+            >
 
             <button type="submit">Entrar</button>
-            
 
         </form>
     </div>

@@ -1,4 +1,10 @@
- <!DOCTYPE html>
+<?php 
+ require 'login.php';
+
+ if(isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
+?>
+
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -17,7 +23,7 @@
          <button onclick="mostrarTela('servicos')">Serviços e preços</button>
          <button onclick="mostrarTela('dados')">Dados</button>
          <button onclick="mostrarTela('config')">Configurações</button>
-         <button onclick="mostrarTela('saida')">Sair</button>
+         <button onclick="mostrarTela('saida')"><a href="sair.php">sair</a></button>
     </div>
 
        <div class="conteudo">
@@ -48,14 +54,14 @@
             <h1>Configurações</h1>
             <p>Configurações do sistema.</p>
         </div>
-        <!--botão de saida-->
-        <div id="saida" class="tela">
-            <h1>Sair</h1>
-            <p>Você sair do painel.</p>
-        </div>
-
+         
     </div>
 
     <script src="script.js"></script>
 </body>
 </html>
+<?php 
+ require 'login.php';
+
+ if(isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
+?>

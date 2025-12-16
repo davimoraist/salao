@@ -1,4 +1,5 @@
  <?php
+session_start();
 
 $localhost = "localhost";
 $user = "root";
@@ -7,12 +8,12 @@ $banco = "salao";
 
 try {
     $pdo = new PDO(
-        "mysql:dbname=".$banco.";host=".$localhost, $user, $passw
+        "mysql:host=$localhost;dbname=$banco;charset=utf8",
+        $user,
+        $passw
     );
-    
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Conectado com sucesso!";
 } catch (PDOException $e) {
-    echo "Erro: " . $e->getMessage();
-    exit;
+    die("Erro na conexão: " . $e->getMessage());
 }
+?>

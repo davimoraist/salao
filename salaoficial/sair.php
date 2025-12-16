@@ -1,5 +1,8 @@
-<?php
- unset($_SESSION['idusuario']);
+ <?php
+session_start();
 
- header("Location: index.php")
+unset($_SESSION['idusuario']);
+
+header("Location: index.php");
+exit;
 ?>

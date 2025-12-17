@@ -22,4 +22,13 @@ class Usuario {
 
         return false;
     }
+
+    public function loggod($id){
+        global $pdo;
+
+        $array = array();
+        $sql =   "SELECT * FROM usuario  WHERE idusuario = :id"
+        $sql = $pdo->prepare($sql);
+        $sql = bin
+    }
 }

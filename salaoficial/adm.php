@@ -1,6 +1,6 @@
- <?php
+<?php
 session_start();
-require "login.php";
+require "verificar.php";
 
 if (isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
 ?>
@@ -16,8 +16,10 @@ if (isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
 <body>
 
     <div class="cabeca">
-        <h1>Salão de Maria - ADM</h1>
+    <h1>Salão de Maria - ADM</h1>
+    <span class="nome-usuario">Davi</span>
     </div>
+
 
     <div class="menu">
         <button onclick="mostrarTela('agenda')" class="active">Agenda</button>

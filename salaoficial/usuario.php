@@ -4,11 +4,7 @@ class Usuario {
     public function login($email, $senha) {
         global $pdo;
 
-        $sql = $pdo->prepare(
-            "SELECT * FROM usuario 
-             WHERE email = :email 
-             AND password = :password"
-        );
+        $sql = $pdo->prepare( "SELECT * FROM usuario  WHERE email = :email AND password = :password" );
 
         $sql->bindValue(":email", $email);
         $sql->bindValue(":password", $senha); // sem md5 se o banco for texto
@@ -23,12 +19,22 @@ class Usuario {
         return false;
     }
 
-    public function loggod($id){
+  public function loggod($id){
         global $pdo;
 
-        $array = array();
-        $sql =   "SELECT * FROM usuario  WHERE idusuario = :id"
+        $array = array(); 
+        $array = [];
+
+        $sql = "SELECT nome FROM usuario WHERE idusuario = :id";
         $sql = $pdo->prepare($sql);
-        $sql = bin
+        $sql->bindValue(":idusuario", $id);
+        $sql->execute();
+        
+        if ($sql->rowCount() > 0) {
+            $array = $sql->fetch(PDO::FETCH_ASSOC);
+        }
+
+        return $array;
     }
 }
+?>

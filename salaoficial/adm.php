@@ -43,7 +43,7 @@ if (isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
             <button id="fab">+</button>
         </div>
 
-        <div id="dados" class="tela">
+        <div id="dados" class="tela"> 
             <h1>Dados</h1>
             <p>Informações cadastradas.</p>
         </div>

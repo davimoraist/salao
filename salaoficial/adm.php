@@ -17,9 +17,11 @@ if (isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
 
     <div class="cabeca">
     <h1>Salão de Maria - ADM</h1>
-    <span class="nome-usuario">Davi</span>
-    </div>
 
+    <span class="nome-usuario">
+        <label>Olá!  <?php echo $pessoa; ?></label>
+    </span>
+    </div>
 
     <div class="menu">
         <button onclick="mostrarTela('agenda')" class="active">Agenda</button>

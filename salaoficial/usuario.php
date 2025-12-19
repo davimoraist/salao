@@ -19,22 +19,22 @@ class Usuario {
         return false;
     }
 
-  public function loggod($id){
-        global $pdo;
+   public function loggod($id){
+    global $pdo;
 
-        $array = array(); 
-        $array = [];
+    $sql = $pdo->prepare(
+        "SELECT nome FROM usuario WHERE idusuario = :id"
+    );
+    $sql->bindValue(":id", $id, PDO::PARAM_INT);
+    $sql->execute();
 
-        $sql = "SELECT nome FROM usuario WHERE idusuario = :id";
-        $sql = $pdo->prepare($sql);
-        $sql->bindValue(":idusuario", $id);
-        $sql->execute();
-        
-        if ($sql->rowCount() > 0) {
-            $array = $sql->fetch(PDO::FETCH_ASSOC);
-        }
-
-        return $array;
+    if ($sql->rowCount() > 0) {
+        return $sql->fetch(PDO::FETCH_ASSOC);
     }
+
+    return [];
 }
+
+}
+
 ?>

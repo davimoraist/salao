@@ -1,106 +1,270 @@
- <!DOCTYPE html>
-<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Serviços do Salão</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-    
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
+<meta charset="UTF-8">
+<title>Salão do João</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    h2 { margin-bottom: 20px; }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #ffe5b4, #ffb347);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
 
-    .servico-box {
-      background: #fafafa;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      border: 1px solid #ddd;
-    }
+form {
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 0 15px rgba(0,0,0,.2);
+}
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-bottom: 10px;
-    }
+h1 {
+  text-align: center;
+  color: #ff6600;
+}
 
-    /* Floating Action Button */
-    #fab {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: #e91e63;
-      color: #fff;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 34px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      transition: 0.3s;
-    }
+label {
+  display: block;
+  margin-top: 12px;
+  font-weight: bold;
+}
 
-    #fab:hover { background: #d81558; }
-  </style>
+input[type="text"],
+input[type="tel"] {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+
+.slideshow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.slideshow button {
+  background: #ff6600;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#datas {
+  display: flex;
+  gap: 6px;
+  overflow: hidden;
+  width: 260px;
+}
+
+.data {
+  min-width: 65px;
+  text-align: center;
+  padding: 8px;
+  background: #eee;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.data.active {
+  background: #ff6600;
+  color: white;
+}
+
+#horarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.hora {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: green;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.hora.ocupado {
+  background: red;
+  cursor: not-allowed;
+}
+
+.hora.selecionado {
+  background: #ff6600;
+}
+
+.servico {
+  margin-top: 8px;
+}
+
+button[type="submit"] {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  background: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#mensagem {
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+}
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <h2>Gerenciar Serviços e Preços</h2>
-    <div id="servicos-area"></div>
 
-    <button id="enviar" style="margin-top:20px; width:100%; padding:12px; background:#4CAF50; color:white; border:none; border-radius:8px; cursor:pointer; font-size:16px;">Enviar</button>
-    </div>
+<form id="agendamentoForm">
+  <h1>Salão do João</h1>
 
-  <button id="fab">+</button>
+  <label>Nome Completo</label>
+  <input type="text" id="nome" required>
 
-  <script>
-    const area = document.getElementById("servicos-area");
-    const fab = document.getElementById("fab");
+  <label>Telefone</label>
+  <input type="tel" id="telefone" placeholder="(61) 9575-6256" required>
 
-    fab.addEventListener("click", () => {
-      const box = document.createElement("div");
-      box.classList.add("servico-box");
+  <label>Escolha a data</label>
+  <div class="slideshow">
+    <button type="button" id="prev">◀</button>
+    <div id="datas"></div>
+    <button type="button" id="next">▶</button>
+  </div>
 
-      box.innerHTML = `
-        <label>Nome do Serviço:</label>
-        <input type="text" placeholder="Ex: Corte Feminino" />
+  <label>Horários disponíveis</label>
+  <div id="horarios"></div>
 
-        <label>Preço:</label>
-        <input type="text" placeholder="Ex: R$ 45,00" />
+  <input type="hidden" id="data" required>
 
-        <button class="delete-btn" style="margin-top:10px; padding:8px 12px; background:#ff4444; color:white; border:none; border-radius:6px; cursor:pointer;">Excluir</button>
-      `;
+  <label>Serviços</label>
+  <div class="servico"><input type="checkbox" value="Corte de Cabelo"> Corte de Cabelo (R$20)</div>
+  <div class="servico"><input type="checkbox" value="Coloração"> Coloração (R$23)</div>
+  <div class="servico"><input type="checkbox" value="Hidratação"> Hidratação (R$20)</div>
 
-      // botão excluir
-      const del = box.querySelector('.delete-btn');
-      del.addEventListener('click', () => {
-        box.remove();
-      });
+  <button type="submit">Enviar</button>
+  <p id="mensagem"></p>
+</form>
 
-      area.appendChild(box);
-    });
-    document.getElementById('enviar').addEventListener('click', () => {
-    alert('Serviços enviados com sucesso! (a funcionalidade real pode ser conectada ao banco de dados)');
+<script>
+let inicio = 0;
+const diasMostrar = 7;
+const datasDiv = document.getElementById("datas");
+const horariosDiv = document.getElementById("horarios");
+const inputData = document.getElementById("data");
+
+function gerarDatas() {
+  datasDiv.innerHTML = "";
+  for (let i = inicio; i < inicio + diasMostrar; i++) {
+    let d = new Date();
+    d.setDate(d.getDate() + i);
+
+    if (d.getDay() === 0) continue; // domingo
+
+    const dia = String(d.getDate()).padStart(2, '0');
+    const mes = String(d.getMonth()+1).padStart(2, '0');
+    const ano = d.getFullYear();
+
+    const div = document.createElement("div");
+    div.className = "data";
+    div.textContent = `${dia}/${mes}`;
+
+    div.onclick = () => {
+      document.querySelectorAll(".data").forEach(e => e.classList.remove("active"));
+      div.classList.add("active");
+      carregarHorarios(`${ano}-${mes}-${dia}`);
+    };
+
+    datasDiv.appendChild(div);
+  }
+}
+
+document.getElementById("next").onclick = () => { inicio++; gerarDatas(); };
+document.getElementById("prev").onclick = () => { if (inicio > 0) inicio--; gerarDatas(); };
+
+function gerarHorarios() {
+  let h = [];
+  for (let i=7;i<12;i++) h.push(`${String(i).padStart(2,'0')}:00`);
+  for (let i=13;i<18;i++) h.push(`${String(i).padStart(2,'0')}:00`);
+  return h;
+}
+
+function getAgendamentos() {
+  return JSON.parse(localStorage.getItem("agendamentos") || "[]");
+}
+
+function carregarHorarios(data) {
+  horariosDiv.innerHTML = "";
+  gerarHorarios().forEach(h => {
+    const dataCompleta = `${data}T${h}`;
+    const ocupado = getAgendamentos().some(a => a.data === dataCompleta);
+
+    const div = document.createElement("div");
+    div.className = "hora";
+    div.textContent = h;
+
+    if (ocupado) {
+      div.classList.add("ocupado");
+    } else {
+      div.onclick = () => {
+        document.querySelectorAll(".hora").forEach(e => e.classList.remove("selecionado"));
+        div.classList.add("selecionado");
+        inputData.value = dataCompleta;
+      };
+    }
+
+    horariosDiv.appendChild(div);
   });
+}
+
+gerarDatas();
+
+document.getElementById("agendamentoForm").onsubmit = e => {
+  e.preventDefault();
+
+  const nome = nome.value;
+  const telefone = telefone.value;
+  const data = inputData.value;
+
+  const servicos = [...document.querySelectorAll('input[type="checkbox"]:checked')]
+    .map(e => e.value).join(", ");
+
+  if (!data || !servicos) {
+    mensagem.textContent = "Escolha data, horário e serviço.";
+    return;
+  }
+
+  const ag = getAgendamentos();
+  ag.push({nome, telefone, data, servicos});
+  localStorage.setItem("agendamentos", JSON.stringify(ag));
+
+  window.open(`https://wa.me/556195756256?text=${encodeURIComponent(
+    `Novo agendamento:\n${nome}\n${telefone}\n${servicos}\n${data}`
+  )}`);
+
+  mensagem.style.color = "green";
+  mensagem.textContent = "Agendamento realizado!";
+  e.target.reset();
+};
 </script>
+
 </body>
 </html>

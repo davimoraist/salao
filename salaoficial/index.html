@@ -13,9 +13,9 @@
             <h1>login</h1>
             <form action="cliemtelogin.php" method="POST" autocomplete="off">
                 <label for="email">E-mail</label>
-                <input type="email" name="email" id="email" autocomplete="off">
+                <input type="email" name="email" id="loginemail" autocomplete="off">
                 <label for="senha">Senha</label>
-                <input type="password" name="senha" id="senha" autocomplete="off">
+                <input type="password" name="senha" id="loginsenha" autocomplete="off">
                 <button type="submit">Entrar</button>
             </form>
         </div>
@@ -25,16 +25,19 @@
                 <label for="nome">Nome completo</label>
                 <input type="text" name="nome" id="nome" autocomplete="off">
                 <label for="email">E-mail</label>
-                <input type="email" name="email" id="email" autocomplete="off">
+                <input type="email" name="email" id="contraemail" autocomplete="off">
                 <label for="senha">Senha</label>
-                <input type="password" name="senha" id="senha" autocomplete="off">
+                <input type="password" name="senha" id="contrasenha" autocomplete="off">
                 <button type="submit">Entrar</button>
             </form>
         </div>
 
-        <div id="animacao">
-            <button onclick="irParaLogin()">Login</button>
-            <button onclick="irParaCadastro()">Cadastro</button>
+         <div id="animacao">
+            <img src="imagem/Maria.png" alt="">
+            <h2>seja bem-vindo!</h2>
+            <p> Cuidando da beleza da <br> mulher com carinho e <br> excelência.</p>
+            <div class="linha"></div>
+            <button id="btnTroca" onclick="trocarPainel()">Cadastro</button>
         </div>
     </div>
 

@@ -1,9 +1,12 @@
-const clientes = document.querySelector('.clientes');
+ const clientes = document.querySelector('.clientes');
+const btnTroca = document.getElementById('btnTroca');
 
-function irParaCadastro(){
-    clientes.classList.add('ativo');
-}
+function trocarPainel() {
+    clientes.classList.toggle('ativo');
 
-function irParaLogin(){
-    clientes.classList.remove('ativo');
+    if (clientes.classList.contains('ativo')) {
+        btnTroca.textContent = 'Login';
+    } else {
+        btnTroca.textContent = 'Cadastro';
+    }
 }

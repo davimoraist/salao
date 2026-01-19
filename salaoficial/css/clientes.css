@@ -1,0 +1,52 @@
+ @charset "UTF-8";
+
+/* Import das fontes */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+/* VARIÁVEIS */
+:root {
+    --cor1: #c88c8e; 
+    --cor2: #734440;
+    --cor3: #bf93be;
+    --cor4: #a67272;
+    --cor5: #c89991;
+    --cor5: #EDB8AE;
+    --fonte-logo: "Great Vibes", cursive;
+    --fonte-titulo: "Cinzel", serif;
+    --fonte-texto: "Nunito", sans-serif;
+}
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+    font-family: var(--fonte-texto);
+    background-color: #fafafa;
+}
+
+.clientes{
+    margin: 100px;
+    padding: 20px;
+    
+    display: flex;
+    border: var(--cor5) 8px solid;   
+}
+
+.clientes >  .contra{
+    background-color: #a67272;
+    margin: 30px;
+    padding: 20px;
+}
+
+.clientes >  .contra > form > input{
+    margin: 5px;
+    padding: 5px;
+    display: block;
+    flex-direction: column;
+}

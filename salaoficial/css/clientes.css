@@ -38,11 +38,11 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
 
-    padding: 20px;
+    padding: 26px;
 
     display: flex;
     align-items: stretch;
-    gap: 20px;
+    gap: 5px;
 
     border: var(--cor5) 8px solid;
     border-radius: 60px;
@@ -155,4 +155,44 @@ body {
     height: 2px;
     margin: 10px ;
     background-image: linear-gradient(to right, #fff, var(--cor6), #fff);
+}
+
+.clientes > #animacao > #textsalao{
+    margin: 30px;
+}
+
+.clientes > #animacao > #criar {
+    font-family: var(--fonte-texto);
+    font-size: 14px;
+    margin: 10px;
+}
+
+.clientes #animacao a {
+    font-family: var(--fonte-texto);
+    font-size: 14px;
+    text-decoration: none;
+    color: #1a73e8;
+}
+
+.clientes #animacao a:hover {
+    text-decoration: underline;
+}
+
+.clientes #animacao .termos {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.clientes #animacao .termos input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.clientes #animacao .politica {
+    display: block;
+    margin-top: 10px;
+    font-size: 13px;
 }

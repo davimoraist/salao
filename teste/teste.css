@@ -32,22 +32,38 @@ body {
     background-color: #fafafa;
 }
 
-.clientes{
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+ /* =============================== */
+/* RESPONSIVO - TABLET E MOBILE */
+/* =============================== */
 
-    padding: 26px;
+@media (max-width: 900px) {
 
-    display: flex;
-    align-items: stretch;
-    gap: 5px;
+    .clientes {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
 
-    border: var(--cor5) 8px solid;
-    border-radius: 60px;
-    background-color: #fff;
+        width: 100%;
+        max-width: 420px;
+
+        flex-direction: column;
+        padding: 20px;
+
+        border-radius: 40px;
+    }
+}
+
+/* =============================== */
+/* MOBILE PEQUENO */
+/* =============================== */
+
+@media (max-width: 480px) {
+
+    .clientes {
+        padding: 16px;
+        border-radius: 30px;
+    }
 }
 
 /* BLOCO LOGIN / CADASTRO */

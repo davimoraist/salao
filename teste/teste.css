@@ -1,4 +1,4 @@
- @charset "UTF-8";
+  @charset "UTF-8";
 
 /* Import das fontes */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
@@ -32,38 +32,30 @@ body {
     background-color: #fafafa;
 }
 
- /* =============================== */
-/* RESPONSIVO - TABLET E MOBILE */
-/* =============================== */
-
-@media (max-width: 900px) {
-
-    .clientes {
-        position: relative;
-        top: auto;
-        left: auto;
-        transform: none;
-
-        width: 100%;
-        max-width: 420px;
-
-        flex-direction: column;
-        padding: 20px;
-
-        border-radius: 40px;
-    }
+html, body {
+     margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
 }
 
-/* =============================== */
-/* MOBILE PEQUENO */
-/* =============================== */
+.clientes{
+    
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 
-@media (max-width: 480px) {
+    padding: 26px;
 
-    .clientes {
-        padding: 16px;
-        border-radius: 30px;
-    }
+    display: flex;
+    align-items: stretch;
+    gap: 5px;
+
+    border: var(--cor5) 8px solid;
+    border-radius: 60px;
+    background-color: #fff;
 }
 
 /* BLOCO LOGIN / CADASTRO */
@@ -114,15 +106,14 @@ body {
 /* PAINEL ANIMADO */
  #animacao {
     position: absolute;
-    display: block;
+    display: flex;
     flex-direction: column;
     top: -6px;
     right: -6px;
     width: 391px;
-    height: 102%;
+    height: 51vh;
     background-color: var(--cor6);
     border-radius: 0px 55px 55px 0px;
-    display: flex;
     justify-content: center;
     align-items: center;
     transition: transform 1s ease-in-out;
@@ -134,6 +125,7 @@ body {
 }
 
 #animacao button {
+    
     width: 170px;
     height: 46px;
 
@@ -219,4 +211,121 @@ body {
 #animacao.cadastro {
     border-radius: 55px 0px 0px 55px;
 }
+ 
+ 
+/* Celulares (média arredondada pra cima) */
+/* MOBILE */
+@media (max-width: 768px) {
 
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .clientes {
+        display: flex;
+        flex-direction: column;
+
+        width: 100%;
+        max-width: 360px;
+        height: 100vh;
+
+        padding: 12px;
+        align-items: center;
+
+        box-sizing: border-box;
+        border-radius: 25px;
+        overflow: hidden;
+    }
+    
+    #animacao,
+    .clientes > .contra {
+        width: 100%;
+        padding: 14px;
+        box-sizing: border-box;
+    }
+
+    /* 🔥 CENTRALIZA O FORM */
+    .clientes > .contra > form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* 🔥 CENTRALIZA OS INPUTS */
+    .clientes > .contra > form > input {
+        width: 90%;
+        max-width: 300px;
+        margin: 10px auto;
+        display: block;
+    }
+}
+
+/* ANIMAÇÃO MOBILE */
+@media (max-width: 768px) {
+
+    .clientes.ativo #animacao {
+        transform: translateY(100%);
+        margin: 0;
+    }
+
+    #animacao.login {
+        border-radius: 55px 55px 0 0;
+    }
+
+    #animacao.cadastro {
+        border-radius: 0 0 55px 55px;
+    }
+}
+
+/* TABLETS */
+@media (max-width: 1024px) {
+
+    .clientes {
+        display: flex;
+        flex-direction: column;
+
+        align-items: center;
+
+        width: 100%;
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 16px;
+    }
+
+    #animacao {
+        margin: 5px;
+        padding: 20px;
+        border-radius: 55px 55px 0 0;
+
+        width: 100%;
+        height: 50%;
+    }
+
+    .clientes > .contra {
+        padding: 24px;
+        width: 100%;
+    }
+
+    .clientes > .contra > h1 {
+        margin: 16px;
+        text-align: center;
+    }
+
+    /* 🔥 CENTRALIZA FORM E INPUTS NO TABLET */
+    .clientes > .contra > form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .clientes > .contra > form > input {
+        width: 90%;
+        max-width: 320px;
+        margin: 10px auto;
+        display: block;
+    }
+}

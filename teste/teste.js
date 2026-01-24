@@ -19,7 +19,7 @@ function trocarPainel() {
         textcriar.textContent = 'Já tem conta? Acesse sua conta';
 
         animacao.classList.add('cadastro');
-        animacao.classList.remove('login');
+        animacao.classList.remove('login')
     } else {
         btnTroca.textContent = 'Conta';
         textoPainel.textContent = 'seja bem-vindo!';

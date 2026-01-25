@@ -1,13 +1,151 @@
-body{
-    font-family: Arial, Helvetica, sans-serif;
+   @charset "UTF-8";
+
+/* Import das fontes */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+/* VARIÁVEIS */
+:root {
+    --cor1: #c88c8e; 
+    --cor2: #734440;
+    --cor3: #bf93be;
+    --cor4: #a67272;
+    /*usar*/
+    --cor5: #EDB8AE;
+    --cor6: #C89991;
+    
+    --fonte-logo: "Great Vibes", cursive;
+    --fonte-titulo: "Cinzel", serif;
+    --fonte-texto: "Nunito", sans-serif;
 }
 
-.clientes{
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--fonte-texto);
+}
+
+body {
     display: flex;
-    align-items: stretch;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+      background-color: #9191c5;
 }
 
-.clientes > .conta{
-    display: block;
+.cliente{
+    position: relative;
+    width: 850px;
+    height: 550px;
+    background: white;
+    border-radius: 50px;
+    overflow: hidden;    
+}
+
+.conta{
+    position: absolute;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    
+    display: flex;
+    align-items: center;
+    color: #333;
+    text-align: center;
+    padding: 40px;
+    z-index: 1;
+}
+
+ #criar{
+    visibility: hidden;
+}
+
+form{
+    width: 100%;
+}
+
+.cliente h1{
+    font-size: 36px;
+    margin: -10px 0;
+}
+
+.input-box{
+    position: relative;
+    margin: 30px 0;
+}
+
+.input-box input{
+    width: 100%;
+    background: #eee;
+    border-radius: 8px;  
+    padding: 30px 50px 13px 20px;
+    border: none;
+    outline: none;
+    font-size: 20px; 
+}
+
+.input-box input::placeholder{
+    color: #888;
+    font-weight: 400;
+}
+
+.input-box span{
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%)
+}
+
+button{
+    width: 100%;
+    height: 48px;
+    background: #bf93be;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px; 
+    color: white;   
+}
+
+.animacao{
+    position: absolute;
+    width: 100%;
+    height: 100%;   
+}
+
+.animacao::before{
+    content: '';
+    position: absolute;
+    left: -250%;
+    width: 300%;
+    height: 100%;
+    background: #a67272;
+    border-radius: 160px;
+    z-index: 2;
+}
+.panel{
+    position: absolute;
+    width: 50%;
+    height: 100%;
+  /*  background-color: seagreen;*/ 
+    color: white;
+    display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+  
+}
+
+.panel p{
+    margin-bottom: 20px;
+}
+
+.panel .entrar{
+    width: 160px;
+    height: 46px;
+    
 }

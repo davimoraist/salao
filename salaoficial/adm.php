@@ -11,6 +11,7 @@ if (isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/adm.css">
+    <link rel="shortcut icon" href="favicon_io/favicon.ico" type="image/x-icon">
     <title>ADM DO SALÃO</title> 
 </head>
 <body>
@@ -25,9 +26,12 @@ if (isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
 
     <div class="menu">
         <button onclick="mostrarTela('agenda')" class="active">Agenda</button>
+        <button onclick="mostrarTela('cliente')">Clientes</button>
         <button onclick="mostrarTela('servicos')">Serviços e preços</button>
-        <button onclick="mostrarTela('dados')">Dados</button>
-        <button onclick="mostrarTela('config')">Configurações</button>
+        <button onclick="mostrarTela('servico')">Serviços</button>
+        <button onclick="mostrarTela('faturamento')">Faturamento</button>
+        <button onclick="mostrarTela('grafico')">Gráficos</button>
+         <button onclick="mostrarTela('config')">Configurações</button>
         <button><a href="sair.php">Sair</a></button>
     </div>
 
@@ -44,10 +48,25 @@ if (isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
             <div id="servicos-area"></div>
             <button id="fab">+</button>
         </div>
+        
+        <div id="servico" class="tela">
+            <h1>Serviços</h1>
+            <p>Configurações do sistema.</p>
+        </div>
 
-        <div id="dados" class="tela"> 
-            <h1>Dados</h1>
-            <p>Informações cadastradas.</p>
+        <div id="cliente" class="tela"> 
+            <h1>clienta</h1>
+            <p>Configurações do sistema.</p>
+        </div>
+
+        <div id="faturamento" class="tela">
+            <h1>Faturamento</h1>
+            <p>Configurações do sistema.</p>
+        </div>
+
+        <div id="grafico" class="tela">
+            <h1>Gráficos</h1>
+            <p>Configurações do sistema.</p>
         </div>
 
         <div id="config" class="tela">

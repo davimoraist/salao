@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width= , initial-scale=1.0">
     <link rel="stylesheet" href="css/ficha.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>Document</title>
 </head>
 <body>
@@ -11,6 +12,7 @@
        <h1>ficha anamnese</h1>
        <h2>alongamento de unhas</h2> 
        <form action="#" class="form-box">
+        <!--==dado pessoal==-->
          <div>
              <label for="idade">data de nascimento</label>
              <input type="date" name="idade" id="idade">
@@ -27,8 +29,9 @@
              <label for="cpf">CPF</label>
              <input type="cpf" name="cpf" id="cpf">
          </div>
+         <!--==Como Nos Conheceu==-->
         <div>
-             <p>Como Nos Conheceu</p>
+             <p>Como Nos Conheceu?</p>
              <div>
                  <input type="radio" name="Como" id="facebook">
                  <label for="facebook">Facebook</label>
@@ -47,39 +50,156 @@
                  <label for="outros">Outros</label>
                  <input type="text" name="outros" > 
              </div>
-             <div>
-                <p>Tem Diabets?</p>
-                <input type="radio" name="diabets" id="sim">
-                <label for="sim">Sim</label>
-                <input type="radio" name="diabets" id="nao">
-                <label for="nao">Não</label>
+           
+        </div> 
+        <!--==Tem Diabets==-->
+            <div>
+                <p>Tem Diabetes?</p>
+                <div>
+                    <input type="radio" name="diabets" id="sim">
+                    <label for="sim">Sim</label>
+                </div>
+                <div>
+                    <input type="radio" name="diabets" id="nao">
+                    <label for="nao">Não</label>
+                </div>
              </div>
-               <div>
+             <!--==É Gestante?==-->
+            <div>
                 <p>É Gestante?</p>
-                <input type="radio" name="Gestante" id="esim">
-                <label for="esim">Sim</label>
-                <input type="radio" name="Gestante" id="enao">
-                <label for="enao">Não</label>
-             </div>
-               <div>
+                <div>
+                    <input type="radio" name="Gestante" id="esim">
+                    <label for="esim">Sim</label>
+                </div>
+                <div>
+                    <input type="radio" name="Gestante" id="enao">
+                    <label for="enao">Não</label>
+                </div>
+              
+             </div>  
+             <!--==Possui Alergias a esmalte, cosmético ou algum outro componente?==-->
+            <div>
                 <p>Possui Alergias a esmalte, cosmético ou algum outro componente?</p>
-                <input type="radio" name="Alergias" id="psim">
-                <label for="psim">Sim</label>
-                <input type="radio" name="Alergias" id="pnao">
-                <label for="pnao">Não</label>
+                <div>
+                    <input type="radio" name="Alergias" id="psim">
+                    <label for="psim">Sim</label>
+                </div>
+                <div>
+                    <input type="radio" name="Alergias" id="pnao">
+                    <label for="pnao">Não</label>
+                </div>
+                <div>
+                    <label for="Especifique">Especifique:</label>
+                    <input type="text" name="Especifique" id="Especifique-Alergias">
+                </div>
              </div>
-             <div>
-                <label for="Especifique">Especifique:</label>
-                <input type="text" name="Especifique" id="Especifique">
-             </div>
+             <!--==Costuma retirar a cunticula (eponiquio)?==-->
              <div> 
-                <p>Costuma retirar a cunticula (eponiquio)?</p>
-                <input type="radio" name="Alergias" id="csim">
-                <label for="csim">Sim</label>
-                <input type="radio" name="Alergias" id="cnao">
-                <label for="cnao">Não</label>
+                <div>
+                    <p>Costuma retirar a cunticula (eponiquio)?</p>
+                    <input type="radio" name="Alergias" id="csim">
+                    <label for="csim">Sim</label>
+                </div>
+                <div>
+                    <input type="radio" name="Alergias" id="cnao">
+                    <label for="cnao">Não</label>
+                </div>
              </div>
+            <!--==>Possui algum problema de onicimicose (micose, fundo ou algum outro)?==-->
+             <div>  
+                <p>Possui algum problema de onicimicose (micose, fundo ou algum outro)?</p>
+                <div>
+                    <input type="radio" name="Alergias" id="osim">
+                    <label for="osim">Sim</label>
+                </div>
+                <div>
+                    <input type="radio" name="Alergias" id="onao">
+                    <label for="onao">Não</label>
+                </div>
+                <div>
+                    <label for="Especifique">Especifique:</label>
+                    <input type="text" name="Especifique" id="Especifique-problema">
+                </div>
+            </div>
+             <!--==Fazer uso de algum medicamento?==-->
+             <div>
+                <p>Fazer uso de algum medicamento?</p>
+                <div>
+                    <input type="radio" name="Medicamento" id="msim">
+                    <label for="msim">Sim</label>
+                </div>
+                <div>
+                    <input type="radio" name="Medicamento" id="mnao">
+                    <label for="mnao">Não</label>
+                </div>
+                 <div>
+                    <label for="qual">Qual</label>
+                    <input type="text" name="Qual" id="qual">
+                </div>
+             </div>
+            <!--==A lãmine ungueal apresenta==-->
+            <div>
+                <p>A lãmine ungueal apresenta:</p>
+                <div>
+                    <input type="radio" name="Descamação" id="Descamação"> 
+                    <label for="Descamação">Descamação</label>
+                </div>
+
+                <div>
+                    <input type="radio" name="estrias" id="estrias"> 
+                    <label for="estrias">Estrias</label>
+                </div>
+                <div>
+                    <input type="radio" name="manche" id="manche"> 
+                    <label for="manche">manche</label>
+                </div>
+                <div>
+                    <input type="radio" name="descolamento" id="descolamento"> 
+                    <label for="descolamento">Descolamento</label>
+                </div>
+                <div>
+                    <input type="radio" name="outro" id="outro"> 
+                    <label for="outro">Outro</label>
+                    <input type="text" name="outro" id="outros">
+                </div>
+            </div>
+            <!--==possui onicocriptose unha encravada==-->
+            <div>
+                <p>possui onicocriptose (unha encravada)?</p>
+                <div>
+                  <input type="radio" name="sim" id="unhasim"> 
+                    <label for="sim">Sim</label>  
+                </div>
+                <div>
+                    <input type="radio" name="nao" id="unhanao"> 
+                    <label for="nao">Não</label>
+                </div>
+            </div>
+            <!--==possui onicofagia hábito de roer as Unhas==-->
+            <div>
+                <p>possui onicofagia (hábito de roer as unhas)?</p>
+                <div>
+                    <input type="radio" name="sim" id="roersim"> 
+                    <label for="sim">Sim</label>
+                </div>  
+                <div>
+                    <input type="radio" name="nao" id="roernao"> 
+                    <label for="nao">Não</label>
+                </div>
+            </div>
+        <!--pratica esporte de impacto-->
+        <div>
+            <p>pratica esporte de impacto?</p>
+            <div>
+                <input type="radio" name="sim" id="esim"> 
+                <label for="sim">Sim</label>
+            </div>  
+            <div>
+                <input type="radio" name="nao" id="nao"> 
+                <label for="nao">Não</label>
+            </div>
         </div>
+        <!--== ==-->
        </form>
     </div>
 </body>

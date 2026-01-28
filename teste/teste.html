@@ -1,51 +1,232 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+ <!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mariar tavares nail design </title>
-    <link rel="shortcut icon" href="favicon_io/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="teste.css">
+<meta charset="UTF-8">
+<title>Ficha de Anamnese – Alongamento de Unhas</title>
+<style>
+* {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #f5f5f5;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    background: #ffffff;
+    margin: auto;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #b76e79;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #444;
+    border-bottom: 2px solid #b76e79;
+    padding-bottom: 5px;
+    margin-top: 30px;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.radio-group {
+    margin-top: 10px;
+}
+
+.radio-group label {
+    font-weight: normal;
+    margin-right: 15px;
+}
+
+.term {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+button {
+    width: 100%;
+    margin-top: 30px;
+    padding: 15px;
+    background: #b76e79;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #9c5a64;
+}
+</style>
 </head>
 <body>
-    <div class="clientes">
-        <div class="contra" id="login">
-            <h1>login</h1>
-            <form action="cliemtelogin.php" method="POST" autocomplete="off">
-                <label for="email">E-mail</label>
-                <input type="email" name="email" id="loginemail" autocomplete="off">
-                <label for="senha">Senha</label>
-                <input type="password" name="senha" id="loginsenha" autocomplete="off">
-                <button type="submit">Entrar</button>
-            </form>
+
+<div class="container">
+    <h1>Ficha de Anamnese</h1>
+    <p style="text-align:center;">Alongamento de Unhas</p>
+
+    <h2>Dados da Cliente</h2>
+    <div class="group">
+        <div>
+            <label>Nome Completo</label>
+            <input type="text">
         </div>
-        <div class="contra" id="contra">
-            <h1>contra</h1>
-            <form action="clientecontra.php" method="POST" autocomplete="off">
-                <label for="nome">Nome completo</label>
-                <input type="text" name="nome" id="nome" autocomplete="off">
-                <label for="email">E-mail</label>
-                <input type="email" name="email" id="contraemail" autocomplete="off">
-                <label for="senha">Senha</label>
-                <input type="password" name="senha" id="contrasenha" autocomplete="off">
-                <button type="submit">Entrar</button>
-            </form>
+        <div>
+            <label>Data de Nascimento</label>
+            <input type="date">
         </div>
-
-         <div id="animacao">
-            <img src="img/Maria.png" alt="">
-             <h2 id="textoPainel">seja bem-vindo!</h2>
-            <p id="textsalao"> Cuidando da beleza da <br> mulher com carinho e <br> excelência.</p>
-            <div class="linha"></div>
-            <p id="criar">Ainda não tem uma conta? Crie uma.</p>
-            <button id="btnTroca" onclick="trocarPainel()">Cadastro</button>
-
-            <p class="termos"><input type="checkbox" name="termo" id="termo"><a href="#">Termo de Uso</a></p>
-            <a href="#" class="politica">Política de Privacidade</a>
-
+        <div>
+            <label>Telefone</label>
+            <input type="tel">
+        </div>
+        <div>
+            <label>Instagram</label>
+            <input type="text">
+        </div>
+        <div>
+            <label>Profissão</label>
+            <input type="text">
         </div>
     </div>
 
-    <script src="teste.js"></script>
+    <h2>Histórico de Unhas</h2>
+    <label>Já realizou alongamento?</label>
+    <div class="radio-group">
+        <label><input type="radio" name="alongamento"> Sim</label>
+        <label><input type="radio" name="alongamento"> Não</label>
+    </div>
+
+    <label>Tipo de alongamento já utilizado</label>
+    <select>
+        <option>Selecione</option>
+        <option>Gel</option>
+        <option>Fibra de Vidro</option>
+        <option>Acrílico</option>
+        <option>Tips</option>
+        <option>Nunca fiz</option>
+    </select>
+
+    <label>Possui alergia a algum produto?</label>
+    <textarea></textarea>
+
+    <label>Já teve fungos, inflamações ou descolamento?</label>
+    <textarea></textarea>
+
+    <h2>Saúde</h2>
+    <div class="group">
+        <div>
+            <label>Gestante?</label>
+            <select>
+                <option>Não</option>
+                <option>Sim</option>
+            </select>
+        </div>
+        <div>
+            <label>Diabetes?</label>
+            <select>
+                <option>Não</option>
+                <option>Sim</option>
+            </select>
+        </div>
+        <div>
+            <label>Uso de medicamentos contínuos?</label>
+            <select>
+                <option>Não</option>
+                <option>Sim</option>
+            </select>
+        </div>
+    </div>
+
+    <h2>Preferências</h2>
+    <div class="group">
+        <div>
+            <label>Tamanho desejado</label>
+            <select>
+                <option>Curto</option>
+                <option>Médio</option>
+                <option>Longo</option>
+                <option>Extra Longo</option>
+            </select>
+        </div>
+        <div>
+            <label>Formato</label>
+            <select>
+                <option>Quadrado</option>
+                <option>Oval</option>
+                <option>Amendoado</option>
+                <option>Stiletto</option>
+                <option>Bailarina</option>
+            </select>
+        </div>
+        <div>
+            <label>Manutenção</label>
+            <select>
+                <option>15 dias</option>
+                <option>20 dias</option>
+                <option>30 dias</option>
+            </select>
+        </div>
+    </div>
+
+    <label>Cor / Estilo desejado</label>
+    <textarea></textarea>
+
+    <h2>Termo de Responsabilidade</h2>
+    <div class="term">
+        Declaro que todas as informações acima são verdadeiras e estou ciente
+        dos cuidados necessários com o alongamento de unhas, incluindo manutenções
+        periódicas e possíveis riscos.
+    </div>
+
+    <div class="group">
+        <div>
+            <label>Assinatura da Cliente</label>
+            <input type="text">
+        </div>
+        <div>
+            <label>Data</label>
+            <input type="date">
+        </div>
+    </div>
+
+    <button>Salvar Ficha</button>
+</div>
+
 </body>
 </html>

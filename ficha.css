@@ -1,0 +1,125 @@
+ @charset "UTF-8";
+
+/* Import das fontes */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+/* VARIÁVEIS */
+:root {
+    --cor1: #c88c8e; 
+    --cor2: #734440;
+    --cor3: #bf93be;
+    --cor4: #a67272;
+    --cor5: #EDB8AE;
+    --cor6: #C89991;
+    
+    --fonte-logo: "Great Vibes", cursive;
+    --fonte-titulo: "Cinzel", serif;
+    --fonte-texto: "Nunito", sans-serif;
+}
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--fonte-texto);
+}
+
+/* BODY */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--cor5), var(--cor3));
+}
+
+/* CONTAINER PRINCIPAL */
+.ficha {
+    margin: 20px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    max-width: 800px;
+    width: 100%;
+}
+
+/* FORM */
+.ficha .form-box {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 40px;
+    gap: 20px;
+}
+
+/* TÍTULOS */
+.ficha h1 {
+    font-family: var(--fonte-titulo);
+    text-align: center;
+    color: var(--cor2);
+    margin-bottom: 10px;
+}
+
+/* GRUPOS */
+.ficha .form-box > div {
+    padding: 15px;
+    border-radius: 12px;
+    background-color: rgba(200, 140, 142, 0.08);
+}
+
+/* TEXTOS */
+.ficha label,
+.ficha p {
+    font-size: 16px;
+    color: var(--cor2);
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* INPUTS */
+.ficha input[type="text"],
+.ficha input[type="tel"],
+.ficha input[type="date"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--cor6);
+    outline: none;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.ficha input:focus {
+    border-color: var(--cor3);
+    box-shadow: 0 0 0 2px rgba(191,147,190,0.3);
+}
+
+/* RADIO */
+.ficha input[type="radio"] {
+    margin-right: 6px;
+    accent-color: var(--cor4);
+}
+
+/* ESPAÇAMENTO DOS RADIOS */
+.ficha .form-box div div {
+    margin-top: 8px;
+}
+.ficha .form-box button {
+    width: 100%;
+    height: 48px;
+    background-color: var(--cor6);
+    border: none;
+    border-radius: 28px;
+    cursor: pointer;
+    font-size: 18px; 
+    color: white;   
+}
+ 
+/* RESPONSIVO */
+@media (max-width: 600px) {
+    .ficha .form-box {
+        padding: 20px;
+    }
+}

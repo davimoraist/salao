@@ -116,6 +116,10 @@ body {
     font-size: 18px; 
     color: white;   
 }
+
+.ficha .form-box button:hover {
+    background-color: var(--cor4);
+}
  
 /* RESPONSIVO */
 @media (max-width: 600px) {

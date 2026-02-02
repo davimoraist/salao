@@ -89,7 +89,7 @@ if (isset($_POST['login'])) {
             $_SESSION['email']     = $cliente['email'];
 
             // Redirecionamento
-            header("Location: anamnese.php");
+            header("Location: anamnes.php");
             exit();
         }
     }

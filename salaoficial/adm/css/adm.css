@@ -123,7 +123,7 @@ body {
     flex-direction: column;
     gap: 15px;
 }
-
+ 
 /* BOTÃO FLUTUANTE (FAB) */
 #fab {
     position: fixed;
@@ -151,3 +151,4 @@ body {
     background-color: var(--cor1);
     transform: scale(1.1);
 }
+

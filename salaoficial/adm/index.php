@@ -16,8 +16,7 @@
             <h1>Login ADM</h1>
 
             <label for="email">E-mail</label>
-            <input 
-                type="email" 
+            <input type="email" 
                 name="email" 
                 id="email" 
                 autocomplete="off"

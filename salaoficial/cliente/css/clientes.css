@@ -222,6 +222,11 @@ button{
 .termos a{
     text-decoration: none;
 }
+
+.mostra{
+    display: flex;
+    margin-top: 18px;
+}
 /* RESPONSIVO */
  
 @media screen and (max-width: 650px) {

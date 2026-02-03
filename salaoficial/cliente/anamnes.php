@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['idcliente'])) {
+    header("Location: cliente.php");
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>

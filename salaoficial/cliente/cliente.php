@@ -28,7 +28,6 @@ function isActiveForm($formName, $activeForm) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-
     <link rel="stylesheet" href="css/clientes.css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
@@ -42,18 +41,19 @@ function isActiveForm($formName, $activeForm) {
 
     <!-- LOGIN -->
     <div class="conta <?= isActiveForm('login', $activeForm) ?>" id="login">
-        <form action="login.php" method="POST" autocomplete="off">
+        <form action="criarconta.php" method="POST" autocomplete="off">
             <h1>Conecte-se</h1>
 
             <?= showError($erros['login']); ?>
 
             <div class="input-box">
-                <input type="email" name="email" placeholder="E-mail" required>
+                <input type="email" name="email" placeholder="E-mail" required autocomplete="new-email">
                 <span class="material-symbols-outlined">mail</span>
             </div>
 
             <div class="input-box">
-                <input type="password" name="senha" placeholder="Senha" required>
+                <input type="password" name="senha" placeholder="Senha" required autocomplete="new-password">
+               <!-- <div class="mostra"><input type="checkbox" name="mostra" id="mostralogin"><p>Mostrar senha</p></div>-->
                 <span class="material-symbols-outlined">lock</span>
             </div>
 
@@ -69,17 +69,17 @@ function isActiveForm($formName, $activeForm) {
             <?= showError($erros['criar']); ?>
 
             <div class="input-box">
-                <input type="text" name="nome" placeholder="Nome completo" required>
+                <input type="text" name="nome" placeholder="Nome completo" required autocomplete="name">
                 <span class="material-symbols-outlined">person</span>
             </div>
 
             <div class="input-box">
-                <input type="email" name="email" placeholder="E-mail" required>
+                <input type="email" name="email" placeholder="E-mail" required autocomplete="new-email">
                 <span class="material-symbols-outlined">mail</span>
             </div>
 
             <div class="input-box">
-                <input type="password" name="senha" placeholder="Senha" required>
+                <input type="password" name="senha" placeholder="Senha" required autocomplete="new-password">
                 <span class="material-symbols-outlined">lock</span>
             </div>
 

@@ -1,4 +1,4 @@
- <?php
+<?php
 session_start();
 
 /* Mensagens de erro */
@@ -32,8 +32,7 @@ function isActiveForm($formName, $activeForm) {
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
     <!-- Material Symbols -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
 
@@ -51,11 +50,10 @@ function isActiveForm($formName, $activeForm) {
                 <span class="material-symbols-outlined">mail</span>
             </div>
 
-            <div class="input-box">
-                <input type="password" name="senha" placeholder="Senha" required autocomplete="new-password">
-               <!-- <div class="mostra"><input type="checkbox" name="mostra" id="mostralogin"><p>Mostrar senha</p></div>-->
-                <span class="material-symbols-outlined">lock</span>
-            </div>
+    <div class="input-box">
+            <input type="password" name="senha" placeholder="Senha" class="senha" required autocomplete="new-password">
+            <span class="material-symbols-outlined toggle-senha">visibility</span>
+    </div>
 
             <button type="submit" name="login">Entrar</button>
         </form>
@@ -78,10 +76,10 @@ function isActiveForm($formName, $activeForm) {
                 <span class="material-symbols-outlined">mail</span>
             </div>
 
-            <div class="input-box">
-                <input type="password" name="senha" placeholder="Senha" required autocomplete="new-password">
-                <span class="material-symbols-outlined">lock</span>
-            </div>
+        <div class="input-box">
+            <input type="password" name="senha" placeholder="Senha" class="senha" required autocomplete="new-password">
+            <span class="material-symbols-outlined toggle-senha">visibility</span>
+        </div>
 
             <button type="submit" name="criar">Criar conta</button>
         </form>
@@ -112,6 +110,6 @@ function isActiveForm($formName, $activeForm) {
 
 </div>
 
-<script src="contra.js"></script>
+  <script src="contra.js" defer></script>
 </body>
 </html>

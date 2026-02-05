@@ -1,4 +1,4 @@
-  @charset "UTF-8";
+ @charset "UTF-8";
 
 /* Import das fontes */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
@@ -32,6 +32,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background-color: white;
 }
 
 /* CONTAINER */
@@ -39,10 +40,10 @@ body {
     position: relative;
     width: 850px;
     height: 550px;
-    border: 4px solid var(--cor5);
     background: white;
     border-radius: 50px;
     margin: 20px;
+    border: 4px solid var(--cor5);
     overflow: hidden;
 }
 
@@ -119,14 +120,17 @@ body {
 button{
     width: 100%;
     height: 48px;
-    background-color: var(--cor6);
+    background: var(--cor6);
     border: none;
-    border-radius: 28px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 18px; 
     color: white;   
 }
 
+.entrar{
+    background-color: var(--cor5);
+}
 /* ANIMAÇÃO */
 .animacao{
     position: absolute;
@@ -198,12 +202,6 @@ button{
     height: 46px;
 }
 
-.panel button{
-    width: 100%;
-    background-color: var(--cor5);  
-}
-
-/* TERMOS */
 .termos {
     margin: 5px;
     padding: 0px;
@@ -222,10 +220,8 @@ button{
 .termos a{
     text-decoration: none;
 }
-
-.mostra{
-    display: flex;
-    margin-top: 18px;
+.toggle-senha{
+    cursor: pointer;
 }
 /* RESPONSIVO */
  

@@ -1,68 +1,169 @@
- 
-
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salão do João</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Agenda Salão</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#8b0c0c;
+}
+
+/* CARROSSEL */
+.carousel{
+    display:flex;
+    gap:25px;
+    overflow-x:auto;
+    padding:40px;
+    scroll-snap-type:x mandatory;
+}
+
+.carousel::-webkit-scrollbar{
+    display:none;
+}
+
+/* CARD */
+.card{
+    background:#fff;
+    min-width:240px;
+    border-radius:16px;
+    padding:25px 20px;
+    text-align:center;
+    scroll-snap-align:center;
+    box-shadow:0 8px 20px rgba(0,0,0,.2);
+    cursor:pointer;
+}
+
+/* DATA */
+.dia{
+    font-size:14px;
+    letter-spacing:2px;
+    color:#999;
+}
+
+.numero{
+    font-size:42px;
+    font-weight:bold;
+    margin:10px 0;
+}
+
+.mes{
+    font-size:18px;
+    color:#444;
+}
+
+/* HORÁRIOS */
+.horarios{
+    display:none;
+    margin-top:15px;
+}
+
+.horarios button{
+    margin:5px;
+    padding:8px 12px;
+    border:none;
+    border-radius:8px;
+    background:#eee;
+    cursor:pointer;
+}
+
+.horarios button:hover{
+    background:#25d366;
+    color:#000;
+}
+</style>
 </head>
+
 <body>
 
-  <form action="salao.php" method="post" id="agendamentoForm">
-    <h1>Salão do João</h1>
+<div class="carousel" id="carousel"></div>
 
-    <div class="dados-pessoais">
-      <label for="nome">Nome Completo</label>
-      <input type="text" name="nome" id="nome" required>
+ <script>
+const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
-      <label for="telefone">Telefone</label>
-      <input type="tel" name="telefone" id="telefone" placeholder="(61) 9575-6256" required>
+const carousel = document.getElementById("carousel");
 
-      <label for="data">Data e Hora</label>
-      <input type="datetime-local" name="data" id="data" required>
+let diasCriados = 0;
+let contador = 0;
 
-      <label for="alergia">Alergia</label>
-      <input type="text" name="alergia" id="alergia" placeholder="(opcional)">
-    </div>
+const agora = new Date();
+const hojeDia = agora.getDate();
+const hojeMes = agora.getMonth();
+const horaAtual = agora.getHours();
 
-    <div class="dados-agendamento">
-      <h2>Serviço</h2>
-      <div>
-        <input type="checkbox" name="servico" value="Corte de Cabelo">
-        <label>Corte de Cabelo</label>
-        <p>R$ 20,00</p>
-      </div>
-      <div>
-        <input type="checkbox" name="servico" value="Coloração e Luzes">
-        <label>Coloração e Luzes</label>
-        <p>R$ 23,00</p>
-      </div>
-      <div>
-        <input type="checkbox" name="servico" value="Hidratação e Tratamentos Capilares">
-        <label>Hidratação e Tratamentos Capilares</label>
-        <P><R1> 20.00</R1></P>
-      </div>
-      <div>
-        <input type="checkbox" name="servico" value="Progressiva e Alisamento">
-        <label>Progressiva e Alisamento</label>
-        <p>R$ 25,00</p>
-      </div>
-      <div>
-        <input type="checkbox" name="servico" value="Escova e Penteados">
-        <label>Escova e Penteados</label>
-        <P>R$ 30.00</P>
-      </div>
-    </div>
+// FUNÇÃO PARA GERAR HORÁRIOS
+function gerarHorarios(isHoje){
+    let html = "";
 
-    <div class="enviar">
-      <button type="submit" id="submit">Enviar</button>
-    </div>
+    // MANHÃ 07–12
+    for(let h = 7; h < 12; h++){
+        if(isHoje && h <= horaAtual) continue;
+        html += `<button onclick="whats(dataSelecionada,'${String(h).padStart(2,'0')}:00')">${String(h).padStart(2,'0')}:00</button>`;
+    }
 
-    <p id="mensagem" class="error"></p>
-  </form>
+    // TARDE 13–18
+    for(let h = 13; h <= 18; h++){
+        if(isHoje && h <= horaAtual) continue;
+        html += `<button onclick="whats(dataSelecionada,'${String(h).padStart(2,'0')}:00')">${String(h).padStart(2,'0')}:00</button>`;
+    }
 
-  <script src="script.js"></script>
+    return html;
+}
+
+// CRIA 6 DIAS (SEM DOMINGO)
+while(diasCriados < 6){
+    const data = new Date();
+    data.setDate(data.getDate() + contador);
+    contador++;
+
+    // BLOQUEIA DOMINGO
+    if(data.getDay() === 0) continue;
+
+    const isHoje =
+        data.getDate() === hojeDia &&
+        data.getMonth() === hojeMes;
+
+    const dataTexto = `${diasSemana[data.getDay()]} ${data.getDate()} de ${meses[data.getMonth()]}`;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    if(isHoje){
+        card.style.border = "3px solid #25d366";
+        card.style.background = "#f6fff9";
+    }
+
+    card.innerHTML = `
+        ${isHoje ? `<div style="color:#25d366;font-weight:bold;">HOJE</div>` : ""}
+        <div class="dia">${diasSemana[data.getDay()]}</div>
+        <div class="numero">${data.getDate()}</div>
+        <div class="mes">${meses[data.getMonth()]}</div>
+
+        <div class="horarios">
+            ${gerarHorarios(isHoje)}
+        </div>
+    `;
+
+    card.onclick = function(){
+        const h = this.querySelector(".horarios");
+        h.style.display = h.style.display === "block" ? "none" : "block";
+        window.dataSelecionada = dataTexto;
+    };
+
+    carousel.appendChild(card);
+    diasCriados++;
+}
+
+// WHATSAPP
+function whats(data, hora){
+    const telefone = "5599999999999"; // seu número
+    const msg = `Olá! Gostaria de agendar.\n📅 ${data}\n🕒 Hora: ${hora}`;
+    window.open(`https://wa.me/${telefone}?text=${encodeURIComponent(msg)}`);
+}
+</script>
+
 </body>
 </html>

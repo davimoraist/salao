@@ -152,3 +152,49 @@ body {
     transform: scale(1.1);
 }
 
+       /* ==========================
+   Estilo da tabela de clientes
+========================== */
+.tabela-clientes {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: 'Nunito', sans-serif;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tabela-clientes th, 
+.tabela-clientes td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.tabela-clientes th {
+    background-color: #4CAF50; /* verde do painel */
+    color: white;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.tabela-clientes tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.tabela-clientes tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.tabela-clientes tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+.tabela-clientes td {
+    font-size: 14px;
+    color: #333;
+}
+
+ 

@@ -23,6 +23,10 @@ if (!isset($_SESSION['idcliente'])) {
         <h1>alongamento de unhas</h1> 
          <!--==dados pessoais==-->
          <div>
+            <h2>Nome: <?php echo $_SESSION['nome']; ?></h2>
+         </div>
+
+         <div>
              <label for="idade">data de nascimento</label>
              <input type="date" name="idade" id="idade">
          </div>
@@ -34,12 +38,12 @@ if (!isset($_SESSION['idcliente'])) {
 
          <div>
              <label for="tel">Telefone</label>
-             <input type="tel" name="tel" id="tel">
+             <input type="tel" name="tel" id="tel" maxlength="14">
          </div>
 
          <div>
              <label for="cpf">CPF</label>
-             <input type="text" name="cpf" id="cpf">
+             <input type="text" name="cpf" id="cpf" maxlength="14">
          </div>
 
          <!--==Como Nos Conheceu==-->
@@ -208,5 +212,6 @@ if (!isset($_SESSION['idcliente'])) {
         <button>Enviar</button>
        </form>
     </div>
+    <script src="anamnes.js"></script>
 </body>
 </html>

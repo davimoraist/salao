@@ -20,60 +20,12 @@ if (!isset($_SESSION['idcliente'])) {
     <div class="ficha">
        
        <form action="#" class="form-box">
-        <h1>alongamento de unhas</h1> 
+        <h1>ficha anamnese</h1> 
          <!--==dados pessoais==-->
          <div>
             <h2>Nome: <?php echo $_SESSION['nome']; ?></h2>
          </div>
 
-         <div>
-             <label for="idade">data de nascimento</label>
-             <input type="date" name="idade" id="idade">
-         </div>
-
-         <div>
-             <label for="endereco">Endereço</label>
-             <input type="text" name="endereco" id="endereco">
-         </div>
-
-         <div>
-             <label for="tel">Telefone</label>
-             <input type="tel" name="tel" id="tel" maxlength="14">
-         </div>
-
-         <div>
-             <label for="cpf">CPF</label>
-             <input type="text" name="cpf" id="cpf" maxlength="14">
-         </div>
-
-         <!--==Como Nos Conheceu==-->
-         <div>
-             <p>Como Nos Conheceu?</p>
-
-             <div>
-                 <input type="radio" name="como_conheceu" id="facebook">
-                 <label for="facebook">Facebook</label>
-             </div>
-
-             <div>
-                 <input type="radio" name="como_conheceu" id="instagram">
-                 <label for="instagram">Instagram</label>
-             </div>
-
-             <div>
-                 <input type="radio" name="como_conheceu" id="indicacao">
-                 <label for="indicacao">Indecação</label>
-                 <input type="text" name="indicacao_texto">
-             </div>
-
-             <div>
-                 <input type="radio" name="como_conheceu" id="outros_conheceu">
-                 <label for="outros_conheceu">Outros</label>
-                 <input type="text" name="outros_conheceu_texto"> 
-             </div>
-        </div>
-
-        <h1>ficha anamnese</h1>
 
         <!--==Tem Diabetes==-->
         <div>
@@ -212,6 +164,6 @@ if (!isset($_SESSION['idcliente'])) {
         <button>Enviar</button>
        </form>
     </div>
-    <script src="anamnes.js"></script>
+     
 </body>
 </html>

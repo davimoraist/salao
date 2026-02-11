@@ -55,7 +55,7 @@ if (isset($_POST['criar'])) {
         $_SESSION['nome']      = $nome;
         $_SESSION['email']     = $email;
 
-        header("Location: ./anamnes.php");
+        header("Location: ./pessoal.php");
         exit;
     } else {
         $_SESSION['criar_error'] = '❌ Erro ao criar conta.';

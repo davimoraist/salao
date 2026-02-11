@@ -29,3 +29,24 @@ cpf.addEventListener('input', () => {
     }
 });
 
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    const radioOutros = document.getElementById("outros_conheceu");
+    const campoOutros = document.getElementById("campo_outros");
+
+    const radios = document.querySelectorAll('input[name="como_conheceu"]');
+
+    radios.forEach(radio => {
+        radio.addEventListener("change", function() {
+
+            if (radioOutros.checked) {
+                campoOutros.style.display = "block";
+            } else {
+                campoOutros.style.display = "none";
+            }
+
+        });
+    });
+
+});

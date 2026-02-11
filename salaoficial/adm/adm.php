@@ -26,6 +26,9 @@ try {
 $sql = $pdo->query("SELECT nome, email FROM cliente");
 $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
 
+$sql = $pdo->query("SELECT endereco, telefone FROM pessoais");
+$pessoais = $sql->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -38,10 +41,7 @@ $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
     <title>ADM DO SALÃO</title> 
 </head>
 <body>
-    <style>
-  
-
-    </style>
+    
     <div class="cabeca">
     <h1>Salão de Maria - ADM</h1>
 
@@ -83,17 +83,35 @@ $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
         <div id="cliente" class="tela"> 
             <h1>cliente</h1>
                <table class="tabela-clientes">
-                <tr>
-                    <th>Nome</th>
-                    <th>Email</th>
-                </tr>
-                <?php foreach($clientes as $user): ?>
-                <tr>
-                    <td><?= htmlspecialchars($user['nome']) ?></td>
-                    <td><?= htmlspecialchars($user['email']) ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </table>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Ver mais</th>
+            </tr>
+
+            <?php foreach($clientes as $index => $user): ?>
+                        
+            <tr>
+                <td><?= htmlspecialchars($user['nome']) ?></td>
+                <td><?= htmlspecialchars($user['email']) ?></td>
+                <td class="ver-mais">
+                    <button type="button" onclick="verMais(<?= $index ?>)" class="ver-mais"> Ver mais </button>
+                </td>
+            </tr>
+
+            <tr id="detalhes-<?= $index ?>" style="display:none;">
+                <td colspan="3">
+                    <strong>Nome:</strong> <?= htmlspecialchars($user['nome']) ?><br>
+                    <strong>Email:</strong> <?= htmlspecialchars($user['email']) ?><br>
+                    <strong>Endereço:</strong> <?= htmlspecialchars($user['endereco']) ?><br>
+                    <strong>Telefone:</strong> <?= htmlspecialchars($user['telefone']) ?><br>
+                    <!-- aqui você pode colocar mais dados -->
+                </td>
+            </tr>
+
+            <?php endforeach; ?>
+        </table>
+
         </div>
 
         <div id="faturamento" class="tela">

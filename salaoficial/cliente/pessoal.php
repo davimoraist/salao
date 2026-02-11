@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="css/ficha.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div  class="ficha">
         
-        <form action="#" method="post" class="form-box">
+        <form action="dadocliente.php" method="post" class="form-box">
             <h1>Dados Pessoais</h1>
             <div>
              <label for="endereco">Endereço</label>
@@ -35,23 +36,22 @@
              <div>
                  <p>Como Nos Conheceu?</p>
                  <div>
-                     <input type="radio" name="como_conheceu" id="facebook">
+                     <input type="radio" value="facebook" name="como_conheceu" id="facebook">
                      <label for="facebook">Facebook</label>
                  </div>
                  <div>
-                     <input type="radio" name="como_conheceu" id="instagram">
+                     <input type="radio" value="instagram" name="como_conheceu" id="instagram">
                      <label for="instagram">Instagram</label>
                  </div>
-                 <div>
-                     <input type="radio" name="como_conheceu" id="indicacao">
-                     <label for="indicacao">Indecação</label>
-                     <input type="text" name="indicacao_texto">
-                 </div>
-                 <div>
-                     <input type="radio" name="como_conheceu" id="outros_conheceu">
-                     <label for="outros_conheceu">Outros</label>
-                     <input type="text" name="outros_conheceu_texto">
-                 </div>
+                <div>
+                        <input type="radio" name="como_conheceu" value="Outros" id="outros_conheceu">
+                        <label for="outros_conheceu">Outros</label>
+                </div>
+
+                <div id="campo_outros" style="display:none;">
+                        <input type="text" name="complemento" id="complemento" placeholder="Escreva aqui">
+                </div>
+
             </div>
             <button>Enviar</button>
         </form>

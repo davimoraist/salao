@@ -183,18 +183,17 @@ body {
     border-bottom: 1px solid #ddd;
 }
 
-.tabela-clientes tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.tabela-clientes tr:hover {
-    background-color: #f1f1f1;
-    cursor: pointer;
-}
-
+ 
 .tabela-clientes td {
     font-size: 14px;
     color: #333;
 }
 
- 
+.tabela-clientes .ver-mais button{
+    background-color: var(--cor5);
+    color: white;
+    border-radius: 100px;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}

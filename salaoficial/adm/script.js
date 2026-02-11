@@ -46,3 +46,13 @@
         area.appendChild(box);
         
     });
+ 
+function verMais(index) {
+    const linha = document.getElementById("detalhes-" + index);
+
+    if (linha.style.display === "none") {
+        linha.style.display = "table-row";
+    } else {
+        linha.style.display = "none";
+    }
+}

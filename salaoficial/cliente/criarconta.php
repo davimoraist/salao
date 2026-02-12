@@ -28,7 +28,7 @@ if (isset($_POST['criar'])) {
     }
 
     // Verifica se email já existe
-    $stmt = $conn->prepare("SELECT idcliente FROM cliente WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id FROM cliente WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $checkEmail = $stmt->get_result();

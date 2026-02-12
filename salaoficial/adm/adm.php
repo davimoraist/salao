@@ -23,11 +23,11 @@ try {
 }
 
 // Pega todos os clientes
-$sql = $pdo->query("SELECT nome, email FROM cliente");
-$clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
+ $sql = $pdo->query(" SELECT c.id, c.nome, c.email, p.endereco, p.telefone, p.cpf, p.data_nascimento, p.como_conheceu  FROM cliente c
+    INNER JOIN pessoais p ON c.id = p.id
+");
 
-$sql = $pdo->query("SELECT endereco, telefone FROM pessoais");
-$pessoais = $sql->fetchAll(PDO::FETCH_ASSOC);
+$clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -83,34 +83,35 @@ $pessoais = $sql->fetchAll(PDO::FETCH_ASSOC);
         <div id="cliente" class="tela"> 
             <h1>cliente</h1>
                <table class="tabela-clientes">
-            <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Ver mais</th>
-            </tr>
+    <tr>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Ver mais</th>
+    </tr>
 
-            <?php foreach($clientes as $index => $user): ?>
-                        
-            <tr>
-                <td><?= htmlspecialchars($user['nome']) ?></td>
-                <td><?= htmlspecialchars($user['email']) ?></td>
-                <td class="ver-mais">
-                    <button type="button" onclick="verMais(<?= $index ?>)" class="ver-mais"> Ver mais </button>
-                </td>
-            </tr>
+    <?php foreach ($clientes as $index => $user): ?>
+    <tr>
+        <td><?= htmlspecialchars($user['nome']) ?></td>
+        <td><?= htmlspecialchars($user['email']) ?></td>
+        <td class="ver-mais">
+            <button type="button" onclick="verMais(<?= $index ?>)" class="ver-mais">
+                Ver mais
+            </button>
+        </td>
+    </tr>
 
-            <tr id="detalhes-<?= $index ?>" style="display:none;">
-                <td colspan="3">
-                    <strong>Nome:</strong> <?= htmlspecialchars($user['nome']) ?><br>
-                    <strong>Email:</strong> <?= htmlspecialchars($user['email']) ?><br>
-                    <strong>Endereço:</strong> <?= htmlspecialchars($user['endereco']) ?><br>
-                    <strong>Telefone:</strong> <?= htmlspecialchars($user['telefone']) ?><br>
-                    <!-- aqui você pode colocar mais dados -->
-                </td>
-            </tr>
+    <tr id="detalhes-<?= $index ?>" style="display:none;">
+        <td colspan="3">
+            <strong>Telefone:</strong> <?= htmlspecialchars($user['telefone']) ?><br>
+            <strong>Endereço:</strong> <?= htmlspecialchars($user['endereco']) ?><br>
+            <strong>CPF:</strong> <?= htmlspecialchars($user['cpf']) ?><br>
+            <strong>Data de Nascimento:</strong> <?= htmlspecialchars($user['data_nascimento']) ?><br>
+            <strong>Como nos conheceu:</strong> <?= htmlspecialchars($user['como_conheceu']) ?><br>
+        </td>
+    </tr>
+    <?php endforeach; ?>
+</table>
 
-            <?php endforeach; ?>
-        </table>
 
         </div>
 

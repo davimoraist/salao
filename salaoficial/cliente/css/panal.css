@@ -1,0 +1,72 @@
+ @charset "UTF-8";
+
+/* FONTES */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
+
+/* VARIÁVEIS */
+:root {
+    --cor1: #c88c8e; 
+    --cor2: #734440;
+    --cor3: #EDB8AE;
+    --branco: #ffffff;
+
+    --fonte-titulo: "Cinzel", serif;
+    --fonte-texto: "Nunito", sans-serif;
+}
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--fonte-texto);
+}
+
+body {
+    background-color: #f9f3f2;
+}
+
+/* CONTAINER PRINCIPAL */
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--cor1);
+    padding: 20px 40px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+/* MENU (lado esquerdo) */
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Ícone */
+.material-symbols-outlined {
+    font-size: 32px;
+    color: var(--branco);
+    cursor: pointer;
+}
+
+/* Link agenda */
+.menu a {
+    text-decoration: none;
+    color: var(--branco);
+    font-size: 18px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.menu a:hover {
+    color: var(--cor2);
+}
+
+/* TÍTULO */
+.container h1 {
+    font-family: var(--fonte-texto);
+    font-size: 28px;
+    color: var(--branco);
+}

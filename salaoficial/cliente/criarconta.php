@@ -51,7 +51,7 @@ if (isset($_POST['criar'])) {
         // LOGIN AUTOMÁTICO APÓS CADASTRO
         session_regenerate_id(true);
 
-        $_SESSION['idcliente'] = $conn->insert_id;
+        $_SESSION['id'] = $conn->insert_id;
         $_SESSION['nome']      = $nome;
         $_SESSION['email']     = $email;
 
@@ -94,11 +94,11 @@ if (isset($_POST['login'])) {
         if (password_verify($senha, $cliente['password'])) {
             session_regenerate_id(true);
 
-            $_SESSION['idcliente'] = $cliente['idcliente'];
+            $_SESSION['id'] = $cliente['id'];
             $_SESSION['nome']      = $cliente['nome'];
             $_SESSION['email']     = $cliente['email'];
 
-            header("Location: ./anamnes.php");
+            header("Location: ./panel.php");
             exit;
         } else {
             // Senha incorreta

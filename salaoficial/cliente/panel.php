@@ -43,7 +43,7 @@ if (!$user) {
 
 <div class="container">
     <div class="logo">
-    <img src="imagem/salao.png" alt="logo da empresa">
+    <img src="imagem/Maria.png" alt="logo da empresa">
 </div>
     <div class="menu">
         <span class="material-symbols-outlined" >account_circle</span>

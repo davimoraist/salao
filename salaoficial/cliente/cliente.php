@@ -7,6 +7,11 @@ $erros = [
     'criar' => $_SESSION['criar_error'] ?? ''
 ];
 
+    unset($_SESSION['login_error']);
+    unset($_SESSION['criar_error']);
+    unset($_SESSION['active_form']);
+
+
 /* Formulário ativo */
 $activeForm = $_SESSION['active_form'] ?? 'login';
 
@@ -40,7 +45,7 @@ function isActiveForm($formName, $activeForm) {
 
     <!-- LOGIN -->
     <div class="conta <?= isActiveForm('login', $activeForm) ?>" id="login">
-        <form action="criarconta.php" method="POST" autocomplete="off">
+        <form action="Conecteconta.php" method="POST" autocomplete="off">
             <h1>Conecte-se</h1>
 
             <?= showError($erros['login']); ?>
@@ -110,6 +115,6 @@ function isActiveForm($formName, $activeForm) {
 
 </div>
 
-  <script src="contra.js" defer></script>
+  <!--<script src="contra.js"></script>-->
 </body>
 </html>

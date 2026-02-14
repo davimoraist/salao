@@ -1,4 +1,6 @@
  <?php
+
+ob_start();
 session_start();
 
 /* =========================
@@ -68,8 +70,8 @@ if (isset($_POST['criar'])) {
 /* =========================
    LOGIN
 ========================= */
-if (isset($_POST['login'])) {
-
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_POST['senha']) && !isset($_POST['criar'])) {
+  
     $email = trim($_POST['email'] ?? '');
     $senha = $_POST['senha'] ?? '';
 
@@ -98,7 +100,7 @@ if (isset($_POST['login'])) {
             $_SESSION['nome']      = $cliente['nome'];
             $_SESSION['email']     = $cliente['email'];
 
-            header("Location: ./panel.php");
+             header("Location: ./pessoal.php");
             exit;
         } else {
             // Senha incorreta

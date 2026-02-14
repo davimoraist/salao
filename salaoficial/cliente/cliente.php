@@ -45,7 +45,7 @@ function isActiveForm($formName, $activeForm) {
 
     <!-- LOGIN -->
     <div class="conta <?= isActiveForm('login', $activeForm) ?>" id="login">
-        <form action="Conecteconta.php" method="POST" autocomplete="off">
+        <form action="criarconta.php" method="POST" autocomplete="off">
             <h1>Conecte-se</h1>
 
             <?= showError($erros['login']); ?>
@@ -115,6 +115,6 @@ function isActiveForm($formName, $activeForm) {
 
 </div>
 
-  <!--<script src="contra.js"></script>-->
+  <script src="contra.js"></script>
 </body>
 </html>

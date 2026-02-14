@@ -100,7 +100,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_P
             $_SESSION['nome']      = $cliente['nome'];
             $_SESSION['email']     = $cliente['email'];
 
-             header("Location: ./pessoal.php");
+             header("Location: ./panel.php");
             exit;
         } else {
             // Senha incorreta

@@ -9,6 +9,8 @@
     --cor1: #c88c8e; 
     --cor2: #734440;
     --cor3: #EDB8AE;
+    --cor4: #C89991;
+
     --branco: #ffffff;
 
     --fonte-titulo: "Cinzel", serif;
@@ -24,7 +26,7 @@
 }
 
 body {
-    background-color: #f9f3f2;
+    background-color: var(--cor4);
 }
  
 /* CONTAINER PRINCIPAL */
@@ -33,7 +35,7 @@ body {
     justify-content: space-between;
     align-items: center;
     background-color: var(--cor1);
-    padding: 20px 40px;
+    padding: 0px 40px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
@@ -65,14 +67,109 @@ body {
 }
 .container .logo img{
     width: 100px;
-    margin: 30px 57px;
+    margin: 0px 57px;
 }
 
 /* TÍTULO */
-.container h1 {
+.container h2 {
     font-family: var(--fonte-texto);
     font-size: 28px;
     color: var(--branco);
 }
 
- 
+.agendamedo{
+    margin: 30px;
+}
+
+.agendamedo .horario a{
+    text-decoration: none;
+    color: var(--branco);
+    background-color: var(--cor1);
+    border-radius: 100px 50px 50px 100px;
+    margin: 23px;
+    padding: 20px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.agendamedo .horario a:hover{
+    background-color: var(--cor2);
+}
+
+.agendamedo .horario p{
+    color: white;
+    margin: 35px;
+    font-size: 18px;
+    font-weight: 600;
+}
+ .agendamedo .frase p{
+    display: inline-block; /* 👈 muda aqui */
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
+    border: 2px solid #734440;
+    padding: 15px 25px;
+    border-radius: 15px;
+    margin: 50px auto;
+}
+
+.trabalhos {
+    margin: 60px 80px;
+}
+
+.trabalhos h2 {
+    color: white;
+    margin-bottom: 30px;
+    font-size: 26px;
+}
+
+.galeria {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.item {
+    text-align: center;
+}
+
+.item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.item img:hover {
+    transform: scale(1.05);
+}
+
+.item p {
+    color: white;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+.item {
+    text-align: center;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: aparecer 0.8s ease forwards;
+}
+
+.item:nth-child(1) { animation-delay: 0.1s; }
+.item:nth-child(2) { animation-delay: 0.2s; }
+.item:nth-child(3) { animation-delay: 0.3s; }
+.item:nth-child(4) { animation-delay: 0.4s; }
+.item:nth-child(5) { animation-delay: 0.5s; }
+.item:nth-child(6) { animation-delay: 0.6s; }
+.item:nth-child(7) { animation-delay: 0.7s; }
+.item:nth-child(8) { animation-delay: 0.8s; }
+
+@keyframes aparecer {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

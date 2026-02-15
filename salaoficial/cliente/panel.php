@@ -47,9 +47,67 @@ if (!$user) {
 </div>
     <div class="menu">
         <span class="material-symbols-outlined" >account_circle</span>
-        <h1>Olá, <?= htmlspecialchars(explode(' ', $user['nome'])[0]) ?></h1>
+        <h2>Olá, <?= htmlspecialchars(explode(' ', $user['nome'])[0]) ?></h2>
     </div>
+    
 </div>
+    <div class="agendamedo">
+        <div class="horario">
+            <p>Escolha o melhor horário e confirme seu agendamento abaixo.</p>
+            <a href="anamnes.php">agendar</a>
+        </div>
+        <div class="frase">
+            <p>“Um espaço feito para cuidar <br> da beleza e do bem-estar da mulher.”</p>
+        </div>
+    </div>
+
+    <section class="trabalhos">
+    <h2>Nossos Trabalhos ✨</h2>
+
+    <div class="galeria">
+
+        <div class="item">
+            <img src="imagem/pe-mao.jpeg" alt="">
+            <p>Pé Mão</p>
+        </div>
+
+        <div class="item">
+            <img src="imagem/Manutenção-banho-gel.jpeg" alt="">
+            <p>Manutenção Banho Gel</p>
+        </div>
+
+        <div class="item">
+            <img src="imagem/Manutenção -alongamento.jpeg" alt="">
+            <p>Manutenção Alongamento</p>
+        </div>
+
+        <div class="item">
+            <img src="imagem/Esmaltação-em-gel.jpeg" alt="">
+            <p>Esmaltação em Gel</p>
+        </div>
+
+        <div class="item">
+            <img src="imagem/decoraco.jpeg" alt="">
+            <p>Decoraco</p>
+        </div>
+
+        <div class="item">
+            <img src="imagem/Banho-de-gel.jpeg" alt="">
+            <p>Banho de Gel.</p>
+        </div>
+
+        <div class="item">
+            <img src="imagem/Alongamento.jpeg" alt="">
+            <p>Alongamento</p>
+        </div>
+
+        <div class="item">
+            <img src="imagem/WhatsApp Image 2026-01-27 at 09.52.04.jpeg" alt="">
+            <p>Alongamento</p>
+        </div>
+
+    </div>
+</section>
 
 </body>
 </html>

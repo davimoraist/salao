@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>mtnaildesigner.com</title>
     <link rel="stylesheet" href="css/ficha.css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
@@ -11,7 +11,7 @@
     <div  class="ficha">
         
         <form action="dadocliente.php" method="post" class="form-box">
-            <h1>Dados Pessoais</h1>
+            <h1>Dado pessoais</h1>
             <div>
              <label for="endereco">Endereço</label>
              <input type="text" name="endereco" id="endereco">

@@ -12,30 +12,32 @@ $como_conheceu = trim($_POST['como_conheceu'] ?? '');
 // Validação
 if ($endereco === '' || $tel === '' || $cpf === '' || $idade === '' || $como_conheceu === '') {
     $_SESSION['criar_error'] = '❌ Preencha todos os campos.';
-    header("Location: agenda.php");
+    header("Location: panel.php");
     exit;
 }
 
 // Verificar CPF duplicado
-$stmt = $conn->prepare("SELECT id FROM pessoais WHERE cpf = ?");
+$stmt = $conn->prepare("SELECT id_cliente FROM pessoais WHERE cpf = ?");
 $stmt->bind_param("s", $cpf);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $_SESSION['criar_error'] = '❌ CPF já cadastrado.';
-    header("Location: agenda.php");
+    header("Location: panel.php");
     exit;
 }
 
 $stmt->close();
 
 // Inserir
-$stmt = $conn->prepare("INSERT INTO pessoais 
-    (endereco, 	telefone, cpf, data_nascimento, como_conheceu) 
-    VALUES (?, ?, ?, ?, ?)");
+ $id_cliente = $_SESSION['id'];
 
-$stmt->bind_param("sssss", $endereco, $tel, $cpf, $idade, $como_conheceu);
+$stmt = $conn->prepare("INSERT INTO pessoais 
+    (id_cliente, endereco, telefone, cpf, data_nascimento, como_conheceu) 
+    VALUES (?, ?, ?, ?, ?, ?)");
+
+$stmt->bind_param("isssss", $id_cliente, $endereco, $tel, $cpf, $idade, $como_conheceu);
 
 if ($stmt->execute()) {
     $_SESSION['criar_sucesso'] = '✅ Cadastro realizado com sucesso!';
@@ -46,6 +48,6 @@ if ($stmt->execute()) {
 $stmt->close();
 $conn->close();
 
-header("Location: agenda.php");
+header("Location: panel.php");
 exit;
 ?>

@@ -14,7 +14,7 @@ if (!isset($_SESSION['id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/ficha.css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <title>ficha anamnese</title>
+    <title>mtnaildesigner.com</title>
 </head>
 <body>
     <div class="ficha">

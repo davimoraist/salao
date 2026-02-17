@@ -23,8 +23,7 @@ try {
 }
 
 // Pega todos os clientes
- $sql = $pdo->query(" SELECT c.id, c.nome, c.email, p.endereco, p.telefone, p.cpf, p.data_nascimento, p.como_conheceu, 	data_cadastro  FROM cliente c
-    INNER JOIN pessoais p ON c.id = p.id
+ $sql = $pdo->query(" SELECT c.id, c.nome, c.email, p.id_cliente, p.endereco, p.telefone, p.cpf, p.data_nascimento, p.como_conheceu, 	data_cadastro  FROM cliente c INNER JOIN pessoais p ON c.id = p.id_cliente
 ");
 
 $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
@@ -43,7 +42,7 @@ $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
 <body>
     
     <div class="cabeca">
-    <h1>Salão de Maria - ADM</h1>
+    <h1>Salão da Maria - ADM</h1>
 
     <span class="nome-usuario">
         <label>Olá!  <?php echo $pessoa; ?></label>

@@ -2,20 +2,14 @@
 session_start();
 require_once __DIR__ . "/conecte.php";
 
-
-if (!isset($_SESSION['id']) || !isset($_SESSION['nome'])) {
+ if (!isset($_SESSION['id']) || !isset($_SESSION['nome'])) {
     header("Location: cliente.php");
     exit();
 }
 
 $id = $_SESSION['id'];
 
-$sql = "SELECT c.id, c.nome, c.email,
-               p.endereco, p.telefone, p.cpf,
-               p.data_nascimento, p.como_conheceu, p.data_cadastro
-        FROM cliente c
-        INNER JOIN pessoais p ON c.id = p.id
-        WHERE c.id = ?";
+$sql = "SELECT  c.id, c.nome, c.email, p.endereco,  p.telefone, p.cpf, p.data_nascimento, p.como_conheceu,  p.data_cadastro FROM cliente c INNER JOIN pessoais p ON c.id = p.id_cliente WHERE c.id = ?";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
@@ -28,13 +22,14 @@ if (!$user) {
     echo "Cliente não encontrado.";
     exit();
 }
+
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel do Cliente</title>
+    <title>mtnaildesigner.com</title>
     <link rel="stylesheet" href="css/panal.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -62,7 +57,7 @@ if (!$user) {
     </div>
 
     <section class="trabalhos">
-    <h2>Nossos Trabalhos ✨</h2>
+    <h2>Nossos Trabalhos</h2>
 
     <div class="galeria">
 
@@ -88,7 +83,7 @@ if (!$user) {
 
         <div class="item">
             <img src="imagem/decoraco.jpeg" alt="">
-            <p>Decoraco</p>
+            <p>Decoração</p>
         </div>
 
         <div class="item">
@@ -103,7 +98,7 @@ if (!$user) {
 
         <div class="item">
             <img src="imagem/WhatsApp Image 2026-01-27 at 09.52.04.jpeg" alt="">
-            <p>Alongamento</p>
+            <p>Decoração em Alongamento</p>
         </div>
 
     </div>

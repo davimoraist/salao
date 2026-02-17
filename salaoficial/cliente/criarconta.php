@@ -70,12 +70,12 @@ if (isset($_POST['criar'])) {
 /* =========================
    LOGIN
 ========================= */
+ // LOGIN
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_POST['senha']) && !isset($_POST['criar'])) {
-  
+
     $email = trim($_POST['email'] ?? '');
     $senha = $_POST['senha'] ?? '';
 
-    // Verifica campos vazios
     if ($email === '' || $senha === '') {
         $_SESSION['login_error'] = '❌ Preencha todos os campos.';
         $_SESSION['active_form'] = 'login';
@@ -83,7 +83,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_P
         exit;
     }
 
-    // Verifica se email existe
     $stmt = $conn->prepare("SELECT * FROM cliente WHERE email = ? LIMIT 1");
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -92,29 +91,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_P
     if ($result && $result->num_rows === 1) {
         $cliente = $result->fetch_assoc();
 
-        // Verifica senha
         if (password_verify($senha, $cliente['password'])) {
             session_regenerate_id(true);
 
             $_SESSION['id'] = $cliente['id'];
-            $_SESSION['nome']      = $cliente['nome'];
-            $_SESSION['email']     = $cliente['email'];
+            $_SESSION['nome'] = $cliente['nome'];
+            $_SESSION['email'] = $cliente['email'];
 
-             header("Location: ./panel.php");
+            // VERIFICA SE OUTROS DADOS FORAM PREENCHIDOS
+            $stmt2 = $conn->prepare("SELECT cpf FROM pessoais WHERE id_cliente = ? LIMIT 1");
+            $stmt2->bind_param("i", $cliente['id']);
+            $stmt2->execute();
+            $res2 = $stmt2->get_result();
+            $dados = $res2->fetch_assoc();
+
+            if (!empty($dados['cpf'])) {
+            header("Location: panel.php");
             exit;
+                } else {
+            header("Location: pessoal.php");
+            exit;
+                }
+
+
         } else {
-            // Senha incorreta
             $_SESSION['login_error'] = '❌ Senha incorreta.';
             $_SESSION['active_form'] = 'login';
             header("Location: cliente.php");
             exit;
         }
+
     } else {
-        // Email não cadastrado
         $_SESSION['login_error'] = '❌ E-mail não cadastrado.';
         $_SESSION['active_form'] = 'login';
         header("Location: cliente.php");
         exit;
     }
 }
+
 ?>

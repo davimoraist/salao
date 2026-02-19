@@ -19,6 +19,5 @@
      header("Location: agenda.php");
      exit;
  }
-
  
 ?>  

@@ -19,7 +19,7 @@ if (!isset($_SESSION['id'])) {
 <body>
     <div class="ficha">
        
-       <form action="#" class="form-box">
+       <form action="ficha.php" method="post" class="form-box">
         <h1>ficha anamnese</h1> 
          <!--==dados pessoais==-->
          <div>

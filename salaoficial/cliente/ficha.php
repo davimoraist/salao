@@ -33,7 +33,7 @@ $verifica->store_result();
 
 if ($verifica->num_rows > 0) {
     $_SESSION['criar_error'] = "Você já enviou sua ficha.";
-    header("Location: painel_cliente.php");
+    header("Location: painel.php");
     exit;
 }
 
@@ -65,6 +65,6 @@ $stmt->bind_param(
 $stmt->execute();
 
 $_SESSION['sucesso'] = "Ficha enviada com sucesso!";
-header("Location: agemda.php");
+header("Location: panel.php");
 exit;
 ?>

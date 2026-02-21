@@ -23,9 +23,10 @@ try {
 }
 
 // Pega todos os clientes
- $sql = $pdo->query(" SELECT c.id, c.nome, c.email, p.id_cliente, p.endereco, p.telefone, p.cpf, p.data_nascimento, p.como_conheceu, 	data_cadastro  FROM cliente c INNER JOIN pessoais p ON c.id = p.id_cliente
-");
+  $sql = $pdo->query("   SELECT  c.id, c.nome,  c.email, p.id_cliente, p.endereco, p.telefone, p.cpf, p.data_nascimento, p.como_conheceu,  p.data_cadastro,
 
+        f.diabetes, f.gestante, f.alergias, f.especificar_alergia, f.cuticula, f.onicomicose, f.especificar_onico, f.medicamento,f.qual_medicamento, f.lamina, f.outro_lamina_texto, f.encravada,f.onicofagia, f.esporte,f.piscina, f.data_cadastro AS data_ficha FROM cliente c INNER JOIN pessoais p  ON c.id = p.id_cliente LEFT JOIN ficha_anamnese f ON c.id = f.id_cliente
+");
 $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
@@ -107,6 +108,21 @@ $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
             <strong>Data de Nascimento:</strong> <?= htmlspecialchars($user['data_nascimento']) ?><br>
             <strong>Como nos conheceu:</strong> <?= htmlspecialchars($user['como_conheceu']) ?><br>
             <strong>Data de Cadastro:</strong> <?= htmlspecialchars($user['data_cadastro']) ?><br>
+            <strong>Diabetes:</strong> <?= htmlspecialchars($user['diabetes']) ?><br>
+            <strong>Gestante:</strong> <?= htmlspecialchars($user['gestante']) ?><br>
+            <strong>Alergias:</strong> <?= htmlspecialchars($user['alergias']) ?><br>
+            <strong>Especificar Alergia:</strong> <?= htmlspecialchars($user['especificar_alergia']) ?><br>
+            <strong>Cuticula:</strong> <?= htmlspecialchars($user['cuticula']) ?><br>
+            <strong>Onicomicose:</strong> <?= htmlspecialchars($user['onicomicose']) ?><br>
+            <strong>Especificar Onicomicose:</strong> <?= htmlspecialchars($user['especificar_onico']) ?><br>
+            <strong>Medicamento:</strong> <?= htmlspecialchars($user['medicamento']) ?><br>
+            <strong>Qual Medicamento:</strong> <?= htmlspecialchars($user['qual_medicamento']) ?><br>
+            <strong>Lamina:</strong> <?= htmlspecialchars($user['lamina']) ?><br>
+            <strong>Outro Lamina:</strong> <?= htmlspecialchars($user['outro_lamina_texto']) ?><br>
+            <strong>Encravada:</strong> <?= htmlspecialchars($user['encravada']) ?><br>
+            <strong>Onicofagia:</strong> <?= htmlspecialchars($user['onicofagia']) ?><br>
+            <strong>Esporte:</strong> <?= htmlspecialchars($user['esporte']) ?><br>
+            <strong>Piscina:</strong> <?= htmlspecialchars($user['piscina']) ?><br>
         </td>
     </tr>
     <?php endforeach; ?>

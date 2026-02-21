@@ -12,7 +12,7 @@ $como_conheceu = trim($_POST['como_conheceu'] ?? '');
 // Validação
 if ($endereco === '' || $tel === '' || $cpf === '' || $idade === '' || $como_conheceu === '') {
     $_SESSION['criar_error'] = '❌ Preencha todos os campos.';
-    header("Location: panel.php");
+    header("Location: anamnes.php");
     exit;
 }
 
@@ -24,7 +24,7 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $_SESSION['criar_error'] = '❌ CPF já cadastrado.';
-    header("Location: panel.php");
+    header("Location: anamnes.php");
     exit;
 }
 
@@ -48,6 +48,6 @@ if ($stmt->execute()) {
 $stmt->close();
 $conn->close();
 
-header("Location: panel.php");
+    header("Location: anamnes.php");
 exit;
 ?>

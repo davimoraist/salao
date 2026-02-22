@@ -53,7 +53,7 @@ $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
     <div class="menu">
         <button onclick="mostrarTela('agenda')" class="active">Agenda</button>
         <button onclick="mostrarTela('cliente')">Clientes</button>
-        <button onclick="mostrarTela('servicos')">Serviços e preços</button>
+        <button onclick="mostrarTela('servicos')">cadastro de Serviços</button>
         <button onclick="mostrarTela('servico')">Serviços</button>
         <button onclick="mostrarTela('faturamento')">Faturamento</button>
         <button onclick="mostrarTela('grafico')">Gráficos</button>
@@ -69,7 +69,7 @@ $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <div id="servicos" class="tela">
-            <h1 class="titulo-servicos">Serviços</h1>
+            <h1 class="titulo-servicos">cadastro de Serviços</h1>
             <h2 class="subtitulo-servicos">Gerenciar Serviços e Preços</h2>
             <div id="servicos-area"></div>
             <button id="fab">+</button>

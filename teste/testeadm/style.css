@@ -1,0 +1,34 @@
+ * {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Tabela */
+table {
+    width: 100vh;
+    border-collapse: collapse;
+    background: white;
+}
+
+/* Cabeçalho */
+table th {
+    padding: 12px;
+    border: 1px solid black;
+    background-color: #eee;
+}
+
+/* Células */
+table td {
+    padding: 12px;
+    border: 1px solid black;
+}

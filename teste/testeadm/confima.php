@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "salao"; // CONFIRA O NOME DO BANCO
+$db   = "test"; // CONFIRA O NOME DO BANCO
 
 $conn = new mysqli($host, $user, $pass, $db);
 

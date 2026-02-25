@@ -56,3 +56,27 @@ function verMais(index) {
         linha.style.display = "none";
     }
 }
+
+function carregarClientes() {
+    fetch("buscar_clientes.php")
+        .then(response => response.json())
+        .then(data => {
+            let tabela = document.getElementById("tabela-clientes");
+            tabela.innerHTML = "";
+
+            data.forEach(cliente => {
+                tabela.innerHTML += `
+                    <tr>
+                        <td>${cliente.id}</td>
+                        <td>${cliente.nome}</td>
+                        <td>${cliente.email}</td>
+                        <td>${cliente.telefone}</td>
+                        <td>${cliente.endereco}</td>
+                    </tr>
+                `;
+            });
+        });
+}
+
+carregarClientes();
+setInterval(carregarClientes, 5000);

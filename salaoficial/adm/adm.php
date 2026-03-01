@@ -88,55 +88,19 @@ $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <div id="cliente" class="tela"> 
-            <h1>cliente</h1>
-               <table class="tabela-clientes">
-    <tr>
-        <th>Nome</th>
-        <th>Email</th>
-        <th>Ver mais</th>
-    </tr>
-    
-    <?php foreach ($clientes as $index => $user): ?>
-    <tr>
-        <td><?= htmlspecialchars($user['nome']) ?></td>
-        <td><?= htmlspecialchars($user['email']) ?></td>
-        <td class="ver-mais">
-            <button type="button" onclick="verMais(<?= $index ?>)" class="ver-mais">
-                Ver mais
-            </button>
-        </td>
-    </tr>
-
-    <tr id="detalhes-<?= $index ?>" style="display:none;">
-        <td colspan="3">
-            <strong>Telefone:</strong> <?= htmlspecialchars($user['telefone']) ?><br>
-            <strong>Endereço:</strong> <?= htmlspecialchars($user['endereco']) ?><br>
-            <strong>CPF:</strong> <?= htmlspecialchars($user['cpf']) ?><br>
-            <strong>Data de Nascimento:</strong> <?= htmlspecialchars($user['data_nascimento']) ?><br>
-            <strong>Como nos conheceu:</strong> <?= htmlspecialchars($user['como_conheceu']) ?><br>
-            <strong>Data de Cadastro:</strong> <?= htmlspecialchars($user['data_cadastro']) ?><br>
-            <strong>Diabetes:</strong> <?= htmlspecialchars($user['diabetes']) ?><br>
-            <strong>Gestante:</strong> <?= htmlspecialchars($user['gestante']) ?><br>
-            <strong>Alergias:</strong> <?= htmlspecialchars($user['alergias']) ?><br>
-            <strong>Especificar Alergia:</strong> <?= htmlspecialchars($user['especificar_alergia']) ?><br>
-            <strong>Cuticula:</strong> <?= htmlspecialchars($user['cuticula']) ?><br>
-            <strong>Onicomicose:</strong> <?= htmlspecialchars($user['onicomicose']) ?><br>
-            <strong>Especificar Onicomicose:</strong> <?= htmlspecialchars($user['especificar_onico']) ?><br>
-            <strong>Medicamento:</strong> <?= htmlspecialchars($user['medicamento']) ?><br>
-            <strong>Qual Medicamento:</strong> <?= htmlspecialchars($user['qual_medicamento']) ?><br>
-            <strong>Lamina:</strong> <?= htmlspecialchars($user['lamina']) ?><br>
-            <strong>Outro Lamina:</strong> <?= htmlspecialchars($user['outro_lamina_texto']) ?><br>
-            <strong>Encravada:</strong> <?= htmlspecialchars($user['encravada']) ?><br>
-            <strong>Onicofagia:</strong> <?= htmlspecialchars($user['onicofagia']) ?><br>
-            <strong>Esporte:</strong> <?= htmlspecialchars($user['esporte']) ?><br>
-            <strong>Piscina:</strong> <?= htmlspecialchars($user['piscina']) ?><br>
-        </td>
-    </tr>
-    <?php endforeach; ?>
-</table>
-
-
-        </div>
+    <h1>cliente</h1>
+    <table class="tabela-clientes">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Ver mais</th>
+            </tr>
+            </thead>
+                <tbody id="corpo-tabela-clientes">
+            </tbody>
+        </table>
+    </div>
 
         <div id="faturamento" class="tela">
             <h1>Faturamento</h1>

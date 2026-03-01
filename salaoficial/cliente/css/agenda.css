@@ -150,3 +150,29 @@ h2{
 .hora:hover{
     background:#c48b80;
 }
+
+.pagamento {
+    display: flex;
+    justify-content: center;
+    /* centraliza horizontal */
+    align-items: center;
+    /* centraliza vertical */
+
+    margin: 50px 0 10px 0;
+}
+
+.pagamento button {
+    width: 100%;
+    height: 48px;
+    background-color: var(--cor6);
+    border: none;
+    border-radius: 28px;
+    cursor: pointer;
+    font-size: 18px; 
+    color: white;   
+}
+
+.pagamento button:hover {
+    background-color: var(--cor4);
+}
+

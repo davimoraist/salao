@@ -22,6 +22,7 @@
         </div>
         <h2>Horários disponíveis</h2>
         <div class="horarios" id="horarios"></div>
+        <div class="pagamento"><button onclick="pagamento()" type="submit" name="pagamento">Pagemento</button></div>
     </form>
     <script src="agenda.js"></script>
 </body>

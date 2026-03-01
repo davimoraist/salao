@@ -1,4 +1,4 @@
-  function mostrarTela(tela) {
+   function mostrarTela(tela) {
 
     // esconder todas as telas
     document.querySelectorAll('.tela').forEach(div => {
@@ -15,14 +15,13 @@
 
     // adicionar active no botão clicado
     event.target.classList.add('active');
-}
- 
-  document.addEventListener("DOMContentLoaded", function () {
+} 
+document.addEventListener("DOMContentLoaded", function () {
 
     const area = document.getElementById("servicos-area");
     const mais = document.getElementById("fab");
 
-    // 🔵 Função criar card
+    // 🔵 Criar Card
     function criarServico(id = "", nome = "", preco = "") {
 
         const box = document.createElement("div");
@@ -30,38 +29,100 @@
 
         box.innerHTML = `
             <input type="text" value="${nome}" class="nome-input" placeholder="Nome do Serviço">
-            <input type="number" value="${preco}" class="preco-input" placeholder="Preço">
+            <input type="text" value="${preco}" class="preco-input" placeholder="Preço">
 
             <button class="editar-btn">Salvar</button>
             <button class="delete-btn">Excluir</button>
         `;
 
-        // 🔹 SALVAR (novo ou editar)
-        box.querySelector(".editar-btn").addEventListener("click", () => {
+        const nomeInput = box.querySelector(".nome-input");
+        const precoInput = box.querySelector(".preco-input");
+        const editarBtn = box.querySelector(".editar-btn");
+        const deleteBtn = box.querySelector(".delete-btn");
 
-            const novoNome = box.querySelector(".nome-input").value;
-            const novoPreco = box.querySelector(".preco-input").value;
+        // Se já existe no banco → começa bloqueado
+        if (id !== "") {
+            nomeInput.readOnly = true;
+            precoInput.readOnly = true;
+            editarBtn.innerText = "Editar";
+        }
 
-            fetch("editar_servico.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: `id=${id}&nome=${encodeURIComponent(novoNome)}&preco=${encodeURIComponent(novoPreco)}`
-            })
-            .then(res => res.text())
-            .then(msg => {
-                alert(msg);
-                carregarServicos(); // atualiza lista
-            });
+        let modo = id === "" ? "novo" : "bloqueado";
+
+        // 🔹 SALVAR / EDITAR
+        editarBtn.addEventListener("click", () => {
+
+            const novoNome = nomeInput.value.trim();
+            const novoPreco = precoInput.value.trim();
+
+            if (novoNome === "" || novoPreco === "") {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            // 🟢 NOVO SERVIÇO
+            if (modo === "novo") {
+
+                fetch("salvar_servico.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `nome=${encodeURIComponent(novoNome)}&preco=${encodeURIComponent(novoPreco)}`
+                })
+                .then(res => res.text())
+                .then(msg => {
+                    alert(msg);
+                    carregarServicos();
+                });
+
+            }
+
+            // 🔵 LIBERAR PARA EDITAR
+            else if (modo === "bloqueado") {
+
+                nomeInput.readOnly = false;
+                precoInput.readOnly = false;
+
+                editarBtn.innerText = "Salvar Alterações";
+                modo = "editando";
+            }
+
+            // 🟡 SALVAR ALTERAÇÃO
+            else if (modo === "editando") {
+
+                fetch("editar_servico.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `id=${id}&nome=${encodeURIComponent(novoNome)}&preco=${encodeURIComponent(novoPreco)}`
+                })
+                .then(res => res.text())
+                .then(msg => {
+
+                    alert(msg);
+
+                    nomeInput.readOnly = true;
+                    precoInput.readOnly = true;
+
+                    editarBtn.innerText = "Editar";
+                    modo = "bloqueado";
+                });
+
+            }
 
         });
 
         // 🔴 EXCLUIR
-        box.querySelector(".delete-btn").addEventListener("click", () => {
+        deleteBtn.addEventListener("click", () => {
 
             if (id === "") {
                 box.remove();
+                return;
+            }
+
+            if (!confirm("Tem certeza que deseja excluir?")) {
                 return;
             }
 
@@ -75,7 +136,7 @@
             .then(res => res.text())
             .then(msg => {
                 alert(msg);
-                carregarServicos(); // atualiza lista
+                carregarServicos();
             });
 
         });
@@ -83,10 +144,10 @@
         return box;
     }
 
-    // 🔄 Carregar serviços do banco
+    // 🔄 Carregar serviços
     function carregarServicos() {
 
-        fetch("listar_servicos.php")
+        fetch("salvar_servico.php")
         .then(res => res.json())
         .then(dados => {
 
@@ -97,6 +158,9 @@
                 area.appendChild(card);
             });
 
+        })
+        .catch(erro => {
+            console.error("Erro ao carregar:", erro);
         });
 
     }
@@ -107,11 +171,11 @@
         area.appendChild(novo);
     });
 
-    // Carrega ao abrir página
+    // Carrega ao abrir
     carregarServicos();
 
 });
- 
+
 function verMais(index) {
     const linha = document.getElementById("detalhes-" + index);
 

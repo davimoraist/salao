@@ -1,16 +1,12 @@
-<?php
+ <?php
 require_once("login.php");
 
-$nome = $_POST['nome'] ?? '';
-$preco = $_POST['preco'] ?? '';
+header('Content-Type: application/json');
 
-if ($nome == '' || $preco == '') {
-    echo "Preencha todos os campos!";
-    exit;
-}
+$sql = $pdo->query("SELECT * FROM servicos ORDER BY id DESC");
+$dados = $sql->fetchAll(PDO::FETCH_ASSOC);
 
-$sql = $pdo->prepare("INSERT INTO servicos (nome, preco) VALUES (?, ?)");
-$sql->execute([$nome, $preco]);
-
-echo "Serviço salvo com sucesso!";
+echo json_encode($dados);
+exit;
 ?>
+

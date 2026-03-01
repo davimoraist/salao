@@ -35,6 +35,7 @@ LEFT JOIN ficha_anamnese f
 
 ORDER BY c.id DESC
 ");
+
 $clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
 ?>
 

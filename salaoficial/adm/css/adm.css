@@ -197,3 +197,30 @@ body {
     padding: 10px;
     cursor: pointer;
 }
+
+.nome-input, .preco-input {
+    overflow: auto;
+    padding: 12px;
+    margin: 3px;
+    font-size: 20px;
+}
+
+.editar-btn, .delete-btn{
+    padding: 12px;
+    margin: 3px;
+    font-size: 20px;
+    border-radius: 100px;
+    color: white;
+    background-color: var(--cor1);
+    border: none;
+    cursor: pointer;
+    overflow: auto;
+}
+
+.delete-btn:hover{
+    background-color: var(--cor3);
+}
+
+.editar-btn:hover{
+    background-color: var(--cor3);
+}

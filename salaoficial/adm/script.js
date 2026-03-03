@@ -16,12 +16,12 @@
     // adicionar active no botão clicado
     event.target.classList.add('active');
 } 
-document.addEventListener("DOMContentLoaded", function () {
 
+ document.addEventListener("DOMContentLoaded", function () {
+  
     const area = document.getElementById("servicos-area");
     const mais = document.getElementById("fab");
 
-    // 🔵 Criar Card
     function criarServico(id = "", nome = "", preco = "") {
 
         const box = document.createElement("div");
@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
         box.innerHTML = `
             <input type="text" value="${nome}" class="nome-input" placeholder="Nome do Serviço">
             <input type="text" value="${preco}" class="preco-input" placeholder="Preço">
-
             <button class="editar-btn">Salvar</button>
             <button class="delete-btn">Excluir</button>
         `;
@@ -39,6 +38,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const precoInput = box.querySelector(".preco-input");
         const editarBtn = box.querySelector(".editar-btn");
         const deleteBtn = box.querySelector(".delete-btn");
+
+        // 💰 MÁSCARA DE PREÇO (AGORA NO LUGAR CERTO)
+        precoInput.addEventListener("input", function () {
+
+            let valor = precoInput.value.replace(/\D/g, "");
+
+            if (valor === "") {
+                precoInput.value = "";
+                return;
+            }
+
+            valor = (parseInt(valor) / 100).toFixed(2);
+            valor = valor.replace(".", ",");
+            valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+            precoInput.value = "R$ " + valor;
+        });
 
         // Se já existe no banco → começa bloqueado
         if (id !== "") {
@@ -49,21 +65,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let modo = id === "" ? "novo" : "bloqueado";
 
-        // 🔹 SALVAR / EDITAR
         editarBtn.addEventListener("click", () => {
 
             const novoNome = nomeInput.value.trim();
-            const novoPreco = precoInput.value.trim();
+
+            const novoPreco = precoInput.value
+                .replace("R$ ", "")
+                .replace(/\./g, "")
+                .replace(",", ".")
+                .trim();
 
             if (novoNome === "" || novoPreco === "") {
                 alert("Preencha todos os campos!");
                 return;
             }
 
-            // 🟢 NOVO SERVIÇO
+            // 🟢 NOVO
             if (modo === "novo") {
 
-                fetch("salvar_servico.php", {
+                fetch("editar_servico.php", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded"
@@ -78,12 +98,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             }
 
-            // 🔵 LIBERAR PARA EDITAR
+            // 🔵 LIBERAR
             else if (modo === "bloqueado") {
 
                 nomeInput.readOnly = false;
                 precoInput.readOnly = false;
-
                 editarBtn.innerText = "Salvar Alterações";
                 modo = "editando";
             }
@@ -105,13 +124,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     nomeInput.readOnly = true;
                     precoInput.readOnly = true;
-
                     editarBtn.innerText = "Editar";
                     modo = "bloqueado";
                 });
-
             }
-
         });
 
         // 🔴 EXCLUIR
@@ -144,7 +160,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return box;
     }
 
-    // 🔄 Carregar serviços
     function carregarServicos() {
 
         fetch("salvar_servico.php")
@@ -162,18 +177,14 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(erro => {
             console.error("Erro ao carregar:", erro);
         });
-
     }
 
-    // ➕ Botão +
     mais.addEventListener("click", () => {
         const novo = criarServico();
         area.appendChild(novo);
     });
 
-    // Carrega ao abrir
     carregarServicos();
-
 });
 
 function verMais(index) {

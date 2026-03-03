@@ -1,4 +1,4 @@
- <?php
+  <?php
 require_once("login.php");
 
 header('Content-Type: application/json');

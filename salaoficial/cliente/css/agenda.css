@@ -125,9 +125,14 @@ h1{
     background:#c48b80;
 }
 
-h2{
-    font-size:35px;
-    margin-bottom:20px;
+.titulo{
+    display: inline-block;
+    text-align: center;
+    background-color:  var(--cor1);
+    margin:32px 0;
+    padding: 12px;
+    font-size:25px;
+    border-radius: 30px;
 }
 
 .horarios{

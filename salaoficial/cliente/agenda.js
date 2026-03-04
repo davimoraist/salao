@@ -1,4 +1,4 @@
-let hoje = new Date();
+ let hoje = new Date();
 let inicio = 0;
 let dataSelecionada = null;
 
@@ -13,9 +13,11 @@ function gerarDatas(){
         let novaData = new Date();
         novaData.setDate(hoje.getDate() + i);
 
-        if(novaData.getDay() !== 0){ // Bloqueia domingo
+        if(novaData.getDay() !== 0){
+
             let dia = String(novaData.getDate()).padStart(2,'0');
             let mes = String(novaData.getMonth()+1).padStart(2,'0');
+            let ano = novaData.getFullYear();
 
             let div = document.createElement("div");
             div.className = "data-box";
@@ -25,8 +27,7 @@ function gerarDatas(){
 
             if(count === 0){
                 div.classList.add("ativa");
-                dataSelecionada = novaData;
-                gerarHorarios();
+                selecionarData(div, novaData);
             }
 
             container.appendChild(div);
@@ -37,17 +38,33 @@ function gerarDatas(){
     }
 }
 
+function selecionarData(elemento, data){
+    document.querySelectorAll(".data-box").forEach(el=>el.classList.remove("ativa"));
+    elemento.classList.add("ativa");
+
+    dataSelecionada = data;
+
+    // FORMATO CORRETO PARA MYSQL: YYYY-MM-DD
+    let ano = data.getFullYear();
+    let mes = String(data.getMonth()+1).padStart(2,'0');
+    let dia = String(data.getDate()).padStart(2,'0');
+
+    document.getElementById("dataSelecionada").value = `${ano}-${mes}-${dia}`;
+
+    gerarHorarios();
+}
+
+function selecionarHora(hora){
+    document.getElementById("horaSelecionada").value = hora;
+
+    document.querySelectorAll(".hora").forEach(el=>el.classList.remove("ativa"));
+    event.target.classList.add("ativa");
+}
+
 function mover(direcao){
     inicio += direcao;
     if(inicio < 0) inicio = 0;
     gerarDatas();
-}
-
-function selecionarData(elemento, data){
-    document.querySelectorAll(".data-box").forEach(el=>el.classList.remove("ativa"));
-    elemento.classList.add("ativa");
-    dataSelecionada = data;
-    gerarHorarios();
 }
 
 function gerarHorarios(){
@@ -67,22 +84,23 @@ function gerarHorarios(){
     let agora = new Date();
 
     horarios.forEach(hora=>{
+
         let [h,m] = hora.split(":");
         let horaData = new Date(dataSelecionada);
         horaData.setHours(h,m);
 
         if(dataSelecionada.toDateString() === agora.toDateString()){
-            if(horaData < agora) return; // Não mostra horário passado
+            if(horaData < agora) return;
         }
 
         let div = document.createElement("div");
         div.className="hora";
         div.innerText=hora;
 
-        div.onclick = ()=> enviarWhats(hora);
+        div.onclick = ()=> selecionarHora(hora);
 
         container.appendChild(div);
     });
 }
- 
+
 gerarDatas();

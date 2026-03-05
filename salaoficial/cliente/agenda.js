@@ -17,7 +17,6 @@ function gerarDatas(){
 
             let dia = String(novaData.getDate()).padStart(2,'0');
             let mes = String(novaData.getMonth()+1).padStart(2,'0');
-            let ano = novaData.getFullYear();
 
             let div = document.createElement("div");
             div.className = "data-box";
@@ -39,12 +38,12 @@ function gerarDatas(){
 }
 
 function selecionarData(elemento, data){
+
     document.querySelectorAll(".data-box").forEach(el=>el.classList.remove("ativa"));
     elemento.classList.add("ativa");
 
     dataSelecionada = data;
 
-    // FORMATO CORRETO PARA MYSQL: YYYY-MM-DD
     let ano = data.getFullYear();
     let mes = String(data.getMonth()+1).padStart(2,'0');
     let dia = String(data.getDate()).padStart(2,'0');
@@ -54,53 +53,91 @@ function selecionarData(elemento, data){
     gerarHorarios();
 }
 
-function selecionarHora(hora){
+function selecionarHora(hora, elemento){
+
     document.getElementById("horaSelecionada").value = hora;
 
     document.querySelectorAll(".hora").forEach(el=>el.classList.remove("ativa"));
-    event.target.classList.add("ativa");
+
+    elemento.classList.add("ativa");
 }
 
 function mover(direcao){
     inicio += direcao;
-    if(inicio < 0) inicio = 0;
+
+    if(inicio < 0){
+        inicio = 0;
+    }
+
     gerarDatas();
 }
 
 function gerarHorarios(){
+
     const container = document.getElementById("horarios");
     container.innerHTML = "";
 
-    let horarios = [];
+    let ano = dataSelecionada.getFullYear();
+    let mes = String(dataSelecionada.getMonth()+1).padStart(2,'0');
+    let dia = String(dataSelecionada.getDate()).padStart(2,'0');
 
-    for(let h=7; h<12; h++){
-        horarios.push(h+":00");
-    }
+    let dataFormatada = `${ano}-${mes}-${dia}`;
 
-    for(let h=13; h<=18; h++){
-        horarios.push(h+":00");
-    }
+    fetch("buscar_horarios.php?data=" + dataFormatada)
+    .then(response => response.json())
+    .then(horariosOcupados => {
 
-    let agora = new Date();
+        let horarios = [];
 
-    horarios.forEach(hora=>{
-
-        let [h,m] = hora.split(":");
-        let horaData = new Date(dataSelecionada);
-        horaData.setHours(h,m);
-
-        if(dataSelecionada.toDateString() === agora.toDateString()){
-            if(horaData < agora) return;
+        for(let h=7; h<12; h++){
+            horarios.push(h + ":00");
         }
 
-        let div = document.createElement("div");
-        div.className="hora";
-        div.innerText=hora;
+        for(let h=13; h<=18; h++){
+            horarios.push(h + ":00");
+        }
 
-        div.onclick = ()=> selecionarHora(hora);
+        let agora = new Date();
 
-        container.appendChild(div);
+        horarios.forEach(hora=>{
+
+            let [h,m] = hora.split(":");
+
+            let horaData = new Date(dataSelecionada);
+            horaData.setHours(h,m);
+
+            if(dataSelecionada.toDateString() === agora.toDateString()){
+                if(horaData < agora){
+                    return;
+                }
+            }
+            let horaBanco = hora + ":00:00";
+
+            let div = document.createElement("div");
+            div.className = "hora";
+            div.innerText = hora;
+
+            if(horariosOcupados.includes(horaBanco)){
+                div.classList.add("ocupado");
+            }
+            
+            if(horariosOcupados.includes(horaBanco)){
+
+                div.classList.add("ocupado");
+                div.innerText = hora + " (ocupado)";
+
+            }else{
+
+                div.onclick = () => selecionarHora(hora, div);
+
+            }
+
+            container.appendChild(div);
+
+        });
+
     });
-}
 
+}
+ 
 gerarDatas();

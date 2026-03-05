@@ -181,3 +181,20 @@ h1{
     background-color: var(--cor4);
 }
 
+.hora {
+    padding: 10px;
+    margin: 5px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.hora.ativa {
+    background: blue;
+}
+
+.hora.ocupado {
+    background: red;
+    cursor: not-allowed;
+}

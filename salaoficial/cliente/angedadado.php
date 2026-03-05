@@ -1,4 +1,4 @@
- <?php 
+<?php 
 require_once "conecte.php";
 session_start();
 
@@ -6,15 +6,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $id_cliente = $_SESSION['id'];
 
-    // Pega os serviços como array
     $servicos = $_POST['servocosalao'] ?? [];
-
-    // Transforma em texto
     $servicosTexto = implode(", ", $servicos);
 
     $data = $_POST['data'];
     $hora = $_POST['hora'];
 
+    // VERIFICA SE HORÁRIO JÁ EXISTE
+    $verifica = $conn->prepare("SELECT id FROM agendamentos WHERE data_agendamento = ? AND hora_agendamento = ?");
+    $verifica->bind_param("ss", $data, $hora);
+    $verifica->execute();
+    $verifica->store_result();
+
+    if($verifica->num_rows > 0){
+        die("Horário já reservado!");
+    }
+
+    // SALVAR
     $sql = "INSERT INTO agendamentos 
     (id_cliente, servico, data_agendamento, hora_agendamento) 
     VALUES (?, ?, ?, ?)";

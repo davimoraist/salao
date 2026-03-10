@@ -1,4 +1,4 @@
- let hoje = new Date();
+let hoje = new Date();
 let inicio = 0;
 let dataSelecionada = null;
 
@@ -10,6 +10,7 @@ function gerarDatas(){
     let i = inicio;
 
     while(count < 3){
+
         let novaData = new Date();
         novaData.setDate(hoje.getDate() + i);
 
@@ -63,6 +64,7 @@ function selecionarHora(hora, elemento){
 }
 
 function mover(direcao){
+
     inicio += direcao;
 
     if(inicio < 0){
@@ -111,16 +113,13 @@ function gerarHorarios(){
                     return;
                 }
             }
-            let horaBanco = hora + ":00:00";
+
+            let horaBanco = hora + ":00";
 
             let div = document.createElement("div");
             div.className = "hora";
             div.innerText = hora;
 
-            if(horariosOcupados.includes(horaBanco)){
-                div.classList.add("ocupado");
-            }
-            
             if(horariosOcupados.includes(horaBanco)){
 
                 div.classList.add("ocupado");
@@ -139,5 +138,15 @@ function gerarHorarios(){
     });
 
 }
- 
+
 gerarDatas();
+
+
+// ATUALIZA AUTOMATICAMENTE OS HORÁRIOS
+setInterval(() => {
+
+    if(dataSelecionada){
+        gerarHorarios();
+    }
+
+}, 3000);

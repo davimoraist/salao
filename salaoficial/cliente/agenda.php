@@ -57,7 +57,7 @@ if ($result->num_rows > 0) {
 
             <div class="servico">
                 <h2 class="titulo">Serviço</h2>
-
+            </div>
                 <?php if (empty($dados)): ?>
                     <p>Nenhum serviço cadastrado.</p>
                 <?php else: ?>

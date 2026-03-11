@@ -54,7 +54,7 @@ if ($result->num_rows > 0) {
 
             <h2 class="titulo">Horários disponíveis</h2>
             <div class="horarios" id="horarios"></div>
-
+        
             <div class="servico">
                 <h2 class="titulo">Serviço</h2>
             </div>

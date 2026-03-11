@@ -114,24 +114,26 @@ function gerarHorarios(){
                 }
             }
 
-            let horaBanco = hora + ":00";
+            let horaBanco = hora;
 
             let div = document.createElement("div");
             div.className = "hora";
             div.innerText = hora;
 
-            if(horariosOcupados.includes(horaBanco)){
+             if(horariosOcupados.includes(hora)){
 
-                div.classList.add("ocupado");
-                div.innerText = hora + " (ocupado)";
+        div.classList.add("ocupado");
+        div.innerText = hora + " (ocupado)";
 
-            }else{
+        }else{
 
-                div.onclick = () => selecionarHora(hora, div);
+            div.onclick = () => selecionarHora(hora, div);
 
-            }
+        }
 
             container.appendChild(div);
+
+            
 
         });
 
@@ -140,13 +142,3 @@ function gerarHorarios(){
 }
 
 gerarDatas();
-
-
-// ATUALIZA AUTOMATICAMENTE OS HORÁRIOS
-setInterval(() => {
-
-    if(dataSelecionada){
-        gerarHorarios();
-    }
-
-}, 3000);

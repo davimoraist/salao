@@ -1,0 +1,57 @@
+ !DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloquear</title>
+
+    <style>
+        body {
+            background: black;
+        }
+
+        a {
+            background: aliceblue;
+            text-decoration: none;
+            color: red;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            margin: 100px;
+            padding: 30px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        a:hover {
+            background: #cbd3db;
+        }
+
+        .bloqueado {
+            background: #4b4f4c;
+            color: white;
+            cursor: not-allowed;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <a href="#" class="bloquear" onclick="bloquearBotao(this)">Bloquear</a>
+
+    <script>
+
+        function bloquearBotao(elemento) {
+
+            elemento.classList.add("bloqueado");
+            elemento.innerText = "Bloqueado";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

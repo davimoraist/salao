@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $verifica->store_result();
 
     if($verifica->num_rows > 0){
-        die("Horário já reservado!");
+       die("Horário já reservado!");
     }
 
     // SALVAR

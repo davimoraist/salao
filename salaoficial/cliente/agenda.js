@@ -1,8 +1,9 @@
-let hoje = new Date();
+ let hoje = new Date();
 let inicio = 0;
 let dataSelecionada = null;
 
 function gerarDatas(){
+
     const container = document.getElementById("datas");
     container.innerHTML = "";
 
@@ -40,7 +41,10 @@ function gerarDatas(){
 
 function selecionarData(elemento, data){
 
-    document.querySelectorAll(".data-box").forEach(el=>el.classList.remove("ativa"));
+    document.querySelectorAll(".data-box").forEach(el=>{
+        el.classList.remove("ativa");
+    });
+
     elemento.classList.add("ativa");
 
     dataSelecionada = data;
@@ -58,7 +62,9 @@ function selecionarHora(hora, elemento){
 
     document.getElementById("horaSelecionada").value = hora;
 
-    document.querySelectorAll(".hora").forEach(el=>el.classList.remove("ativa"));
+    document.querySelectorAll(".hora").forEach(el=>{
+        el.classList.remove("ativa");
+    });
 
     elemento.classList.add("ativa");
 }
@@ -89,14 +95,17 @@ function gerarHorarios(){
     .then(response => response.json())
     .then(horariosOcupados => {
 
+        // normaliza formato da hora
+        horariosOcupados = horariosOcupados.map(h => h.substring(0,5));
+
         let horarios = [];
 
         for(let h=7; h<12; h++){
-            horarios.push(h + ":00");
+            horarios.push(String(h).padStart(2,'0') + ":00");
         }
 
         for(let h=13; h<=18; h++){
-            horarios.push(h + ":00");
+            horarios.push(String(h).padStart(2,'0') + ":00");
         }
 
         let agora = new Date();
@@ -114,26 +123,23 @@ function gerarHorarios(){
                 }
             }
 
-            let horaBanco = hora;
-
             let div = document.createElement("div");
             div.className = "hora";
             div.innerText = hora;
 
-             if(horariosOcupados.includes(hora)){
+            if(horariosOcupados.includes(hora)){
 
-        div.classList.add("ocupado");
-        div.innerText = hora + " (ocupado)";
+                div.classList.add("ocupado");
+                div.innerText = hora;
+                div.style.pointerEvents = "none";
 
-        }else{
+            }else{
 
-            div.onclick = () => selecionarHora(hora, div);
+                div.onclick = () => selecionarHora(hora, div);
 
-        }
+            }
 
             container.appendChild(div);
-
-            
 
         });
 

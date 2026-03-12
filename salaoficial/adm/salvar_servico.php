@@ -1,5 +1,5 @@
-  <?php
-require_once("login.php");
+ <?php
+require_once("login.php"); // sua conexão com o banco
 
 header('Content-Type: application/json');
 
@@ -9,4 +9,3 @@ $dados = $sql->fetchAll(PDO::FETCH_ASSOC);
 echo json_encode($dados);
 exit;
 ?>
-

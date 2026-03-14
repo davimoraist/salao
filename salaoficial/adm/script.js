@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const areaServicos = document.getElementById("servicos-area");
     const btnNovoServico = document.getElementById("fab");
 
-    // ===================== CRIAR SERVIÇO =====================
+     // ===================== CRIAR SERVIÇO =====================
     function criarServico(id = "", nome = "", preco = "") {
         const box = document.createElement("div");
         box.classList.add("servico-box");
@@ -159,7 +159,25 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(err => console.error("Erro ao buscar clientes:", err));
     }
+  function mostrarTela(tela){
 
+    // esconder todas as telas
+    document.querySelectorAll('.tela').forEach(div=>{
+        div.classList.remove('ativa');
+    });
+
+    // mostrar a tela selecionada
+    document.getElementById(tela).classList.add('ativa');
+
+    // remover marcação do menu
+    document.querySelectorAll('.menu button').forEach(btn=>{
+        btn.classList.remove('active');
+    });
+
+    // marcar botão correto do menu
+    document.querySelector('.menu button[onclick="mostrarTela(\''+tela+'\')"]').classList.add('active');
+
+}
     // Atualizar clientes a cada 5 segundos
     setInterval(atualizarTabelaClientes, 5000);
 

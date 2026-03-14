@@ -1,16 +1,13 @@
-<?php
+ <?php
 session_start();
 require "verificar.php";
 
-if (isset($_SESSION['idusuario']) && !empty($_SESSION['idusuario'])):
-
-    
 if (!isset($_SESSION['idusuario']) || empty($_SESSION['idusuario'])) {
     header("Location: index.php");
     exit;
 }
 
-// Conexão com o banco
+// conexão banco
 $host = "localhost";
 $db = "salao";
 $user = "root";
@@ -21,113 +18,232 @@ try {
 } catch (PDOException $e) {
     die("Erro: " . $e->getMessage());
 }
-
-// Pega todos os clientes
- $sql = $pdo->query("SELECT c.id, c.nome, c.email, p.endereco, p.telefone, p.cpf, p.data_nascimento, p.como_conheceu, p.data_cadastro, f.diabetes, f.gestante, f.alergias, f.especificar_alergia, f.cuticula, f.onicomicose, f.especificar_onico, f.medicamento, f.qual_medicamento, f.lamina, f.outro_lamina_texto, f.encravada, f.onicofagia, f.esporte, f.piscina, f.data_cadastro AS data_ficha 
-
-FROM cliente c
-
-LEFT JOIN pessoais p 
-    ON c.id = p.id_cliente 
-
-LEFT JOIN ficha_anamnese f 
-    ON c.id = f.id_cliente
-
-ORDER BY c.id DESC
-");
-
-$clientes = $sql->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/adm.css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <title>ADM DO SALÃO</title> 
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="css/adm.css">
+
+<title>ADM DO SALÃO</title>
+
 </head>
+
 <body>
-    
-    <div class="cabeca">
-    <h1>Salão da Maria - ADM</h1>
 
-    <span class="nome-usuario">
-        <label>Olá!  <?php echo $pessoa; ?></label>
-    </span>
-    </div>
+<div class="cabeca">
 
-    <div class="menu">
-        <button onclick="mostrarTela('agenda')" class="active">Agenda</button>
-        <button onclick="mostrarTela('cliente')">Clientes</button>
-        <button onclick="mostrarTela('servicos')">cadastro de Serviços</button>
-        <button onclick="mostrarTela('servico')">Serviços</button>
-        <button onclick="mostrarTela('faturamento')">Faturamento</button>
-        <button onclick="mostrarTela('grafico')">Gráficos</button>
-         <button onclick="mostrarTela('config')">Configurações</button>
-        <button><a href="sair.php">Sair</a></button>
-    </div>
+<h1>Salão da Maria - ADM</h1>
 
-    <div class="conteudo">
+<span class="nome-usuario">
+Olá! <?php echo $pessoa; ?>
+</span>
 
-        <div id="agenda" class="tela ativa">
-            <h1>Agenda</h1>
-            <p>Aqui aparece a agenda do salão.</p>
-        </div>
+</div>
 
-        <div id="servicos" class="tela">
-            <h1 class="titulo-servicos">cadastro de Serviços</h1>
-            <h2 class="subtitulo-servicos">Gerenciar Serviços e Preços</h2>
-            <div id="servicos-area"></div>
-            <button id="fab">+</button>
-        </div>
-        
-        <div id="servico" class="tela">
-            <h1>Serviços</h1>
-            <p>Configurações do sistema.</p>
-        </div>
 
-        <div id="cliente" class="tela"> 
-    <h1>cliente</h1>
-    <table class="tabela-clientes">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Ver mais</th>
-            </tr>
-            </thead>
-                <tbody id="corpo-tabela-clientes">
-            </tbody>
-        </table>
-    </div>
+<div class="menu">
 
-        <div id="faturamento" class="tela">
-            <h1>Faturamento</h1>
-            <p>Configurações do sistema.</p>
-        </div>
+<button onclick="mostrarTela('agenda')" class="active">Agenda</button>
 
-        <div id="grafico" class="tela">
-            <h1>Gráficos</h1>
-            <p>Configurações do sistema.</p>
-        </div>
+<button onclick="mostrarTela('cliente')">Clientes</button>
 
-        <div id="config" class="tela">
-            <h1>Configurações</h1>
-            <p>Configurações do sistema.</p>
-        </div>
+<button onclick="mostrarTela('servicos')">Cadastro de Serviços</button>
 
-    </div>
+<button onclick="mostrarTela('servico')">Serviços</button>
 
-    <script src="script.js"></script>
-</body>
-</html>
+<button onclick="mostrarTela('faturamento')">Faturamento</button>
+
+<button onclick="mostrarTela('grafico')">Gráficos</button>
+
+<button onclick="mostrarTela('config')">Configurações</button>
+
+<button onclick="window.location='sair.php'">Sair</button>
+
+</div>
+
+
+
+<div class="conteudo">
+
+<!-- AGENDA -->
+
+<div id="agenda" class="tela ativa">
 
 <?php
-else:
-    header("Location: index.php");
-    exit;
-endif;
+
+$sql = $pdo->query("SELECT 
+c.nome,
+a.servico,
+a.data_agendamento,
+a.hora_agendamento,
+a.status
+FROM agendamentos a
+LEFT JOIN cliente c
+ON a.id_cliente = c.id
+ORDER BY a.data_agendamento, a.hora_agendamento");
+
+$agendamentos = $sql->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
- 
+
+<h2>Agendamentos</h2>
+
+<table class="tabela-agendamentos">
+
+<thead>
+
+<tr>
+<th>Cliente</th>
+<th>Serviço</th>
+<th>Data</th>
+<th>Hora</th>
+<th>Status</th>
+<th>Ver mais</th>
+<th>Finalizar</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<?php foreach($agendamentos as $agendamento){ ?>
+
+<tr>
+
+<td><?php echo $agendamento['nome']; ?></td>
+
+<td><?php echo $agendamento['servico']; ?></td>
+
+<td><?php echo $agendamento['data_agendamento']; ?></td>
+
+<td><?php echo $agendamento['hora_agendamento']; ?></td>
+
+<td><?php echo $agendamento['status']; ?></td>
+
+<td>
+<button onclick="mostrarTela('cliente')">Ver mais</button>
+</td>
+
+<td>
+<button>Finalizar</button>
+</td>
+
+</tr>
+
+<?php } ?>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+
+<!-- CADASTRO SERVIÇOS -->
+
+<div id="servicos" class="tela">
+
+<h1 class="titulo-servicos">Cadastro de Serviços</h1>
+
+<h2 class="subtitulo-servicos">Gerenciar Serviços e Preços</h2>
+
+<div id="servicos-area"></div>
+
+<button id="fab">+</button>
+
+</div>
+
+
+
+<!-- SERVIÇOS -->
+
+<div id="servico" class="tela">
+
+<h1>Serviços</h1>
+
+<p>Lista de serviços cadastrados.</p>
+
+</div>
+
+
+
+<!-- CLIENTES -->
+
+<div id="cliente" class="tela">
+
+<h1>Clientes</h1>
+
+<table class="tabela-clientes">
+
+<thead>
+
+<tr>
+
+<th>Nome</th>
+
+<th>Email</th>
+
+<th>Ver mais</th>
+
+</tr>
+
+</thead>
+
+<tbody id="corpo-tabela-clientes">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+
+<!-- FATURAMENTO -->
+
+<div id="faturamento" class="tela">
+
+<h1>Faturamento</h1>
+
+<p>Controle financeiro do salão.</p>
+
+</div>
+
+
+
+<!-- GRAFICO -->
+
+<div id="grafico" class="tela">
+
+<h1>Gráficos</h1>
+
+<p>Estatísticas do salão.</p>
+
+</div>
+
+
+
+<!-- CONFIG -->
+
+<div id="config" class="tela">
+
+<h1>Configurações</h1>
+
+<p>Configurações do sistema.</p>
+
+</div>
+
+
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

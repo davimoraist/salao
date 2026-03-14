@@ -198,29 +198,143 @@ body {
     cursor: pointer;
 }
 
-.nome-input, .preco-input {
-    overflow: auto;
-    padding: 12px;
-    margin: 3px;
-    font-size: 20px;
+ /* ==========================
+   CADASTRO DE SERVIÇOS
+========================== */
+
+ #servicos {
+     background: #ffffff;
+     border: 2px solid #000000;
+     border-radius: 10px;
+     padding: 25px;
+     margin-top: 20px;
+     box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+ }
+
+ /* TITULO */
+ .titulo-servicos {
+     font-family: var(--fonte-titulo);
+     font-size: 28px;
+     margin-bottom: 10px;
+     color: var(--cor2);
+ }
+
+ .subtitulo-servicos {
+     font-size: 18px;
+     color: #444;
+     margin-bottom: 25px;
+ }
+
+ /* AREA DOS SERVIÇOS */
+ #servicos-area {
+     display: flex;
+     flex-direction: column;
+     gap: 15px;
+ }
+
+ /* LINHA DE SERVIÇO */
+ .servico-item {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+ }
+
+ /* INPUT NOME */
+ .nome-input {
+     flex: 2;
+     padding: 12px;
+     font-size: 16px;
+     border: 1px solid #ccc;
+     border-radius: 6px;
+ }
+
+ /* INPUT PREÇO */
+ .preco-input {
+     width: 120px;
+     padding: 12px;
+     font-size: 16px;
+     border: 1px solid #ccc;
+     border-radius: 6px;
+ }
+
+ /* BOTÕES */
+ .editar-btn,
+ .delete-btn {
+     padding: 10px 18px;
+     font-size: 14px;
+     border-radius: 30px;
+     border: none;
+     cursor: pointer;
+     color: white;
+     background-color: var(--cor1);
+     transition: 0.2s;
+ }
+
+ /* HOVER BOTÕES */
+ .editar-btn:hover {
+     background-color: var(--cor3);
+ }
+
+ .delete-btn:hover {
+     background-color: #a94444;
+ }
+
+ /* BOTÃO FLUTUANTE + */
+ #fab {
+     position: fixed;
+     bottom: 25px;
+     right: 25px;
+     width: 55px;
+     height: 55px;
+     border: none;
+     cursor: pointer;
+     font-size: 28px;
+     color: white;
+     border-radius: 50%;
+     background-color: var(--cor2);
+     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+     transition: 0.2s;
+ }
+
+ #fab:hover {
+     background-color: var(--cor1);
+     transform: scale(1.1);
+ }
+ 
+.tabela-agendamentos{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+
 }
 
-.editar-btn, .delete-btn{
-    padding: 12px;
-    margin: 3px;
-    font-size: 20px;
-    border-radius: 100px;
+.tabela-agendamentos th, 
+.tabela-agendamentos td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.tabela-agendamentos th {
+    background-color: #4CAF50; /* verde do painel */
     color: white;
-    background-color: var(--cor1);
+
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.tabela-agendamentos tbody td {
+    border: 1px solid #ddd;
+}
+
+.tabela-agendamentos tbody td button{
     border: none;
+    background-color: var(--cor5);
+    color: white;
+    padding: 10px;
+    border-radius: 100px;
     cursor: pointer;
-    overflow: auto;
 }
 
-.delete-btn:hover{
-    background-color: var(--cor3);
-}
-
-.editar-btn:hover{
-    background-color: var(--cor3);
+.tabela-agendamentos tbody td button:hover{
+    background-color: #f1bcb2;
 }

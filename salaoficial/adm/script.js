@@ -1,19 +1,74 @@
- // ===================== TROCAR TELAS DO PAINEL =====================
-function mostrarTela(tela, event) {
-    document.querySelectorAll('.tela').forEach(div => div.classList.remove('ativa'));
-    document.getElementById(tela).classList.add('ativa');
+ // ===================== VARIÁVEIS GLOBAIS =====================
+let clienteParaAbrir = null; 
 
-    document.querySelectorAll('.menu button').forEach(btn => btn.classList.remove('active'));
-    if (event) event.target.classList.add('active');
+// ===================== TROCAR TELAS DO PAINEL =====================
+function mostrarTela(tela, id = null) {
+    clienteParaAbrir = id; // Guarda o ID se houver um
+
+    // 1. Troca a tela
+    document.querySelectorAll('.tela').forEach(div => div.classList.remove('ativa'));
+    const alvo = document.getElementById(tela);
+    if(alvo) alvo.classList.add('ativa');
+
+    // 2. Marca o menu lateral
+    document.querySelectorAll('.menu button').forEach(btn => {
+        btn.classList.remove('active');
+        let acao = btn.getAttribute('onclick') || "";
+        if (acao.includes("'" + tela + "'")) {
+            btn.classList.add('active');
+        }
+    });
+
+    // 3. Se o ID já existir na tabela atual, abre na hora
+    if (id) {
+        verMais(id);
+    }
 }
 
+// ===================== FUNÇÃO VER MAIS (DETALHES DA LINHA) =====================
+window.verMais = function(id) {
+    const detalhes = document.getElementById("detalhes-" + id);
+    if (detalhes) {
+        detalhes.style.display = (detalhes.style.display === "none" || detalhes.style.display === "") ? "table-row" : "none";
+    }
+};
+
+// ===================== CARREGAR CLIENTES (AJAX) =====================
+ function atualizarTabelaClientes() {
+    // 1. ANTES de atualizar, vamos ver qual detalhe está aberto agora
+    let idAbertoNoMomento = null;
+    document.querySelectorAll('[id^="detalhes-"]').forEach(linha => {
+        if (linha.style.display !== 'none') {
+            // Pega apenas o número do ID (ex: detalhes-5 vira 5)
+            idAbertoNoMomento = linha.id.replace('detalhes-', '');
+        }
+    });
+
+    fetch("get_clientes.php")
+    .then(res => res.text())
+    .then(html => {
+        const corpo = document.getElementById("corpo-tabela-clientes");
+        if (corpo) {
+            corpo.innerHTML = html;
+
+            // 2. Se tinha alguém aberto ou se viemos da agenda, abre agora
+            let idParaAbrir = clienteParaAbrir || idAbertoNoMomento;
+
+            if (idParaAbrir) {
+                verMais(idParaAbrir);
+                clienteParaAbrir = null; // Limpa a variável da agenda
+            }
+        }
+    })
+    .catch(err => console.error("Erro ao buscar clientes:", err));
+}
 // ===================== SCRIPT PRINCIPAL =====================
 document.addEventListener("DOMContentLoaded", function() {
 
     const areaServicos = document.getElementById("servicos-area");
     const btnNovoServico = document.getElementById("fab");
 
-     // ===================== CRIAR SERVIÇO =====================
+    // ===================== CRIAR SERVIÇO =====================
     function criarServico(id = "", nome = "", preco = "") {
         const box = document.createElement("div");
         box.classList.add("servico-box");
@@ -47,7 +102,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
         let modo = id === "" ? "novo" : "bloqueado";
 
-        // ===================== BOTÃO EDITAR/SALVAR =====================
         editarBtn.addEventListener("click", () => {
             const novoNome = nomeInput.value.trim();
             const novoPreco = precoInput.value.replace("R$ ", "").replace(/\./g, "").replace(",", ".").trim();
@@ -65,13 +119,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     alert(msg);
                     carregarServicos();
                 });
-
             } else if (modo === "bloqueado") {
                 nomeInput.readOnly = false;
                 precoInput.readOnly = false;
                 editarBtn.innerText = "Salvar Alterações";
                 modo = "editando";
-
             } else if (modo === "editando") {
                 fetch("editar_servico.php", {
                     method: "POST",
@@ -89,7 +141,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
 
-        // ===================== BOTÃO EXCLUIR =====================
         deleteBtn.addEventListener("click", () => {
             if (id === "") { box.remove(); return; }
             if (!confirm("Tem certeza que deseja excluir?")) return;
@@ -114,75 +165,27 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch("salvar_servico.php")
         .then(res => res.json())
         .then(dados => {
-            areaServicos.innerHTML = "";
-            dados.forEach(servico => {
-                const card = criarServico(servico.id, servico.nome, servico.preco);
-                areaServicos.appendChild(card);
-            });
+            if (areaServicos) {
+                areaServicos.innerHTML = "";
+                dados.forEach(servico => {
+                    const card = criarServico(servico.id, servico.nome, servico.preco);
+                    areaServicos.appendChild(card);
+                });
+            }
         })
         .catch(erro => console.error("Erro ao carregar serviços:", erro));
     }
 
-    // ===================== BOTÃO NOVO SERVIÇO =====================
-    btnNovoServico.addEventListener("click", () => {
-        const novo = criarServico();
-        areaServicos.appendChild(novo);
-    });
-
-    // ===================== FUNÇÃO VER MAIS =====================
-    window.verMais = function(id) {
-        const detalhes = document.getElementById("detalhes-" + id);
-        if (detalhes) {
-            detalhes.style.display = (detalhes.style.display === "none" || detalhes.style.display === "") ? "table-row" : "none";
-        }
-    };
-
-    // ===================== CARREGAR CLIENTES =====================
-    function atualizarTabelaClientes() {
-        // Salvar quais detalhes estavam abertos
-        let detalhesAbertos = [];
-        document.querySelectorAll('[id^="detalhes-"]').forEach(linha => {
-            if (linha.style.display !== 'none') detalhesAbertos.push(linha.id);
+    if (btnNovoServico) {
+        btnNovoServico.addEventListener("click", () => {
+            const novo = criarServico();
+            areaServicos.appendChild(novo);
         });
-
-        fetch("get_clientes.php")
-        .then(res => res.text())
-        .then(html => {
-            const corpo = document.getElementById("corpo-tabela-clientes");
-            if (corpo) corpo.innerHTML = html;
-
-            // Restaurar linhas abertas
-            detalhesAbertos.forEach(id => {
-                const linha = document.getElementById(id);
-                if (linha) linha.style.display = "";
-            });
-        })
-        .catch(err => console.error("Erro ao buscar clientes:", err));
     }
-  function mostrarTela(tela){
 
-    // esconder todas as telas
-    document.querySelectorAll('.tela').forEach(div=>{
-        div.classList.remove('ativa');
-    });
-
-    // mostrar a tela selecionada
-    document.getElementById(tela).classList.add('ativa');
-
-    // remover marcação do menu
-    document.querySelectorAll('.menu button').forEach(btn=>{
-        btn.classList.remove('active');
-    });
-
-    // marcar botão correto do menu
-    document.querySelector('.menu button[onclick="mostrarTela(\''+tela+'\')"]').classList.add('active');
-
-}
-    // Atualizar clientes a cada 5 segundos
-    setInterval(atualizarTabelaClientes, 5000);
-
-    // ===================== EXECUÇÃO INICIAL =====================
+    // Inicialização
     carregarServicos();
     atualizarTabelaClientes();
+    setInterval(atualizarTabelaClientes, 5000);
 
 });

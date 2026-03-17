@@ -42,8 +42,8 @@ try {
 <div class="menu">
     <button onclick="mostrarTela('agenda')" class="active">Agenda</button>
     <button onclick="mostrarTela('cliente')">Clientes</button>
+    <button onclick="mostrarTela('servico')">Histórico</button>
     <button onclick="mostrarTela('servicos')">Cadastro de Serviços</button>
-    <button onclick="mostrarTela('servico')">Serviços</button>
     <button onclick="mostrarTela('faturamento')">Faturamento</button>
     <button onclick="mostrarTela('grafico')">Gráficos</button>
     <button onclick="mostrarTela('config')">Configurações</button>
@@ -102,8 +102,7 @@ try {
 
                     <td>
                         <button type="button" 
-                                onclick="if(confirm('Finalizar este serviço?')){ location.href='finalizar_agendamento.php?id=<?php echo $agendamento['id']; ?>'; }" 
-                                style="background-color: #c08b8b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                                onclick="if(confirm('Finalizar este serviço?')){ location.href='finalizar_agendamento.php?id=<?php echo $agendamento['id']; ?>'; }" >
                             Finalizar
                         </button>
                     </td>
@@ -121,8 +120,8 @@ try {
     </div>
 
     <div id="servico" class="tela">
-        <h1>Serviços</h1>
-        <p>Lista de serviços cadastrados.</p>
+        <h1>Histórico do Cliente</h1>
+
     </div>
 
     <div id="cliente" class="tela">

@@ -54,6 +54,7 @@ foreach ($clientes as $user): ?>
             <strong>Onicofagia:</strong> <?= htmlspecialchars($user['onicofagia'] ?? '') ?><br>
             <strong>Esporte:</strong> <?= htmlspecialchars($user['esporte'] ?? '') ?><br>
             <strong>Piscina:</strong> <?= htmlspecialchars($user['piscina'] ?? '') ?><br>
+            <button onclick="verHistorico(<?= $user['id'] ?>)" class="ver-mais">Ver historico</button>
         </td>
     </tr>
 <?php endforeach; ?>

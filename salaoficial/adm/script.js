@@ -1,16 +1,15 @@
  // ===================== VARIÁVEIS GLOBAIS =====================
-let clienteParaAbrir = null; 
+let clienteParaAbrir = null;
 
-// ===================== TROCAR TELAS DO PAINEL =====================
+// ===================== TROCAR TELAS =====================
 function mostrarTela(tela, id = null) {
-    clienteParaAbrir = id; // Guarda o ID se houver um
+    clienteParaAbrir = id;
 
-    // 1. Troca a tela
     document.querySelectorAll('.tela').forEach(div => div.classList.remove('ativa'));
-    const alvo = document.getElementById(tela);
-    if(alvo) alvo.classList.add('ativa');
 
-    // 2. Marca o menu lateral
+    const alvo = document.getElementById(tela);
+    if (alvo) alvo.classList.add('ativa');
+
     document.querySelectorAll('.menu button').forEach(btn => {
         btn.classList.remove('active');
         let acao = btn.getAttribute('onclick') || "";
@@ -19,28 +18,47 @@ function mostrarTela(tela, id = null) {
         }
     });
 
-    // 3. Se o ID já existir na tabela atual, abre na hora
-    if (id) {
-        verMais(id);
-    }
+    if (id) verMais(id);
 }
 
-// ===================== FUNÇÃO VER MAIS (DETALHES DA LINHA) =====================
+// ===================== VER MAIS CLIENTES =====================
 window.verMais = function(id) {
     const detalhes = document.getElementById("detalhes-" + id);
     if (detalhes) {
-        detalhes.style.display = (detalhes.style.display === "none" || detalhes.style.display === "") ? "table-row" : "none";
+        detalhes.style.display =
+            (detalhes.style.display === "none" || detalhes.style.display === "")
+            ? "table-row"
+            : "none";
     }
 };
 
-// ===================== CARREGAR CLIENTES (AJAX) =====================
- function atualizarTabelaClientes() {
-    // 1. ANTES de atualizar, vamos ver qual detalhe está aberto agora
-    let idAbertoNoMomento = null;
+// ===================== VER HISTÓRICO (LADO DIREITO) =====================
+window.verhistorico = function(id) {
+    // CORREÇÃO: Adicionado ?id= para que o PHP reconheça o parâmetro
+    fetch("get.historico.php?id=" + id)
+    .then(res => {
+        if (!res.ok) throw new Error("Erro ao carregar arquivo");
+        return res.text();
+    })
+    .then(html => {
+        const painel = document.getElementById("conteudo-historico");
+        if (painel) {
+            painel.innerHTML = html;
+        }
+    })
+    .catch(err => {
+        console.error("Erro ao buscar histórico:", err);
+        const painel = document.getElementById("conteudo-historico");
+        if (painel) painel.innerHTML = "Erro ao carregar dados.";
+    });
+};
+
+// ===================== ATUALIZAR TABELAS =====================
+function atualizarTabelaClientes() {
+    let idAberto = null;
     document.querySelectorAll('[id^="detalhes-"]').forEach(linha => {
         if (linha.style.display !== 'none') {
-            // Pega apenas o número do ID (ex: detalhes-5 vira 5)
-            idAbertoNoMomento = linha.id.replace('detalhes-', '');
+            idAberto = linha.id.replace('detalhes-', '');
         }
     });
 
@@ -50,25 +68,36 @@ window.verMais = function(id) {
         const corpo = document.getElementById("corpo-tabela-clientes");
         if (corpo) {
             corpo.innerHTML = html;
-
-            // 2. Se tinha alguém aberto ou se viemos da agenda, abre agora
-            let idParaAbrir = clienteParaAbrir || idAbertoNoMomento;
-
+            let idParaAbrir = clienteParaAbrir || idAberto;
             if (idParaAbrir) {
                 verMais(idParaAbrir);
-                clienteParaAbrir = null; // Limpa a variável da agenda
+                clienteParaAbrir = null;
             }
         }
     })
-    .catch(err => console.error("Erro ao buscar clientes:", err));
+    .catch(err => console.error("Erro clientes:", err));
 }
+
+function atualizarTabelaHistorico() {
+    // Esta função atualiza a LISTA da esquerda
+    fetch("get.historico.php")
+    .then(res => res.text())
+    .then(html => {
+        const corpo = document.getElementById("corpo-tabela-historico");
+        if (corpo) {
+            corpo.innerHTML = html;
+        }
+    })
+    .catch(err => console.error("Erro histórico:", err));
+}
+
 // ===================== SCRIPT PRINCIPAL =====================
 document.addEventListener("DOMContentLoaded", function() {
 
     const areaServicos = document.getElementById("servicos-area");
     const btnNovoServico = document.getElementById("fab");
 
-    // ===================== CRIAR SERVIÇO =====================
+    // ===================== FUNÇÕES DE SERVIÇO =====================
     function criarServico(id = "", nome = "", preco = "") {
         const box = document.createElement("div");
         box.classList.add("servico-box");
@@ -85,10 +114,10 @@ document.addEventListener("DOMContentLoaded", function() {
         const editarBtn = box.querySelector(".editar-btn");
         const deleteBtn = box.querySelector(".delete-btn");
 
-        // MÁSCARA DE PREÇO
+        // Máscara de preço
         precoInput.addEventListener("input", function() {
             let valor = precoInput.value.replace(/\D/g, "");
-            if (valor === "") { precoInput.value = ""; return; }
+            if (!valor) return precoInput.value = "";
             valor = (parseInt(valor) / 100).toFixed(2);
             valor = valor.replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             precoInput.value = "R$ " + valor;
@@ -103,34 +132,31 @@ document.addEventListener("DOMContentLoaded", function() {
         let modo = id === "" ? "novo" : "bloqueado";
 
         editarBtn.addEventListener("click", () => {
-            const novoNome = nomeInput.value.trim();
-            const novoPreco = precoInput.value.replace("R$ ", "").replace(/\./g, "").replace(",", ".").trim();
+            const n = nomeInput.value.trim();
+            const p = precoInput.value.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
 
-            if (novoNome === "" || novoPreco === "") { alert("Preencha todos os campos!"); return; }
+            if (!n || !p) return alert("Preencha tudo!");
 
             if (modo === "novo") {
                 fetch("editar_servico.php", {
                     method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: `nome=${encodeURIComponent(novoNome)}&preco=${encodeURIComponent(novoPreco)}`
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: `nome=${encodeURIComponent(n)}&preco=${encodeURIComponent(p)}`
                 })
-                .then(res => res.text())
-                .then(msg => {
-                    alert(msg);
-                    carregarServicos();
-                });
+                .then(r => r.text())
+                .then(msg => { alert(msg); carregarServicos(); });
             } else if (modo === "bloqueado") {
                 nomeInput.readOnly = false;
                 precoInput.readOnly = false;
-                editarBtn.innerText = "Salvar Alterações";
+                editarBtn.innerText = "Salvar";
                 modo = "editando";
-            } else if (modo === "editando") {
+            } else {
                 fetch("editar_servico.php", {
                     method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: `id=${id}&nome=${encodeURIComponent(novoNome)}&preco=${encodeURIComponent(novoPreco)}`
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: `id=${id}&nome=${encodeURIComponent(n)}&preco=${encodeURIComponent(p)}`
                 })
-                .then(res => res.text())
+                .then(r => r.text())
                 .then(msg => {
                     alert(msg);
                     nomeInput.readOnly = true;
@@ -142,50 +168,40 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         deleteBtn.addEventListener("click", () => {
-            if (id === "") { box.remove(); return; }
-            if (!confirm("Tem certeza que deseja excluir?")) return;
-
+            if (!id) return box.remove();
+            if (!confirm("Excluir serviço?")) return;
             fetch("excluir_servico.php", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: `id=${id}`
             })
-            .then(res => res.text())
-            .then(msg => {
-                alert(msg);
-                carregarServicos();
-            });
+            .then(r => r.text())
+            .then(msg => { alert(msg); carregarServicos(); });
         });
 
         return box;
     }
 
-    // ===================== CARREGAR SERVIÇOS =====================
     function carregarServicos() {
         fetch("salvar_servico.php")
-        .then(res => res.json())
-        .then(dados => {
-            if (areaServicos) {
-                areaServicos.innerHTML = "";
-                dados.forEach(servico => {
-                    const card = criarServico(servico.id, servico.nome, servico.preco);
-                    areaServicos.appendChild(card);
-                });
-            }
-        })
-        .catch(erro => console.error("Erro ao carregar serviços:", erro));
-    }
-
-    if (btnNovoServico) {
-        btnNovoServico.addEventListener("click", () => {
-            const novo = criarServico();
-            areaServicos.appendChild(novo);
+        .then(r => r.json())
+        .then(lista => {
+            if (!areaServicos) return;
+            areaServicos.innerHTML = "";
+            lista.forEach(s => areaServicos.appendChild(criarServico(s.id, s.nome, s.preco)));
         });
     }
 
-    // Inicialização
+    if (btnNovoServico) {
+        btnNovoServico.onclick = () => areaServicos.appendChild(criarServico());
+    }
+
+    // ===================== INICIAR SISTEMA =====================
     carregarServicos();
     atualizarTabelaClientes();
-    setInterval(atualizarTabelaClientes, 5000);
+    atualizarTabelaHistorico();
 
+    // Atualização automática a cada 5 segundos
+    setInterval(atualizarTabelaClientes, 5000);
+    setInterval(atualizarTabelaHistorico, 5000);
 });

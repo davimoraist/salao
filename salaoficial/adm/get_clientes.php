@@ -53,8 +53,7 @@ foreach ($clientes as $user): ?>
             <strong>Encravada:</strong> <?= htmlspecialchars($user['encravada'] ?? '') ?><br>
             <strong>Onicofagia:</strong> <?= htmlspecialchars($user['onicofagia'] ?? '') ?><br>
             <strong>Esporte:</strong> <?= htmlspecialchars($user['esporte'] ?? '') ?><br>
-            <strong>Piscina:</strong> <?= htmlspecialchars($user['piscina'] ?? '') ?><br>
-            <button onclick="verHistorico(<?= $user['id'] ?>)" class="ver-mais">Ver historico</button>
+            <strong>Piscina:</strong> <?= htmlspecialchars($user['piscina'] ?? '') ?><br> 
         </td>
     </tr>
 <?php endforeach; ?>

@@ -121,7 +121,30 @@ try {
 
     <div id="servico" class="tela">
         <h1>Histórico do Cliente</h1>
+        <div class="container-historico">
 
+    <!-- TABELA -->
+    <div class="tabela-historico">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Histórico</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-tabela-historico"></tbody>
+        </table>
+    </div>
+
+    <!-- PAINEL LATERAL -->
+    <div id="painel-historico" class="painel-historico">
+        <h3>Histórico do Cliente</h3>
+        <div id="conteudo-historico">
+            Clique em "Ver histórico"
+        </div>
+    </div>
+
+</div>
     </div>
 
     <div id="cliente" class="tela">
@@ -135,7 +158,8 @@ try {
                 </tr>
             </thead>
             <tbody id="corpo-tabela-clientes">
-                </tbody>
+
+            </tbody>
         </table>
     </div>
 

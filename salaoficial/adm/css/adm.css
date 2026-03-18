@@ -338,3 +338,55 @@ body {
 .tabela-agendamentos tbody td button:hover{
     background-color: #f1bcb2;
 }
+
+.tabela-historico {
+    width: 40%;
+    border-collapse: collapse;
+    margin-top: 20px;
+
+}
+
+.tabela-historico th,
+.tabela-historico td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.tabela-historico th {
+    background-color: #4CAF50;
+    /* verde do painel */
+    color: white;
+
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.tabela-historico tbody td {
+    border: 1px solid #ddd;
+}
+
+.tabela-historico tbody td button {
+    border: none;
+    background-color: var(--cor5);
+    color: white;
+    padding: 10px;
+    border-radius: 100px;
+    cursor: pointer;
+}
+
+.tabela-historico tbody td button:hover {
+    background-color: #f1bcb2;
+}
+
+.container-historico {
+    display: flex;
+    gap: 20px;
+}
+
+.painel-historico {
+    width: 50%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

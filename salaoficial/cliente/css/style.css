@@ -1,0 +1,141 @@
+ @charset "UTF-8";
+
+/* FONTES */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
+
+/* VARIÁVEIS */
+:root{
+    --cor1: #c88c8e;
+    --cor2: #734440;
+    --cor3: #EDB8AE;
+    --cor4: #C89991;
+
+    --branco: #ffffff;
+
+    --fonte-titulo: "Cinzel", serif;
+    --fonte-texto: "Nunito", sans-serif;
+}
+
+/* RESET */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background: #ffffff;
+    font-family: var(--fonte-texto);
+}
+
+/* CABEÇALHO */
+.cabaco{
+    width: 100%;
+    height: 100px;
+    background-color: var(--cor1);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 40px;
+}
+
+/* LOGO */
+.cabaco .logo{
+    width: 120px;
+}
+
+.cabaco .logo img{
+    width: 100%;
+    display: block;
+}
+
+/* LOGIN */
+.cabaco .login a{
+    text-decoration: none;
+    color: #000000;
+
+    font-family: var(--fonte-titulo);
+    font-size: 28px;
+    letter-spacing: 2px;
+
+    background-color: #cfa29d;
+
+    padding: 12px 35px;
+
+    border-radius: 15px;
+    border: 2px solid #ffffff;
+
+    transition: 0.3s;
+}
+
+.cabaco .login a:hover{
+    background-color: #b87f7d;
+    color: #ffffff;
+}
+
+ .conteudo {
+     width: 100%;
+     height: calc(100vh - 100px);
+
+     background-image: linear-gradient(rgba(80, 40, 40, 0.45),
+             rgba(80, 40, 40, 0.45)),
+         url("../imagem/teste.png");
+
+     background-position: center;
+     background-size: cover;
+     background-repeat: no-repeat;
+
+     display: flex;
+     align-items: center;
+
+     padding-left: 80px;
+
+     color: #ffffff;
+ }
+
+ .conteudo .texto {
+     max-width: 650px;
+ }
+
+ .conteudo h1 {
+     font-family: var(--fonte-texto);
+     font-size: 80px;
+     font-weight: 300;
+
+     margin-bottom: 20px;
+ }
+
+ .conteudo p {
+     font-size: 28px;
+     line-height: 1.4;
+     font-weight: 300;
+ }
+ .conteudo .icon {
+     position: absolute;
+
+     right: 200px;
+     bottom: 100px;
+
+     display: flex;
+     flex-direction: column;
+
+     gap: 18px;
+ }
+
+ .conteudo .icon i {
+     font-size: 38px;
+     color: #000000;
+
+     cursor: pointer;
+
+     transition: 0.3s;
+ }
+
+ .conteudo .icon i:hover {
+     color: #ffffff;
+
+     transform: scale(1.1);
+ }

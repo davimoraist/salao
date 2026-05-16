@@ -1,0 +1,71 @@
+ @charset "UTF-8";
+
+ /* Import das fontes */
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+ /* VARIÁVEIS */
+ :root {
+     --cor1: #c88c8e;
+     --cor2: #734440;
+     --cor3: #bf93be;
+     --cor4: #a67272;
+     --cor5: #EDB8AE;
+     --cor6: #C89991;
+
+     --fonte-logo: "Great Vibes", cursive;
+     --fonte-titulo: "Cinzel", serif;
+     --fonte-texto: "Nunito", sans-serif;
+ }
+
+ /* RESET */
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+     font-family: var(--fonte-texto);
+ }
+
+ body {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     min-height: 100vh;
+     background-color: white;
+ }
+
+ .paga{
+    position: relative;
+    width: 850px;
+    height: 550px;
+    background: white;
+    border-radius: 50px;
+    margin: 20px;
+    border: 4px solid var(--cor5);
+    overflow: hidden;
+}
+
+.paga h1{
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translate(-50%, -5%);
+    color: var(--cor2);
+    font-size: 24px;
+    text-align: center;
+}
+
+.paga input{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    padding: 10px;
+    border: 2px solid var(--cor5);
+    background-color: azure;
+    border-radius: 20px;
+    font-size: 18px;
+    cursor: pointer;
+}

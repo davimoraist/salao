@@ -32,40 +32,73 @@
      justify-content: center;
      align-items: center;
      min-height: 100vh;
-     background-color: white;
+     background: #fff7f6;
  }
 
- .paga{
-    position: relative;
-    width: 850px;
-    height: 550px;
-    background: white;
-    border-radius: 50px;
-    margin: 20px;
-    border: 4px solid var(--cor5);
-    overflow: hidden;
-}
+ /* CARD */
+ .paga {
+     width: 850px;
+     min-height: 550px;
+     background: white;
+     border-radius: 40px;
+     border: 4px solid var(--cor5);
+     padding: 40px;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+ }
 
-.paga h1{
-    position: absolute;
-    top: 5%;
-    left: 50%;
-    transform: translate(-50%, -5%);
-    color: var(--cor2);
-    font-size: 24px;
-    text-align: center;
-}
+ /* TÍTULO */
+ .paga h1 {
+     text-align: center;
+     color: var(--cor2);
+     font-size: 32px;
+     margin-bottom: 50px;
+     font-family: var(--fonte-titulo);
+ }
 
-.paga input{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60%;
-    padding: 10px;
-    border: 2px solid var(--cor5);
-    background-color: azure;
-    border-radius: 20px;
-    font-size: 18px;
-    cursor: pointer;
-}
+ /* TABELA */
+ .paga table {
+     width: 100%;
+     border-collapse: collapse;
+     margin-bottom: 40px;
+ }
+
+ /* LINHAS */
+ .paga table tr {
+     border-bottom: 2px solid #f3d6d1;
+ }
+
+ /* CÉLULAS */
+ .paga table td {
+     padding: 18px;
+     font-size: 20px;
+     color: var(--cor2);
+ }
+
+ /* PRIMEIRA COLUNA */
+ .paga table td:first-child {
+     font-weight: bold;
+     width: 40%;
+     color: var(--cor4);
+ }
+
+ /* BOTÃO */
+ .paga input {
+     display: block;
+     width: 300px;
+     margin: auto;
+     padding: 15px;
+     border: none;
+     background: var(--cor5);
+     color: white;
+     border-radius: 30px;
+     font-size: 20px;
+     font-weight: bold;
+     cursor: pointer;
+     transition: 0.3s;
+ }
+
+ /* HOVER */
+ .paga input:hover {
+     background: var(--cor2);
+     transform: scale(1.03);
+ }

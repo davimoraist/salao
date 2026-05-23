@@ -8,6 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $servicos = $_POST['servocosalao'] ?? [];
     $servicosTexto = implode(", ", $servicos);
+    $preco_servico = $_POST['preco_servico'] ?? 0;
 
     $data = $_POST['data'];
     $hora = $_POST['hora'];
@@ -24,11 +25,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // SALVAR
     $sql = "INSERT INTO agendamentos 
-    (id_cliente, servico, data_agendamento, hora_agendamento) 
-    VALUES (?, ?, ?, ?)";
+    (id_cliente, servico, preco_servico, data_agendamento, hora_agendamento) 
+    VALUES (?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isss", $id_cliente, $servicosTexto, $data, $hora);
+    $stmt->bind_param("isss", $id_cliente, $servicosTexto, $preco_servico, $data, $hora);
 
     if ($stmt->execute()) {
         header("Location: pagamendo.php");

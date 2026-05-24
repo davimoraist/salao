@@ -1,14 +1,15 @@
-<?php 
+ <?php 
 require_once "conecte.php";
 session_start();
-
+ 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $id_cliente = $_SESSION['id'];
 
     $servicos = $_POST['servocosalao'] ?? [];
     $servicosTexto = implode(", ", $servicos);
-    $preco_servico = $_POST['preco_servico'] ?? 0;
+
+    $precoTotal = $conn->query("SELECT SUM(preco) as total FROM servicos WHERE nome IN ('" . implode("','", $servicos) . "')")->fetch_assoc()['total'];
 
     $data = $_POST['data'];
     $hora = $_POST['hora'];
@@ -29,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     VALUES (?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isss", $id_cliente, $servicosTexto, $preco_servico, $data, $hora);
+    $stmt->bind_param("isdss", $id_cliente,  $servicosTexto, $precoTotal, $data, $hora);
 
     if ($stmt->execute()) {
         header("Location: pagamendo.php");

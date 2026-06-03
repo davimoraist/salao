@@ -50,7 +50,9 @@ if (!$user) {
         <div class="horario">
             <p>Escolha o melhor horário e confirme seu agendamento abaixo.</p>
             <a href="agenda.php">agendar</a>
+            <a href="#">meu agendamento</a>
         </div>
+          
         <div class="frase">
             <p>“Um espaço feito para cuidar <br> da beleza e do bem-estar da mulher.”</p>
         </div>

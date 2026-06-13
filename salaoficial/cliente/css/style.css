@@ -82,7 +82,7 @@ body{
 
      background-image: linear-gradient(rgba(80, 40, 40, 0.45),
              rgba(80, 40, 40, 0.45)),
-         url("../imagem/teste.png");
+         url("../imagem/banner.jpg");
 
      background-position: center;
      background-size: cover;
@@ -116,12 +116,14 @@ body{
  .conteudo .icon {
      position: absolute;
 
+     left: 60px;
      right: 200px;
      bottom: 100px;
+     margin: 100px;
 
      display: flex;
-     flex-direction: column;
-
+     
+     align-items: center;
      gap: 18px;
  }
 
@@ -139,3 +141,5 @@ body{
 
      transform: scale(1.1);
  }
+
+ 

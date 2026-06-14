@@ -224,69 +224,149 @@ button{
     cursor: pointer;
 }
 /* RESPONSIVO */
- 
-@media screen and (max-width: 650px) {
-        .cliente {
-            height: calc(100vh - 40px);
-        }
+ :root {
+     --cor1: #c88c8e;
+     --cor2: #734440;
+     --cor3: #bf93be;
+     --cor4: #a67272;
+     --cor5: #EDB8AE;
+     --cor6: #C89991;
+ }
 
-        .conta{
-            bottom: 0;
-            width: 100%;
-            height: 70%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+ body {
+     background: #f8f7f7;
+     min-height: 100vh;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     padding: 20px;
+ }
 
-        .cliente.activo .conta{
-            right: 0;
-            bottom: 30%;
-        }
+ .auth-container {
+     width: 100%;
+     max-width: 420px;
+ }
 
-        .animacao::before{
-             left: 0;
-             top: -270%;
-             width: 100%;
-             height: 300%; 
-        }
-        .cliente.activo .animacao::before{
-            left: 0;
-            top: 70%;
-        }
+ .logo-area {
+     text-align: center;
+     margin-bottom: 25px;
+ }
 
-        .panel{
-            width: 100%;
-            height: 30%
-        }
+ .logo-area h1 {
+     color: var(--cor2);
+     font-size: 40px;
+     margin-bottom: 8px;
+ }
 
-        .panel.panel-left{
-            top: 0 ;
-        }
+ .logo-area p {
+     color: #666;
+ }
 
-        .cliente.activo .panel.panel-left{
-            left: 0;
-            top: -30%;
-        }
+ .card-auth {
+     background: white;
+     border-radius: 30px;
+     padding: 30px;
+     box-shadow:
+         0 15px 40px rgba(0, 0, 0, .08);
+ }
 
+ .tabs {
+     display: flex;
+     background: #f1f1f1;
+     border-radius: 15px;
+     padding: 4px;
+     margin-bottom: 25px;
+ }
 
-        .panel.panel-right{
-            right: 0;
-            bottom: -30%;
-        }
+ .tab {
+     flex: 1;
+     border: none;
+     background: none;
+     padding: 12px;
+     border-radius: 12px;
+     cursor: pointer;
+     font-weight: 700;
+ }
 
-        .cliente.activo .panel.panel-right{
-            bottom: 0;
-        }
+ .tab.active {
+     background: var(--cor6);
+     color: white;
+ }
 
-        .animacao .panel h1{
-            font-size: 24px;
-        }
+ .form-auth {
+     display: flex;
+     flex-direction: column;
+ }
 
-        .animacao .panel p{
-            font-size: 16px;
-            margin: 4px;
-        }
+ .hidden {
+     display: none;
+ }
 
+ .input-box {
+     position: relative;
+     margin-bottom: 16px;
+ }
 
-}
+ .input-box input {
+     width: 100%;
+     height: 58px;
+     border: none;
+     background: #f3f3f3;
+     border-radius: 15px;
+     padding: 0 50px 0 18px;
+     font-size: 16px;
+ }
+
+ .input-box span {
+     position: absolute;
+     right: 16px;
+     top: 50%;
+     transform: translateY(-50%);
+     color: #666;
+ }
+
+ .btn-principal {
+     width: 100%;
+     height: 55px;
+     border: none;
+     border-radius: 15px;
+     background: var(--cor6);
+     color: white;
+     font-size: 17px;
+     font-weight: 700;
+     cursor: pointer;
+     transition: .3s;
+ }
+
+ .btn-principal:hover {
+     transform: translateY(-2px);
+ }
+
+ .termos {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     margin: 10px 0 20px;
+     font-size: 14px;
+ }
+
+ @media(max-width:480px) {
+
+     .card-auth {
+         padding: 22px;
+         border-radius: 25px;
+     }
+
+     .logo-area h1 {
+         font-size: 32px;
+     }
+
+     .input-box input {
+         height: 54px;
+     }
+ }
+
+ .material-symbols-outlined {
+     cursor: pointer;
+     user-select: none;
+ }

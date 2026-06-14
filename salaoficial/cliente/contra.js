@@ -1,30 +1,55 @@
-  const cliente = document.querySelector('.cliente');
-const cadastro = document.querySelector('#conecte');
-const conecte = document.querySelector('#cadastro');
+// =========================
+// TROCAR LOGIN/CADASTRO
+// =========================
 
-cadastro.addEventListener('click', () => {
-    cliente.classList.add('activo');
+const btnLogin = document.getElementById("btnLogin");
+const btnCadastro = document.getElementById("btnCadastro");
+
+const loginForm = document.getElementById("loginForm");
+const cadastroForm = document.getElementById("cadastroForm");
+
+btnLogin.addEventListener("click", () => {
+
+    btnLogin.classList.add("active");
+    btnCadastro.classList.remove("active");
+
+    loginForm.classList.remove("hidden");
+    cadastroForm.classList.add("hidden");
+
 });
 
-conecte.addEventListener('click', () => {
-    cliente.classList.remove('activo');
+btnCadastro.addEventListener("click", () => {
+
+    btnCadastro.classList.add("active");
+    btnLogin.classList.remove("active");
+
+    cadastroForm.classList.remove("hidden");
+    loginForm.classList.add("hidden");
+
 });
 
+// =========================
+// MOSTRAR / OCULTAR SENHA
+// =========================
 
- document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.toggle-senha').forEach(icon => {
-        icon.addEventListener('click', () => {
-            const input = icon.previousElementSibling;
+document.querySelectorAll(".material-symbols-outlined").forEach(botao => {
 
-            if (!input) return;
+    botao.addEventListener("click", () => {
 
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.textContent = 'visibility_off';
-            } else {
-                input.type = 'password';
-                icon.textContent = 'visibility';
-            }
-        });
+        const input = botao.parentElement.querySelector("input");
+
+        if (input.type === "password") {
+
+            input.type = "text";
+            botao.textContent = "visibility_off";
+
+        } else {
+
+            input.type = "password";
+            botao.textContent = "visibility";
+
+        }
+
     });
+
 });

@@ -24,7 +24,7 @@ function showError($error){
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>MT Nail Designer</title>
+<title>mtnaildesigner.com</title>
 
 <link rel="stylesheet" href="css/clientes.css">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">

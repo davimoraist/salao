@@ -193,7 +193,7 @@ body{
   .video{
     width: 843px;
     height: 474px;
-    margin: 30px auto ;
+    margin: 90px auto ;
     background-color: #000000;
     color: #fff;
   }
@@ -225,4 +225,71 @@ body{
     margin: 20px;
     text-align: center;
     color: #fff;
+}
+
+@media (max-width:480px) {
+    .conteudo{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .conteudo h1{
+        font-size: 40px;
+        margin: auto;
+        text-align: center;
+    }
+
+    .conteudo p{
+        font-size: 17px;
+        margin: auto 50px;
+    }
+
+    .conteudo .icon{
+        margin: auto 50px;
+        align-items: center;
+    }
+    
+        .trabalha .foto {
+            width: 250px;
+            height: 250px;
+            margin: auto;
+        }
+
+        .trabalha .descricao{
+            width: 250px;
+            margin: auto;
+        }
+
+        .trabalha .descricao h2{
+            font-size: 17px;
+            margin: 0px;
+        }
+
+    .video {
+        width: 267px;
+        height: 150px;
+        margin: 90px auto;
+        background-color: #000000;
+        color: #fff;
+    }
+
+    
+
+ 
+    #rodape{
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .rodape .caixa{
+        width: 50vh;
+            height: 20vh;
+    }
+
+    .rodape .caixa P{
+        margin: 20px;
+        font-size: 17px;
+    }
 }

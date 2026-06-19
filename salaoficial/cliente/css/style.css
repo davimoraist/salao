@@ -1,295 +1,690 @@
+ /* Define a codificação de caracteres do arquivo CSS */
  @charset "UTF-8";
 
-/* FONTES */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
+ /* ==========================
+   IMPORTAÇÃO DE FONTES
+========================== */
 
-/* VARIÁVEIS */
-:root{
-    --cor1: #c88c8e;
-    --cor2: #734440;
-    --cor3: #EDB8AE;
-    --cor4: #C89991;
+ /* Fonte para títulos */
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
 
-    --branco: #ffffff;
+ /* Fonte para textos */
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
 
-    --fonte-titulo: "Cinzel", serif;
-    --fonte-texto: "Nunito", sans-serif;
-}
+ /* ==========================
+   VARIÁVEIS GLOBAIS
+========================== */
 
-/* RESET */
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+ :root {
 
-body{
-    background: var(--cor2);
-    font-family: var(--fonte-texto);
-}
+     /* Cores principais do site */
+     --cor1: #c88c8e;
+     --cor2: #734440;
+     --cor3: #EDB8AE;
+     --cor4: #C89991;
 
-/* CABEÇALHO */
-.cabaco{
-    width: 100%;
-    height: 100px;
-    background-color: var(--cor1);
+     /* Cor branca */
+     --branco: #ffffff;
 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+     /* Fonte utilizada nos títulos */
+     --fonte-titulo: "Cinzel", serif;
 
-    padding: 0 40px;
-}
-
-/* LOGO */
-.cabaco .logo{
-    width: 120px;
-}
-
-.cabaco .logo img{
-    width: 100%;
-    display: block;
-}
-
-/* LOGIN */
-.cabaco .login a{
-    text-decoration: none;
-    color: #000000;
-
-    font-family: var(--fonte-titulo);
-    font-size: 28px;
-    letter-spacing: 2px;
-
-    background-color: #cfa29d;
-
-    padding: 12px 35px;
-
-    border-radius: 15px;
-    border: 2px solid #ffffff;
-
-    transition: 0.3s;
-}
-
-.cabaco .login a:hover{
-    background-color: #b87f7d;
-    color: #ffffff;
-}
-
- .conteudo {
-     width: 100%;
-     height: calc(100vh - 100px);
-
-     background-image: linear-gradient(rgba(80, 40, 40, 0.45),
-             rgba(80, 40, 40, 0.45)),
-         url("../imagem/banner.jpg");
-
-     background-position: center;
-     background-size: cover;
-     background-repeat: no-repeat;
-
-     display: flex;
-     align-items: center;
-
-     padding-left: 80px;
-
-     color: #ffffff;
+     /* Fonte utilizada nos textos */
+     --fonte-texto: "Nunito", sans-serif;
  }
 
- .conteudo .texto {
-     max-width: 650px;
+ /* ==========================
+   RESET GERAL
+========================== */
+
+ /* Remove margens e espaçamentos padrão dos elementos */
+ * {
+     margin: 0;
+     padding: 0;
+
+     /* Faz com que padding e borda sejam incluídos no tamanho total */
+     box-sizing: border-box;
  }
 
- .conteudo h1 {
+ html{
+    scroll-behavior: smooth;
+ }
+
+ /* ==========================
+   CORPO DA PÁGINA
+========================== */
+
+ body {
+
+     /* Cor de fundo principal */
+     background: var(--cor2);
+
+     /* Fonte padrão do site */
      font-family: var(--fonte-texto);
-     font-size: 80px;
-     font-weight: 300;
 
-     margin-bottom: 20px;
+    overflow-x: hidden;
  }
 
- .conteudo p {
-     font-size: 28px;
-     line-height: 1.4;
-     font-weight: 300;
- }
- .conteudo .icon {
-     position: absolute;
+ /* ==========================
+   CABEÇALHO
+========================== */
 
-     left: 60px;
-     right: 200px;
-     bottom: 100px;
-     margin: 100px;
+ .cabaco {
 
+     /* Largura total da tela */
+     width: 100%;
+
+     /* Altura do cabeçalho */
+     height: 100px;
+
+     /* Cor de fundo */
+     background-color: var(--cor1);
+
+     /* Ativa o Flexbox */
      display: flex;
-     
+
+     /* Espaço entre logo e login */
+     justify-content: space-between;
+
+     /* Centraliza verticalmente */
      align-items: center;
-     gap: 18px;
+
+     /* Espaçamento interno lateral */
+     padding: 0 40px;
  }
 
- .conteudo .icon i {
-     font-size: 38px;
+ /* ==========================
+   LOGO
+========================== */
+
+ .cabaco .logo {
+
+     /* Largura da área da logo */
+     width: 120px;
+ }
+
+ .cabaco .logo img {
+
+     /* Imagem ocupa toda a largura do container */
+     width: 100%;
+
+     /* Remove espaços indesejados */
+     display: block;
+ }
+
+ /* ==========================
+   BOTÃO DE LOGIN
+========================== */
+
+ .cabaco .login a {
+
+     /* Remove sublinhado do link */
+     text-decoration: none;
+
+     /* Cor do texto */
      color: #000000;
 
-     cursor: pointer;
+     /* Fonte do título */
+     font-family: var(--fonte-titulo);
 
+     /* Tamanho da letra */
+     font-size: 28px;
+
+     /* Espaçamento entre letras */
+     letter-spacing: 2px;
+
+     /* Cor de fundo do botão */
+     background-color: #cfa29d;
+
+     /* Espaçamento interno */
+     padding: 12px 35px;
+
+     /* Bordas arredondadas */
+     border-radius: 15px;
+
+     /* Borda branca */
+     border: 2px solid #ffffff;
+
+     /* Efeito suave ao passar o mouse */
      transition: 0.3s;
  }
 
+ /* Efeito quando o mouse passa sobre o botão */
+ .cabaco .login a:hover {
+
+     /* Nova cor de fundo */
+     background-color: #b87f7d;
+
+     /* Cor do texto */
+     color: #ffffff;
+ }
+
+ /* ==========================
+   SEÇÃO PRINCIPAL (BANNER)
+========================== */
+
+ .conteudo {
+
+     /* Ocupa toda a largura da tela */
+     width: 100%;
+
+     /* Altura total da tela menos o cabeçalho */
+     height: calc(100vh - 100px);
+
+     /* Imagem de fundo com camada escura */
+     background-image:
+         linear-gradient(rgba(80, 40, 40, 0.45),
+             rgba(80, 40, 40, 0.45)),
+         url("../imagem/banner.jpg");
+
+     /* Centraliza a imagem */
+     background-position: center;
+
+     /* Faz a imagem cobrir toda a área */
+     background-size: cover;
+
+     /* Impede repetição da imagem */
+     background-repeat: no-repeat;
+
+     /* Ativa Flexbox */
+     display: flex;
+
+     /* Centraliza conteúdo verticalmente */
+     align-items: center;
+
+     /* Espaçamento à esquerda */
+     padding-left: 80px;
+
+     /* Cor do texto */
+     color: #ffffff;
+ }
+
+ /* ==========================
+   ÁREA DE TEXTO DO BANNER
+========================== */
+
+ .conteudo .texto {
+
+     /* Largura máxima do bloco de texto */
+     max-width: 650px;
+ }
+ /* ==========================
+   TÍTULO PRINCIPAL DO BANNER
+========================== */
+
+ .conteudo h1 {
+
+     /* Fonte utilizada no título */
+     font-family: var(--fonte-texto);
+
+     /* Tamanho da letra */
+     font-size: 80px;
+
+     /* Espessura da fonte */
+     font-weight: 300;
+
+     /* Espaçamento inferior */
+     margin-bottom: 20px;
+ }
+
+ /* ==========================
+   TEXTO DO BANNER
+========================== */
+
+ .conteudo p {
+
+     /* Tamanho da fonte */
+     font-size: 28px;
+
+     /* Espaçamento entre linhas */
+     line-height: 1.4;
+
+     /* Peso da fonte */
+     font-weight: 300;
+ }
+
+ /* ==========================
+   ÁREA DOS ÍCONES SOCIAIS
+========================== */
+
+ .conteudo .icon {
+
+     /* Posicionamento absoluto */
+     position: absolute;
+
+     /* Distância da esquerda */
+     left: 60px;
+
+     /* Distância da direita */
+     right: 200px;
+
+     /* Distância da parte inferior */
+     bottom: 100px;
+
+     /* Margem externa */
+     margin: 100px;
+
+     /* Ativa o Flexbox */
+     display: flex;
+
+     /* Centraliza verticalmente os itens */
+     align-items: center;
+
+     /* Espaçamento entre os ícones */
+     gap: 18px;
+ }
+
+ /* ==========================
+   ÍCONES DAS REDES SOCIAIS
+========================== */
+
+ .conteudo .icon i {
+
+     /* Tamanho dos ícones */
+     font-size: 38px;
+
+     /* Cor inicial */
+     color: #000000;
+
+     /* Mostra a mão ao passar o mouse */
+     cursor: pointer;
+
+     /* Animação suave */
+     transition: 0.3s;
+ }
+
+ /* Efeito ao passar o mouse sobre os ícones */
  .conteudo .icon i:hover {
+
+     /* Cor branca */
      color: #ffffff;
 
+     /* Aumenta levemente o tamanho */
      transform: scale(1.1);
  }
 
-  .servicos {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 40px;
-  }
+ /* ==========================
+   SEÇÃO DE SERVIÇOS
+========================== */
 
-  .trabalha {
-      width: 400px;
-      margin: 40px;
-  }
+ .servicos {
 
-  .trabalha .foto {
-      width: 400px;
-      height: 400px;
-      border: 2px solid #000;
-      overflow: hidden;
-  }
+     /* Ativa o Flexbox */
+     display: flex;
 
-  .trabalha .foto img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-  }
+     /* Permite quebrar linha quando necessário */
+     flex-wrap: wrap;
 
-  .trabalha .descricao {
-      width: 400px;
-      height: 100px;
-      background-color: #fff;
-      border: 2px solid #000;
-      border-top: none;
-      border-radius: 0 0 50px 50px;
+     /* Centraliza os cards */
+     justify-content: center;
 
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-  }
+     /* Espaçamento entre os cards */
+     gap: 40px;
+ }
 
-  .trabalha .descricao h2 {
-      margin: 0;
-  }
+ /* ==========================
+   CARD DE SERVIÇO
+========================== */
 
-  .trabalha .descricao p {
-      margin: 5px 0 0;
-  }
+ .trabalha {
 
-  .video{
-    width: 843px;
-    height: 474px;
-    margin: 90px auto ;
-    background-color: #000000;
-    color: #fff;
-  }
+     /* Largura do card */
+     width: 400px;
 
-  #rodape{
-    height: 250px;
-    width: 100%;
-    background-color: var(--cor4);
-    display: flex;
-    margin: auto;
-  }
+     /* Margem externa */
+     margin: 40px;
 
-  .rodape{
-    margin: 40px auto ;    
-  }
+    transition: .3s;
+ }
 
-  .rodape .caixa{
-    border: 4px solid #000;
-    width: 30vh;
-    height: 10vh;
-}
+ .trabalha:hover .foto img {
+     transform: scale(1.05);
+ }
 
-.rodape .caixa p{
-    margin: 20px;
-    font-size: 15px;
-}
+ /* ==========================
+   FOTO DO SERVIÇO
+========================== */
 
-.direitos p{
-    margin: 20px;
-    text-align: center;
-    color: #fff;
-}
+ .trabalha .foto {
 
-@media (max-width:480px) {
-    .conteudo{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+     /* Largura da imagem */
+     width: 400px;
 
-    .conteudo h1{
-        font-size: 40px;
-        margin: auto;
-        text-align: center;
-    }
+     /* Altura da imagem */
+     height: 400px;
 
-    .conteudo p{
-        font-size: 17px;
-        margin: auto 50px;
-    }
+     /* Borda preta */
+     border: 2px solid #000;
 
-    .conteudo .icon{
-        margin: auto 50px;
-        align-items: center;
-    }
-    
-        .trabalha .foto {
-            width: 250px;
-            height: 250px;
-            margin: auto;
+     /* Esconde partes excedentes da imagem */
+     overflow: hidden;
+ }
+
+ /* Imagem dentro da foto */
+ .trabalha .foto img {
+
+     /* Ocupa toda a largura */
+     width: 100%;
+
+     /* Ocupa toda a altura */
+     height: 100%;
+
+     /* Ajusta a imagem sem deformar */
+     object-fit: cover;
+
+     /* Remove espaços indesejados */
+     display: block;
+ }
+
+ /* ==========================
+   DESCRIÇÃO DO SERVIÇO
+========================== */
+
+ .trabalha .descricao {
+
+     /* Largura da descrição */
+     width: 400px;
+
+     /* Altura da descrição */
+     height: 100px;
+
+     /* Fundo branco */
+     background-color: #fff;
+
+     /* Borda preta */
+     border: 2px solid #000;
+
+     /* Remove a borda superior */
+     border-top: none;
+
+     /* Arredonda apenas a parte inferior */
+     border-radius: 0 0 50px 50px;
+
+     /* Ativa Flexbox */
+     display: flex;
+
+     /* Organiza os elementos em coluna */
+     flex-direction: column;
+
+     /* Centraliza verticalmente */
+     justify-content: center;
+
+     /* Centraliza horizontalmente */
+     align-items: center;
+ }
+
+ /* Título do serviço */
+ .trabalha .descricao h2 {
+
+     /* Remove margens padrão */
+     margin: 0;
+ }
+
+ /* Preço do serviço */
+ .trabalha .descricao p {
+
+     /* Margem superior */
+     margin: 5px 0 0;
+ }
+
+ /* ==========================
+   ÁREA DE VÍDEO
+========================== */
+
+ .video {
+
+     /* Largura do vídeo */
+     width: 843px;
+
+     /* Altura do vídeo */
+     height: 474px;
+
+     /* Centraliza horizontalmente e adiciona margem vertical */
+     margin: 90px auto;
+
+     /* Fundo preto */
+     background-color: #000000;
+
+     /* Cor do texto */
+     color: #fff;
+
+    border-radius: 20px;
+        overflow: hidden;
+ }
+ /* ==========================
+   RODAPÉ
+========================== */
+
+ #rodape {
+
+     /* Altura do rodapé */
+     height: 250px;
+
+     /* Ocupa toda a largura da tela */
+     width: 100%;
+
+     /* Cor de fundo */
+     background-color: var(--cor4);
+
+     /* Ativa o Flexbox */
+     display: flex;
+
+     /* Centraliza o elemento */
+     margin: auto;
+
+        border-radius: 15px;
+ }
+
+ /* ==========================
+   COLUNAS DO RODAPÉ
+========================== */
+
+ .rodape {
+
+     /* Margem superior e inferior de 40px
+       e centralização horizontal */
+     margin: 40px auto;
+ }
+
+ /* ==========================
+   CAIXAS DE INFORMAÇÃO
+========================== */
+
+ .rodape .caixa {
+
+     /* Borda preta */
+     border: 4px solid #000;
+
+     /* Largura da caixa */
+     width: 30vh;
+
+     /* Altura da caixa */
+     height: 10vh;
+ }
+
+ /* Texto dentro das caixas */
+ .rodape .caixa p {
+
+     /* Espaçamento interno através da margem */
+     margin: 20px;
+
+     /* Tamanho da fonte */
+     font-size: 15px;
+ }
+
+ /* ==========================
+   DIREITOS AUTORAIS
+========================== */
+
+ .direitos p {
+
+     /* Margem externa */
+     margin: 20px;
+
+     /* Centraliza o texto */
+     text-align: center;
+
+     /* Cor branca */
+     color: #fff;
+ }
+
+ /* ==========================
+   RESPONSIVIDADE
+   TELAS ATÉ 480px
+========================== */
+
+ /* =====================================
+   RESPONSIVIDADE
+===================================== */
+
+ @media (max-width: 768px) {
+
+     /* Cabeçalho */
+     .cabaco {
+         padding: 15px;
+     }
+
+     .cabaco .logo {
+         width: 90px;
+     }
+
+     .cabaco .login a {
+         font-size: 18px;
+         padding: 10px 20px;
+     }
+
+     /* Banner */
+     .conteudo {
+         justify-content: center;
+         text-align: center;
+         padding: 20px;
+         height: auto;
+         min-height: 80vh;
+     }
+
+     .conteudo .texto {
+         max-width: 100%;
+     }
+
+     .conteudo h1 {
+         font-size: 45px;
+         margin-bottom: 15px;
+     }
+
+     .conteudo p {
+         font-size: 18px;
+         margin: auto;
+     }
+
+     /* Ícones */
+     .conteudo .icon {
+         position: static;
+         margin-top: 30px;
+         justify-content: center;
+     }
+
+     .conteudo .icon i {
+         font-size: 32px;
+     }
+
+     /* Serviços */
+     .servicos {
+         gap: 25px;
+         padding: 20px;
+     }
+
+     .trabalha {
+         width: 100%;
+         max-width: 320px;
+         margin: 0;
+     }
+
+     .trabalha .foto {
+         width: 100%;
+         height: 280px;
+     }
+
+     .trabalha .descricao {
+         width: 100%;
+     }
+
+     .trabalha .descricao h2 {
+         font-size: 20px;
+     }
+
+     .trabalha .descricao p {
+         font-size: 16px;
+     }
+
+     /* Vídeo */
+     .video {
+         width: 90%;
+         height: auto;
+         aspect-ratio: 16 / 9;
+         margin: 50px auto;
+     }
+
+     /* Rodapé */
+     #rodape {
+         flex-direction: column;
+         align-items: center;
+         gap: 20px;
+         height: auto;
+         padding: 30px 15px;
+     }
+
+     .rodape {
+         width: 100%;
+         text-align: center;
+         margin: 0;
+     }
+
+     .rodape .caixa {
+         width: 100%;
+         max-width: 350px;
+         height: auto;
+         margin: auto;
+         padding: 15px;
+     }
+
+     .rodape .caixa p {
+         margin: 0;
+         font-size: 16px;
+     }
+ }
+
+ /* Celulares pequenos */
+ @media (max-width: 480px) {
+    .conteudo {
+            padding-left: 80px;
         }
 
-        .trabalha .descricao{
-            width: 250px;
-            margin: auto;
-        }
+     .conteudo h1 {
+         font-size: 35px;
+     }
 
-        .trabalha .descricao h2{
-            font-size: 17px;
-            margin: 0px;
-        }
+     .conteudo p {
+         font-size: 16px;
+     }
 
-    .video {
-        width: 267px;
-        height: 150px;
-        margin: 90px auto;
-        background-color: #000000;
-        color: #fff;
-    }
+         .conteudo .icon {
+             position: absolute;
+             left: 60px;
+             right: 200px;
+             bottom: 100px;
+             margin: 100px;
+         }
 
-    
+     .cabaco .login a {
+         font-size: 15px;
+         padding: 8px 15px;
+     }
 
- 
-    #rodape{
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
+     .conteudo .icon i {
+         font-size: 28px;
+     }
 
-    .rodape .caixa{
-        width: 50vh;
-            height: 20vh;
-    }
-
-    .rodape .caixa P{
-        margin: 20px;
-        font-size: 17px;
-    }
-}
+     .trabalha .foto {
+         height: 220px;
+     }
+ }

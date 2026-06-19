@@ -76,7 +76,7 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
                     type="email"
                     name="email"
                     placeholder="E-mail"
-                    required>
+                    required> 
 
                 <span class="material-symbols-outlined">
                     mail

@@ -1,229 +1,11 @@
  @charset "UTF-8";
 
-/* Import das fontes */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+ /* Import das fontes */
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
-/* VARIÁVEIS */
-:root {
-    --cor1: #c88c8e; 
-    --cor2: #734440;
-    --cor3: #bf93be;
-    --cor4: #a67272;
-    --cor5: #EDB8AE;
-    --cor6: #C89991;
-    
-    --fonte-logo: "Great Vibes", cursive;
-    --fonte-titulo: "Cinzel", serif;
-    --fonte-texto: "Nunito", sans-serif;
-}
-
-/* RESET */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: var(--fonte-texto);
-}
-
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: white;
-}
-
-/* CONTAINER */
-.cliente{
-    position: relative;
-    width: 850px;
-    height: 550px;
-    background: white;
-    border-radius: 50px;
-    margin: 20px;
-    border: 4px solid var(--cor5);
-    overflow: hidden;
-}
-
-/* CONTA */
-.conta{
-    position: absolute;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    background: white;
-    display: flex;
-    align-items: center;
-    color: #333;
-    text-align: center;
-    padding: 40px;
-    z-index: 2;
-
-    /* 🔧 ajuste técnico: define propriedade explicitamente */
-    transition: right .6s ease-in-out 1.2s, visibility 1.2s;
-}
-
-.cliente.activo .conta{
-    right: 50%;
-}
-
-/* VISIBILIDADE */
-#criar{
-    visibility: hidden;
-}
-
-.cliente.activo #criar{
-    visibility: visible;
-}
-
-/* FORM */
-.input-box{
-    width: 100%;
-}
-
-.cliente h1{
-    font-size: 3 6px;
-    margin: -10px 0;
-}
-
-/* INPUTS */
-.input-box{
-    position: relative;
-    margin: 30px 0;
-}
-
-.input-box input{
-    width: 100%;
-    background: #eee;
-    border-radius: 8px;  
-    padding: 30px 50px 13px 20px;
-    border: none;
-    outline: none;
-    font-size: 20px; 
-}
-
-.input-box input::placeholder{
-    color: #888;
-    font-weight: 400;
-}
-
-.input-box span{
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-/* BOTÃO */
-button{
-    width: 100%;
-    height: 48px;
-    background: var(--cor6);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 18px; 
-    color: white;   
-}
-
-.entrar{
-    background-color: var(--cor5);
-}
-/* ANIMAÇÃO */
-.animacao{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
-
-.animacao::before{
-    content: '';
-    position: absolute;
-    left: -250%;
-    width: 300%;
-    height: 100%;
-    background: var(--cor6);
-    border-radius: 160px;
-    z-index: 2;
-    transition: 1.8s ease-in-out;
-}
-
-.cliente.activo .animacao::before{
-    left: 50%;
-}
-
-/* PAINÉIS */
-.panel{
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-    transition: .6s ease-in-out;
-}
-
-/* 🔧 correção de seletor (era .panel .panel-left) */
-.panel.panel-left{
-    left: 0;
-    transition: 1.12s;
-}
-
-.cliente.activo .panel.panel-left{
-    left: -50%;
-    transition-delay: .6s;
-}
-
-.panel.panel-right{
-    right: -50%;
-    transition: .6s ease-in-out;
-}
-
-.cliente.activo .panel.panel-right{
-    right: 0;
-    transition-delay: 1.2s;
-}
-.animacao .panel h1{
-    font-size: 36px;
-    margin: 15px;
-}
-
-.panel p{
-    margin-bottom: 20px;
-}
-
-.panel .entrar{
-    width: 160px;
-    height: 46px;
-}
-
-.termos {
-    margin: 5px;
-    padding: 0px;
-    text-decoration: none;
-    color: #1a73e8;
-}
-
-.termos input {
-    width: 16px;
-    height: 16px;
-    margin: 0 6px ;
-    align-items: center;
-    cursor: pointer;
-}
-
-.termos a{
-    text-decoration: none;
-}
-.toggle-senha{
-    cursor: pointer;
-}
-/* RESPONSIVO */
+ /* VARIÁVEIS */
  :root {
      --cor1: #c88c8e;
      --cor2: #734440;
@@ -231,6 +13,18 @@ button{
      --cor4: #a67272;
      --cor5: #EDB8AE;
      --cor6: #C89991;
+
+     --fonte-logo: "Great Vibes", cursive;
+     --fonte-titulo: "Cinzel", serif;
+     --fonte-texto: "Nunito", sans-serif;
+ }
+
+ /* RESET */
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+     font-family: var(--fonte-texto);
  }
 
  body {
@@ -242,6 +36,7 @@ button{
      padding: 20px;
  }
 
+ /* CONTAINER */
  .auth-container {
      width: 100%;
      max-width: 420px;
@@ -262,12 +57,14 @@ button{
      color: #666;
  }
 
+ /* CARD COM ESTRUTURA PARA ANIMAÇÃO FLUIDA */
  .card-auth {
      background: white;
      border-radius: 30px;
      padding: 30px;
-     box-shadow:
-         0 15px 40px rgba(0, 0, 0, .08);
+     box-shadow: 0 15px 40px rgba(0, 0, 0, .08);
+     position: relative;
+     overflow: hidden;
  }
 
  .tabs {
@@ -286,6 +83,7 @@ button{
      border-radius: 12px;
      cursor: pointer;
      font-weight: 700;
+     transition: background 0.2s ease, color 0.2s ease;
  }
 
  .tab.active {
@@ -293,13 +91,28 @@ button{
      color: white;
  }
 
+ /* ANIMAÇÃO LEVE DOS FORMULÁRIOS (Apenas opacidade e transform de 0.25 segundos) */
  .form-auth {
      display: flex;
      flex-direction: column;
+     opacity: 1;
+     visibility: visible;
+     transform: scale(1);
+     transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
  }
 
+ /* Estado escondido super otimizado (Sem usar display:none) */
  .hidden {
-     display: none;
+     position: absolute;
+     top: 84px;
+     /* Ajusta para ficar perfeitamente alinhado abaixo das abas */
+     left: 30px;
+     right: 30px;
+     opacity: 0;
+     visibility: hidden;
+     transform: scale(0.98);
+     /* Dá um efeito sutil de aproximação quando aparece */
+     pointer-events: none;
  }
 
  .input-box {
@@ -315,6 +128,12 @@ button{
      border-radius: 15px;
      padding: 0 50px 0 18px;
      font-size: 16px;
+     outline: none;
+     transition: background 0.2s;
+ }
+
+ .input-box input:focus {
+     background: #ebebeb;
  }
 
  .input-box span {
@@ -335,11 +154,15 @@ button{
      font-size: 17px;
      font-weight: 700;
      cursor: pointer;
-     transition: .3s;
+     transition: background 0.2s, transform 0.1s;
  }
 
  .btn-principal:hover {
-     transform: translateY(-2px);
+     background: var(--cor4);
+ }
+
+ .btn-principal:active {
+     transform: scale(0.98);
  }
 
  .termos {
@@ -350,8 +173,18 @@ button{
      font-size: 14px;
  }
 
- @media(max-width:480px) {
+ .termos a {
+     text-decoration: none;
+     color: #1a73e8;
+ }
 
+ .material-symbols-outlined {
+     cursor: pointer;
+     user-select: none;
+ }
+
+ /* RESPONSIVO */
+ @media(max-width:480px) {
      .card-auth {
          padding: 22px;
          border-radius: 25px;
@@ -364,11 +197,10 @@ button{
      .input-box input {
          height: 54px;
      }
- }
 
- .material-symbols-outlined {
-     cursor: pointer;
-     user-select: none;
+     .hidden {
+         top: 76px;
+         left: 22px;
+         right: 22px;
+     }
  }
-
- 

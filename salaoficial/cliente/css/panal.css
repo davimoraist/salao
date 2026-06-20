@@ -1,175 +1,252 @@
  @charset "UTF-8";
 
-/* FONTES */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
+ /* FONTES */
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap');
 
-/* VARIÁVEIS */
-:root {
-    --cor1: #c88c8e; 
-    --cor2: #734440;
-    --cor3: #EDB8AE;
-    --cor4: #C89991;
+ /* VARIÁVEIS */
+ :root {
+     --cor1: #c88c8e;
+     --cor2: #734440;
+     --cor3: #EDB8AE;
+     --cor4: #C89991;
 
-    --branco: #ffffff;
+     --branco: #ffffff;
 
-    --fonte-titulo: "Cinzel", serif;
-    --fonte-texto: "Nunito", sans-serif;
-}
+     --fonte-titulo: "Cinzel", serif;
+     --fonte-texto: "Nunito", sans-serif;
+ }
 
-/* RESET */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: var(--fonte-texto);
-}
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+     font-family: var(--fonte-texto), Arial, sans-serif;
+     /* Ajustado para usar sua var de fonte */
+ }
 
-body {
-    background-color: var(--cor4);
-}
- 
-/* CONTAINER PRINCIPAL */
-.container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--cor1);
-    padding: 0px 40px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-}
+ body {
+     background: #f8f5f2;
+ }
 
-/* MENU (lado esquerdo) */
-.menu {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+ /* TOPO */
+ .container {
+     width: 100%;
+     background: #fff;
+     padding: 15px 8%;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+ }
 
-/* Ícone */
-.menu .material-symbols-outlined {
-    font-size: 50px;
-    color: var(--branco);
-    cursor: pointer;
-}
+ .logo img {
+     width: 120px;
+ }
 
-/* Link agenda */
-.menu a {
-    text-decoration: none;
-    color: var(--branco);
-    font-size: 18px;
-    font-weight: 600;
-    transition: 0.3s;
-}
+ .menu {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+ }
 
-.menu a:hover {
-    color: var(--cor2);
-}
-.container .logo img{
-    width: 100px;
-    margin: 0px 57px;
-}
+ .menu span {
+     font-size: 40px;
+     color: #d46a92;
+ }
 
-/* TÍTULO */
-.container h2 {
-    font-family: var(--fonte-texto);
-    font-size: 28px;
-    color: var(--branco);
-}
+ .menu h2 {
+     font-size: 22px;
+     color: #333;
+ }
 
-.agendamedo{
-    margin: 30px;
-}
+ /* BANNER */
+ .agendamedo {
+     width: 100%;
+     min-height: 350px;
+     background: linear-gradient(rgba(0, 0, 0, .5), rgba(0, 0, 0, .5)),
+         url("../imagem/Banho-de-gel.jpeg");
+     background-size: cover;
+     background-position: center;
+     display: flex;
+     justify-content: space-around;
+     align-items: center;
+     padding: 30px;
+     color: white;
+     flex-wrap: wrap;
+ }
 
-.agendamedo .horario a{
-    text-decoration: none;
-    color: var(--branco);
-    background-color: var(--cor1);
-    border-radius: 100px 50px 50px 100px;
-    margin: 23px;
-    padding: 20px;
-    font-size: 18px;
-    font-weight: 600;
-}
+ .horario {
+     max-width: 500px;
+ }
 
-.agendamedo .horario a:hover{
-    background-color: var(--cor2);
-}
+ .horario p {
+     font-size: 24px;
+     margin-bottom: 20px;
+     line-height: 1.5;
+ }
 
-.agendamedo .horario p{
-    color: white;
-    margin: 35px;
-    font-size: 18px;
-    font-weight: 600;
-}
- .agendamedo .frase p{
-    display: inline-block; /* 👈 muda aqui */
-    color: white;
-    font-size: 28px;
-    font-weight: 600;
-    border: 2px solid #734440;
-    padding: 15px 25px;
-    border-radius: 15px;
-    margin: 50px auto;
-}
+ .horario a {
+     display: inline-block;
+     text-decoration: none;
+     background: #d46a92;
+     color: white;
+     padding: 12px 25px;
+     border-radius: 30px;
+     margin: 5px;
+     transition: .3s;
+ }
 
-.trabalhos {
-    margin: 60px 80px;
-}
+ .horario a:hover {
+     transform: translateY(-3px);
+ }
 
-.trabalhos h2 {
-    color: white;
-    margin-bottom: 30px;
-    font-size: 26px;
-}
+ .frase p {
+     font-size: 28px;
+     text-align: center;
+     font-style: italic;
+ }
 
-.galeria {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 25px;
-}
+ /* GALERIA */
+ .trabalhos {
+     padding: 60px 8%;
+ }
 
-.item {
-    text-align: center;
-}
+ .trabalhos h2 {
+     text-align: center;
+     font-size: 35px;
+     margin-bottom: 40px;
+     color: #d46a92;
+ }
 
-.item img {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 20px;
-    transition: 0.3s;
-}
+ .galeria {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+     gap: 25px;
+ }
 
-.item img:hover {
-    transform: scale(1.05);
-}
+ .item {
+     background: white;
+     border-radius: 15px;
+     overflow: hidden;
+     box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+     transition: .3s;
+ }
 
-.item p {
-    color: white;
-    margin-top: 10px;
-    font-weight: 600;
-}
+ .item:hover {
+     transform: translateY(-5px);
+ }
 
-.item {
-    text-align: center;
-    opacity: 0;
-    transform: translateY(40px);
-    animation: aparecer 0.8s ease forwards;
-}
+ .item img {
+     width: 100%;
+     height: 250px;
+     object-fit: cover;
+ }
 
-.item:nth-child(1) { animation-delay: 0.1s; }
-.item:nth-child(2) { animation-delay: 0.2s; }
-.item:nth-child(3) { animation-delay: 0.3s; }
-.item:nth-child(4) { animation-delay: 0.4s; }
-.item:nth-child(5) { animation-delay: 0.5s; }
-.item:nth-child(6) { animation-delay: 0.6s; }
-.item:nth-child(7) { animation-delay: 0.7s; }
-.item:nth-child(8) { animation-delay: 0.8s; }
+ .item p {
+     padding: 15px;
+     text-align: center;
+     font-size: 18px;
+     font-weight: bold;
+     color: #444;
+ }
 
-@keyframes aparecer {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+ /* RESPONSIVO AJUSTADO E CORRIGIDO */
+ @media (max-width: 768px) {
+     .container {
+         padding: 15px 20px;
+         flex-direction: column;
+         /* Alinha logo e nome um embaixo do outro se necessário */
+         gap: 10px;
+     }
+
+     .logo img {
+         width: 100px;
+     }
+
+     .menu .material-symbols-outlined {
+         font-size: 35px;
+         /* Corrigido de 70px que quebrava o topo */
+     }
+
+     .menu h2 {
+         font-size: 20px;
+     }
+
+     .agendamedo {
+         flex-direction: column;
+         text-align: center;
+         padding: 40px 20px;
+     }
+
+     .horario p {
+         font-size: 18px;
+         line-height: 1.4;
+     }
+
+     .horario a {
+         font-size: 16px;
+         padding: 12px 25px;
+         margin: 8px 5px;
+     }
+
+     .frase p {
+         font-size: 20px;
+         padding: 15px 0 0 0;
+     }
+
+     .trabalhos {
+         padding: 40px 15px;
+     }
+
+     .trabalhos h2 {
+         font-size: 28px;
+         margin-bottom: 25px;
+     }
+
+     .galeria {
+         grid-template-columns: repeat(2, 1fr);
+         /* 2 colunas bem distribuídas */
+         gap: 15px;
+     }
+
+     .item img {
+         height: 170px;
+     }
+
+     .item p {
+         font-size: 15px;
+         /* Aumentado para melhor leitura */
+         padding: 12px 8px;
+     }
+ }
+
+ @media (max-width: 480px) {
+     .galeria {
+         grid-template-columns: repeat(2, 1fr);
+         /* Mantém 2 colunas mais amplas */
+         gap: 12px;
+     }
+
+     .item img {
+         height: 150px;
+         /* Mantém proporção excelente na foto */
+     }
+
+     .item p {
+         font-size: 14px;
+         /* Tamanho mínimo ideal e nítido para leitura */
+         padding: 10px 5px;
+     }
+
+     .horario p {
+         font-size: 16px;
+     }
+
+     .horario a {
+         width: 100%;
+         /* Botões de agendamento ocupam a largura para facilitar o clique */
+         max-width: 260px;
+         margin: 6px auto;
+     }
+ }

@@ -21,17 +21,13 @@ function showError($error){
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>mtnaildesigner.com</title>
-
-<link rel="stylesheet" href="css/clientes.css">
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-<link rel="stylesheet"
-href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mtnaildesigner.com</title>
+    <link rel="stylesheet" href="css/clientes.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
 </head>
-
 <body>
 
 <div class="auth-container">
@@ -44,7 +40,6 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
     <div class="card-auth">
 
         <div class="tabs">
-
             <button
                 type="button"
                 class="tab <?= $activeForm === 'login' ? 'active' : '' ?>"
@@ -58,10 +53,7 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
                 id="btnCadastro">
                 Cadastrar
             </button>
-
         </div>
-
-        <!-- LOGIN -->
 
         <form
             action="criarconta.php"
@@ -72,15 +64,8 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
             <?= showError($erros['login']); ?>
 
             <div class="input-box">
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="E-mail"
-                    required> 
-
-                <span class="material-symbols-outlined">
-                    mail
-                </span>
+                <input type="email" name="email" placeholder="E-mail" autocomplete="off" required> 
+                <span class="material-symbols-outlined">mail</span>
             </div>
 
             <div class="input-box">
@@ -88,11 +73,9 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
                     type="password"
                     name="senha"
                     placeholder="Senha"
+                    autocomplete="new-password"
                     required>
-
-                <span class="material-symbols-outlined">
-                    visibility
-                </span>
+                <span class="material-symbols-outlined">visibility</span>
             </div>
 
             <button
@@ -104,9 +87,7 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
 
         </form>
 
-        <!-- CADASTRO -->
-
-        <form
+        <form 
             action="criarconta.php"
             method="POST"
             id="cadastroForm"
@@ -120,22 +101,12 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
                     name="nome"
                     placeholder="Nome completo"
                     required>
-
-                <span class="material-symbols-outlined">
-                    person
-                </span>
+                <span class="material-symbols-outlined">person</span>
             </div>
 
             <div class="input-box">
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="E-mail"
-                    required>
-
-                <span class="material-symbols-outlined">
-                    mail
-                </span>
+                <input type="email" name="email" placeholder="E-mail" autocomplete="off" required>
+                <span class="material-symbols-outlined">mail</span>
             </div>
 
             <div class="input-box">
@@ -143,11 +114,9 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
                     type="password"
                     name="senha"
                     placeholder="Senha"
+                    autocomplete="new-password"
                     required>
-
-                <span class="material-symbols-outlined">
-                    visibility
-                </span>
+                <span class="material-symbols-outlined">visibility</span>
             </div>
 
             <label class="termos">
@@ -155,7 +124,6 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
                     type="checkbox"
                     name="termo"
                     required>
-
                <a href="termos.html">Aceito os Termos de Uso</a>  
             </label>
 
@@ -172,6 +140,6 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wg
 
 </div>
 
- <script src="contra.js"></script>
+<script src="contra.js"></script>
 </body>
 </html>

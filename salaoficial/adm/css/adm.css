@@ -390,3 +390,252 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
+/* ==========================
+   TABLET
+========================== */
+@media (max-width: 1024px) {
+
+    .menu {
+        width: 180px;
+    }
+
+    .conteudo {
+        margin-left: 200px;
+    }
+
+    .cabeca h1 {
+        font-size: 24px;
+    }
+
+    .nome-usuario {
+        font-size: 18px;
+    }
+}
+
+/* ==========================
+   CELULAR
+========================== */
+@media (max-width: 768px) {
+
+    /* CABEÇALHO */
+    .cabeca {
+        height: auto;
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .cabeca h1 {
+        font-size: 22px;
+    }
+
+    .nome-usuario {
+        font-size: 16px;
+    }
+
+    /* MENU */
+    .menu {
+        position: relative;
+        top: 0;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 2px solid #ddd;
+
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+
+        padding: 15px;
+    }
+
+    .menu button {
+        width: auto;
+        min-width: 140px;
+        text-align: center;
+        border: none;
+        border-radius: 10px;
+        background: #f5f5f5;
+    }
+
+    /* CONTEÚDO */
+    .conteudo {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    /* TABELAS */
+    .tabela-agendamentos,
+    .tabela-clientes,
+    .tabela-historico {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* HISTÓRICO */
+    .container-historico {
+        flex-direction: column;
+    }
+
+    .tabela-historico {
+        width: 100%;
+    }
+
+    .painel-historico {
+        width: 100%;
+    }
+
+    /* SERVIÇOS */
+    .servico-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .nome-input {
+        width: 100%;
+        margin: 4px 0px;
+    }
+
+    .preco-input {
+        width: 100%;
+    }
+
+    .editar-btn,
+    .delete-btn {
+        margin: 7px 0px;
+        width: 100%;
+    }
+
+    /* FAB */
+    #fab {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        right: 15px;
+        bottom: 15px;
+    }
+}
+
+/* ==========================
+   CELULAR PEQUENO
+========================== */
+@media (max-width: 480px) {
+
+    .cabeca h1 {
+        font-size: 18px;
+    }
+
+    .nome-usuario {
+        font-size: 14px;
+    }
+
+    .menu button {
+        min-width: 120px;
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .titulo-servicos {
+        font-size: 22px;
+    }
+
+    .subtitulo-servicos {
+        font-size: 15px;
+    }
+
+    .tabela-agendamentos th,
+    .tabela-agendamentos td,
+    .tabela-clientes th,
+    .tabela-clientes td,
+    .tabela-historico th,
+    .tabela-historico td {
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+ @media (max-width: 768px) {
+
+     /* BOTÃO HAMBÚRGUER (Sempre visível no celular) */
+     .menu-mobile {
+         display: block;
+         background: #7a5252;
+         /* Cor de fundo do topo */
+         padding: 10px;
+         text-align: left;
+     }
+
+     #btnMenu {
+         background: rgb(6, 6, 6);
+         color: white;
+         border: none;
+         padding: 10px 15px;
+         border-radius: 10px;
+         font-size: 24px;
+         cursor: pointer;
+     }
+
+     /* MENU LATERAL (Abre por cima do conteúdo) */
+     .menu {
+         display: none;
+         /* Começa escondido, o JS quem ativa */
+         position: fixed;
+         /* Fixado na tela, sobrepondo tudo */
+         top: 60px;
+         /* Fica logo abaixo do seu cabeçalho */
+         left: 0;
+         width: 260px;
+         /* Largura da gaveta lateral */
+         height: calc(100vh - 60px);
+         /* Ocupa o resto da altura da tela */
+         background: #ffffff;
+         padding: 20px 15px;
+         box-shadow: 4px 0 10px rgba(0, 0, 0, 0.15);
+         /* Sombra para dar o efeito flutuante */
+         z-index: 9999;
+         /* Fica na frente de tabelas e inputs */
+         box-sizing: border-box;
+
+         flex-direction: column;
+         gap: 12px;
+     }
+
+     /* Quando o botão injetar a classe .ativo via JS, o menu aparece */
+     .menu.ativo {
+         display: flex;
+     }
+
+     /* Estilização dos botões de navegação dentro do menu */
+     .menu button {
+         width: 100%;
+         text-align: left;
+         padding: 14px;
+         border: 1px solid #eee;
+         border-radius: 8px;
+         background: #fdfdfd;
+         font-size: 15px;
+         color: #333;
+         transition: 0.2s;
+     }
+
+     .menu button:active,
+     .menu button.active {
+         background: #7a5252;
+         color: white;
+     }
+
+     /* CONTEÚDO (Fica por baixo do menu quando ele abre) */
+     .conteudo {
+         margin-left: 0;
+         padding: 15px;
+         width: 100%;
+         box-sizing: border-box;
+         position: relative;
+         z-index: 1;
+         /* Camada inferior ao menu */
+     }
+ }

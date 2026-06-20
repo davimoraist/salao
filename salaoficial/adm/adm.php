@@ -38,7 +38,9 @@ try {
         Olá! <?php echo $pessoa; ?>
     </span>
 </div>
-
+<div class="menu-mobile">
+    <button id="btnMenu">☰</button>
+</div>
 <div class="menu">
     <button onclick="mostrarTela('agenda')" class="active">Agenda</button>
     <button onclick="mostrarTela('cliente')">Clientes</button>

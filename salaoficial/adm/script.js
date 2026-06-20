@@ -196,6 +196,37 @@ document.addEventListener("DOMContentLoaded", function () {
         btnNovoServico.onclick = () => areaServicos.appendChild(criarServico());
     }
 
+    
+    window.addEventListener("load", function () {
+
+        const botaoHamburguer = document.getElementById("btnMenu");
+        const caixaMenu = document.querySelector(".menu");
+
+        if (botaoHamburguer && caixaMenu) {
+
+            // 1. Abre e fecha o menu ao clicar no ☰
+            botaoHamburguer.onclick = function (event) {
+                caixaMenu.classList.toggle("ativo");
+                event.stopPropagation();
+            };
+
+            // 2. CORRIGIDO: Pega todos os botões dentro do menu e fecha ao clicar
+            const botoesDoMenu = caixaMenu.querySelectorAll("button");
+            botoesDoMenu.forEach(function (botao) {
+                botao.addEventListener("click", function () {
+                    caixaMenu.classList.remove("ativo");
+                });
+            });
+
+            // 3. Se clicar no resto da página, fecha o menu também
+            document.onclick = function (event) {
+                if (!caixaMenu.contains(event.target) && event.target !== botaoHamburguer) {
+                    caixaMenu.classList.remove("ativo");
+                }
+            };
+        }
+    });
+
     // ===================== INICIAR SISTEMA =====================
     carregarServicos();
     atualizarTabelaClientes();

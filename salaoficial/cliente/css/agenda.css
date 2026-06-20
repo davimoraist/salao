@@ -199,4 +199,106 @@ h1{
  .hora.ocupado {
      background: red;
      cursor: not-allowed;
- }
+   }
+
+   /* =========================
+   RESPONSIVO CELULAR
+========================= */
+   @media (max-width: 480px) {
+
+       body {
+           padding: 10px;
+       }
+
+       .form-box {
+           width: 95%;
+           max-width: 100%;
+           margin: 20px auto;
+           padding: 20px;
+           border-radius: 25px;
+           box-sizing: border-box;
+       }
+
+       .form-box h1 {
+           font-size: 2rem;
+           text-align: center;
+       }
+
+       .none h2 {
+           font-size: 1.5rem;
+           line-height: 1.4;
+       }
+
+       .titulo {
+           width: fit-content;
+           margin: 25px auto;
+           font-size: 1.3rem;
+           text-align: center;
+       }
+
+       /* DATAS */
+       .carrossel {
+           gap: 5px;
+       }
+
+       .seta {
+           font-size: 20px;
+           min-width: 25px;
+       }
+
+       .datas {
+           gap: 8px;
+           width: 100%;
+           overflow: hidden;
+       }
+
+       .data {
+           min-width: 75px;
+           height: 50px;
+           font-size: 1.1rem;
+       }
+
+       /* HORÁRIOS */
+       .horarios {
+           display: grid;
+           grid-template-columns: repeat(2, 1fr);
+           gap: 12px;
+           margin-top: 20px;
+       }
+
+       .horario {
+           width: 100%;
+           height: 50px;
+           font-size: 1.1rem;
+       }
+
+       /* SERVIÇOS */
+       .servico-box {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           gap: 10px;
+           padding: 12px;
+           border-radius: 12px;
+           margin-bottom: 10px;
+       }
+
+       .servico-box label {
+           font-size: 1rem;
+           flex: 1;
+       }
+
+       .servico-box p {
+           font-size: 1rem;
+           margin: 0;
+       }
+
+       /* BOTÃO */
+       .pagamento button {
+           width: 100%;
+           height: 55px;
+           font-size: 1.2rem;
+           border-radius: 15px;
+           margin-top: 20px;
+       }
+   }

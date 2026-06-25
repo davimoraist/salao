@@ -1,0 +1,78 @@
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+     font-family: Arial, Helvetica, sans-serif;
+ }
+
+ body {
+     background: #f5f5f5;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     min-height: 100vh;
+ }
+
+ .checkout {
+     width: 500px;
+     background: white;
+     padding: 30px;
+     border-radius: 10px;
+     box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+ }
+
+ .checkout h1 {
+     text-align: center;
+     margin-bottom: 20px;
+ }
+
+ .botoes {
+     display: flex;
+     gap: 10px;
+     margin-bottom: 20px;
+ }
+
+ .botoes button {
+     flex: 1;
+     padding: 12px;
+     border: none;
+     background: #007bff;
+     color: white;
+     cursor: pointer;
+     border-radius: 5px;
+ }
+
+ .botoes button:hover {
+     background: #0056b3;
+ }
+
+ .pagamento {
+     display: none;
+ }
+
+ .pagamento h2 {
+     margin-bottom: 15px;
+ }
+
+ .pagamento input {
+     width: 100%;
+     padding: 12px;
+     margin-bottom: 10px;
+     border: 1px solid #ccc;
+     border-radius: 5px;
+ }
+
+ .linha {
+     display: flex;
+     gap: 10px;
+ }
+
+ .pagamento button {
+     width: 100%;
+     padding: 12px;
+     border: none;
+     background: green;
+     color: white;
+     border-radius: 5px;
+     cursor: pointer;
+ }

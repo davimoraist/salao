@@ -1,6 +1,11 @@
  <?php
 session_start();
 
+// Geração de Token CSRF seguro contra ataques de falsificação de requisição
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $erros = [
     'login' => $_SESSION['login_error'] ?? '',
     'criar' => $_SESSION['criar_error'] ?? ''
@@ -12,10 +17,16 @@ unset($_SESSION['login_error']);
 unset($_SESSION['criar_error']);
 unset($_SESSION['active_form']);
 
+/**
+ * Exibe a mensagem de erro tratando os dados contra ataques XSS
+ */
 function showError($error){
-    return !empty($error)
-        ? "<p class='error'>$error</p>"
-        : "";
+    if (!empty($error)) {
+        // Escapa os caracteres HTML para neutralizar códigos maliciosos
+        $safeError = htmlspecialchars($error, ENT_QUOTES, 'UTF-8');
+        return "<p class='error'>{$safeError}</p>";
+    }
+    return "";
 }
 ?>
 <!DOCTYPE html>
@@ -63,6 +74,8 @@ function showError($error){
 
             <?= showError($erros['login']); ?>
 
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
+
             <div class="input-box">
                 <input type="email" name="email" placeholder="E-mail" autocomplete="off" required> 
                 <span class="material-symbols-outlined">mail</span>
@@ -94,6 +107,8 @@ function showError($error){
             class="form-auth <?= $activeForm === 'login' ? 'hidden' : '' ?>">
 
             <?= showError($erros['criar']); ?>
+
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
 
             <div class="input-box">
                 <input

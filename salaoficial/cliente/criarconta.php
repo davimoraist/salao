@@ -13,17 +13,28 @@ if (!isset($conn)) {
 }
 
 /* =========================
+   TRAVA DE SEGURANÇA: CSRF
+========================= */
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (empty($_POST['csrf_token']) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $_SESSION['login_error'] = '❌ Requisição inválida ou expirada.';
+        header("Location: cliente.php");
+        exit;
+    }
+}
+
+/* =========================
    CRIAR CONTA
 ========================= */
 if (isset($_POST['criar'])) {
 
     $nome  = trim($_POST['nome'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
     $senha = $_POST['senha'] ?? '';
 
-    // Verifica campos vazios
-    if ($nome === '' || $email === '' || $senha === '') {
-        $_SESSION['criar_error'] = '❌ Preencha todos os campos.';
+    // Verifica campos vazios e validação do formato de e-mail no back-end
+    if ($nome === '' || !$email || $senha === '') {
+        $_SESSION['criar_error'] = '❌ Preencha todos os campos com dados válidos.';
         $_SESSION['active_form'] = 'criar';
         header("Location: cliente.php");
         exit;
@@ -50,12 +61,12 @@ if (isset($_POST['criar'])) {
     $stmt->bind_param("sss", $nome, $email, $senhaHash);
 
     if ($stmt->execute()) {
-        // LOGIN AUTOMÁTICO APÓS CADASTRO
+        // LOGIN AUTOMÁTICO APÓS CADASTRO (Muda o ID da sessão por segurança)
         session_regenerate_id(true);
 
-        $_SESSION['id'] = $conn->insert_id;
-        $_SESSION['nome']      = $nome;
-        $_SESSION['email']     = $email;
+        $_SESSION['id']    = $conn->insert_id;
+        $_SESSION['nome']  = $nome;
+        $_SESSION['email'] = $email;
 
         header("Location: ./pessoal.php");
         exit;
@@ -70,14 +81,13 @@ if (isset($_POST['criar'])) {
 /* =========================
    LOGIN
 ========================= */
- // LOGIN
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_POST['senha']) && !isset($_POST['criar'])) {
 
-    $email = trim($_POST['email'] ?? '');
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
     $senha = $_POST['senha'] ?? '';
 
-    if ($email === '' || $senha === '') {
-        $_SESSION['login_error'] = '❌ Preencha todos os campos.';
+    if (!$email || $senha === '') {
+        $_SESSION['login_error'] = '❌ E-mail ou senha incorretos.';
         $_SESSION['active_form'] = 'login';
         header("Location: cliente.php");
         exit;
@@ -87,6 +97,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_P
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
+
+    // Mensagem genérica unificada para mitigar ataques de enumeração de e-mails
+    $loginGenericError = '❌ E-mail ou senha incorretos.';
 
     if ($result && $result->num_rows === 1) {
         $cliente = $result->fetch_assoc();
@@ -106,23 +119,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_P
             $dados = $res2->fetch_assoc();
 
             if (!empty($dados['cpf'])) {
-            header("Location: panel.php");
-            exit;
-                } else {
-            header("Location: pessoal.php");
-            exit;
-                }
-
+                header("Location: panel.php");
+                exit;
+            } else {
+                header("Location: pessoal.php");
+                exit;
+            }
 
         } else {
-            $_SESSION['login_error'] = '❌ Senha incorreta.';
+            $_SESSION['login_error'] = $loginGenericError;
             $_SESSION['active_form'] = 'login';
             header("Location: cliente.php");
             exit;
         }
 
     } else {
-        $_SESSION['login_error'] = '❌ E-mail não cadastrado.';
+        $_SESSION['login_error'] = $loginGenericError;
         $_SESSION['active_form'] = 'login';
         header("Location: cliente.php");
         exit;

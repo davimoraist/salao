@@ -1,3 +1,21 @@
+ <?php
+// Inicia a sessão para validar o usuário logado e persistir o token de segurança
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Garante que o Token CSRF exista para proteger a submissão para o dadocliente.php
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+/**
+ * Função auxiliar para sanitizar valores caso venham a ser exibidos nos inputs (Prevenção de XSS)
+ */
+function esc($value) {
+    return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -8,26 +26,26 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div  class="ficha">
+    <div class="ficha">
         
         <form action="dadocliente.php" method="post" class="form-box">
+            <input type="hidden" name="csrf_token" value="<?= esc($_SESSION['csrf_token']); ?>">
+
             <h1>Dado pessoais</h1>
             <div>
-             <label for="endereco">Endereço</label>
-             <input type="text" name="endereco" id="endereco">
-         </div>
+                 <label for="endereco">Endereço</label>
+                 <input type="text" name="endereco" id="endereco">
+             </div>
 
-         <div>
-             <label for="tel">Telefone</label>
-             <input type="tel" name="tel" id="tel" maxlength="14">
-         </div>
+             <div>
+                 <label for="tel">Telefone</label>
+                 <input type="tel" name="tel" id="tel" maxlength="14">
+             </div>
          
-            <!-- cpf -->
             <div>
                  <label for="cpf">CPF</label>
                  <input type="text" name="cpf" id="cpf" maxlength="14">
              </div>
-             <!-- data de nascimento -->
              <div>
                  <label for="idade">data de nascimento</label>
                  <input type="date" name="idade" id="idade">
@@ -53,7 +71,7 @@
                 </div>
 
             </div>
-            <button>Enviar</button>
+            <button type="submit">Enviar</button>
         </form>
     </div>
     <script src="anamnes.js"></script>

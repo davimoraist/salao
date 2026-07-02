@@ -3,14 +3,18 @@
 // Bloco PHP: Processa a API do Asaas antes de carregar qualquer HTML
 // ======================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao'] === 'gerar_pix') {
-    // Limpa qualquer espaço ou saída anterior para não corromper o JSON
-    ob_clean();
+    // Força a limpeza do buffer para garantir que nenhum aviso do XAMPP quebre o JSON
+    if (ob_get_length()) ob_clean();
     header("Content-Type: application/json; charset=utf-8");
 
-    // ⚠️ INSIRA SUA CHAVE DO SANDBOX AQUI:
-    $apiKey = 'SUA_CHAVE_API_DO_SANDBOX_AQUI'; 
+    // ⚠️ CHAVE DO SANDBOX
+    $apiKey = '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3Y2VjMDgxLTAxM2EtNDhiNS05OWFhLWVkOTU0NDZiNGVjMDo6JGFhY2hfZGFlMTM4MGYtYzhlNC00YThiLThkYzMtNmFkNjdiYmM4M2Nj'; 
 
-    // Gerador de CPF válido para evitar o erro 400 de duplicidade
+    $valorInput = filter_input(INPUT_POST, 'valor', FILTER_VALIDATE_FLOAT);
+    if (!$valorInput || $valorInput <= 0) {
+        $valorInput = 50.00;
+    }
+
     function criarCpfFicticio() {
         $n = array_map(function() { return rand(0, 9); }, range(1, 9));
         for ($t = 9; $t < 11; $t++) {
@@ -27,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
+        CURLOPT_SSL_VERIFYPEER => false, // 🛠️ DESATIVADO PARA XAMPP
+        CURLOPT_SSL_VERIFYHOST => false, // 🛠️ DESATIVADO PARA XAMPP
         CURLOPT_POSTFIELDS => json_encode([
             "name" => "Cliente Teste Local " . rand(10, 99),
             "cpfCnpj" => $cpf
@@ -40,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
 
     if (!$clienteId) {
         http_response_code(400);
-        echo json_encode(["status" => "erro", "motivo" => "Falha ao criar cliente", "dados" => $resCliente]);
+        echo json_encode(["status" => "erro", "motivo" => "Falha ao criar cliente local", "dados" => $resCliente]);
         exit;
     }
 
@@ -49,12 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
+        CURLOPT_SSL_VERIFYPEER => false, // 🛠️ DESATIVADO PARA XAMPP
+        CURLOPT_SSL_VERIFYHOST => false, // 🛠️ DESATIVADO PARA XAMPP
         CURLOPT_POSTFIELDS => json_encode([
             "customer" => $clienteId,
             "billingType" => "PIX",
-            "value" => 50.00,
+            "value" => $valorInput,
             "dueDate" => date('Y-m-d'),
-            "description" => "Pagamento de Teste"
+            "description" => "Pagamento de Teste Local"
         ]),
         CURLOPT_HTTPHEADER => ["Content-Type: application/json", "access_token: " . $apiKey]
     ]);
@@ -65,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
 
     if (!$paymentId) {
         http_response_code(400);
-        echo json_encode(["status" => "erro", "motivo" => "Falha ao criar cobrança", "dados" => $resCobranca]);
+        echo json_encode(["status" => "erro", "motivo" => "Falha ao criar cobranca local", "dados" => $resCobranca]);
         exit;
     }
 
@@ -73,12 +81,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
     $ch = curl_init("https://sandbox.asaas.com/api/v3/payments/{$paymentId}/pixQrCode");
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => false, // 🛠️ DESATIVADO PARA XAMPP
+        CURLOPT_SSL_VERIFYHOST => false, // 🛠️ DESATIVADO PARA XAMPP
         CURLOPT_HTTPHEADER => ["access_token: " . $apiKey]
     ]);
     $resPix = curl_exec($ch);
     curl_close($ch);
 
-    // Devolve o JSON bruto do QR Code do Asaas diretamente para o JavaScript
     echo $resPix;
     exit;
 }
@@ -104,6 +113,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
 
         <div id="pix" class="pagamento" style="display: none;">
             <h2>Pagamento via PIX</h2>
+
+            <div style="margin-bottom: 15px;">
+                <label for="valor_teste" style="display: block; margin-bottom: 5px; font-weight: bold;">Valor do Teste (R$):</label>
+                <input type="number" id="valor_teste" value="50.00" step="0.01" min="1.00" style="padding: 8px; width: 100%; box-sizing: border-box; text-align: center;">
+            </div>
 
             <div id="carregando-pix" style="display: none; font-weight: bold; margin: 15px 0;">Gerando QR Code...</div>
 
@@ -147,25 +161,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
         document.getElementById(tipo).style.display = 'block';
     }
 
-    async function generarPixNoAsaas() {
-        // Redireciona para o nome correto caso a função no onclick esteja errada
-        gerarPixNoAsaas();
-    }
-
     async function gerarPixNoAsaas() {
         const btnGerar = document.getElementById('btn-gerar-pix');
         const divCarregando = document.getElementById('carregando-pix');
         const divDados = document.getElementById('dados-qrcode');
+        const valorTeste = document.getElementById('valor_teste').value;
 
         btnGerar.style.display = 'none';
         divCarregando.style.display = 'block';
         divDados.style.display = 'none';
 
         try {
-            const response = await fetch('?acao=gerar_pix', { method: 'POST' });
+            const formData = new FormData();
+            formData.append('valor', valorTeste);
+
+            const response = await fetch('?acao=gerar_pix', { 
+                method: 'POST',
+                body: formData
+            });
             const textoBruto = await response.text();
 
-            // Tenta converter a resposta para JSON de forma segura
             let dadosPix;
             try {
                 dadosPix = JSON.parse(textoBruto);
@@ -175,7 +190,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
                 return;
             }
 
-            // Se a requisição do Asaas deu erro nos passos 1 ou 2
             if (!response.ok || dadosPix.status === "erro") {
                 let msg = dadosPix.motivo || "Erro desconhecido";
                 if (dadosPix.dados && dadosPix.dados.errors) {
@@ -186,7 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
                 return;
             }
 
-            // Injeta os dados na tela se o Asaas mandou a imagem
             if (dadosPix.encodedImage && dadosPix.payload) {
                 document.getElementById('qrCodeImg').src = `data:image/png;base64,${dadosPix.encodedImage}`;
                 document.getElementById('pixCopiaCola').value = dadosPix.payload;

@@ -1,3 +1,3 @@
 function pagamento(){
-    alert("seu angedamendo voi marcodo")
+    alert("Seu agendamento foi realizado com sucesso. Agora basta efetuar o pagamento.")
 }

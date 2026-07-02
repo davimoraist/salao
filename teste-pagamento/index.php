@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
     header("Content-Type: application/json; charset=utf-8");
 
     // ⚠️ CHAVE DO SANDBOX
-    $apiKey = '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3Y2VjMDgxLTAxM2EtNDhiNS05OWFhLWVkOTU0NDZiNGVjMDo6JGFhY2hfZGFlMTM4MGYtYzhlNC00YThiLThkYzMtNmFkNjdiYmM4M2Nj'; 
+    $apiKey = 'coloca seu api aqui'; 
 
     $valorInput = filter_input(INPUT_POST, 'valor', FILTER_VALIDATE_FLOAT);
     if (!$valorInput || $valorInput <= 0) {

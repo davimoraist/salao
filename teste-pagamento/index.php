@@ -7,65 +7,109 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
     if (ob_get_length()) ob_clean();
     header("Content-Type: application/json; charset=utf-8");
 
-    // ⚠️ CHAVE DO SANDBOX
+    // ⚠️ COLOQUE SUA CHAVE DO SANDBOX AQUI
     $apiKey = 'coloca seu api aqui'; 
 
+    // Coleta os dados enviados pelo formulário via JavaScript (Fetch)
+    $nomeInput  = filter_input(INPUT_POST, 'nome', FILTER_DEFAULT);
+    $cpfInput   = filter_input(INPUT_POST, 'cpf', FILTER_DEFAULT);
+    $emailInput = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
     $valorInput = filter_input(INPUT_POST, 'valor', FILTER_VALIDATE_FLOAT);
-    if (!$valorInput || $valorInput <= 0) {
-        $valorInput = 50.00;
-    }
 
-    function criarCpfFicticio() {
-        $n = array_map(function() { return rand(0, 9); }, range(1, 9));
-        for ($t = 9; $t < 11; $t++) {
-            for ($d = 0, $c = 0; $c < $t; $c++) $d += $n[$c] * (($t + 1) - $c);
-            $d = ((10 * $d) % 11) % 10;
-            $n[] = $d;
-        }
-        return implode('', $n);
-    }
-    $cpf = criarCpfFicticio();
-
-    // Passo 1: Criar Cliente Fictício
-    $ch = curl_init('https://sandbox.asaas.com/api/v3/customers');
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_SSL_VERIFYPEER => false, // 🛠️ DESATIVADO PARA XAMPP
-        CURLOPT_SSL_VERIFYHOST => false, // 🛠️ DESATIVADO PARA XAMPP
-        CURLOPT_POSTFIELDS => json_encode([
-            "name" => "Cliente Teste Local " . rand(10, 99),
-            "cpfCnpj" => $cpf
-        ]),
-        CURLOPT_HTTPHEADER => ["Content-Type: application/json", "access_token: " . $apiKey]
-    ]);
-    $resCliente = json_decode(curl_exec($ch), true);
-    curl_close($ch);
-
-    $clienteId = $resCliente['id'] ?? null;
-
-    if (!$clienteId) {
+    // Validações básicas antes de enviar para a API
+    if (!$valorInput || $valorInput <= 0) { $valorInput = 50.00; }
+    if (!$nomeInput || !$cpfInput || !$emailInput) {
         http_response_code(400);
-        echo json_encode(["status" => "erro", "motivo" => "Falha ao criar cliente local", "dados" => $resCliente]);
+        echo json_encode(["status" => "erro", "motivo" => "Por favor, preencha Nome, CPF e E-mail corretamente."]);
         exit;
     }
 
-    // Passo 2: Criar Cobrança Pix
-    $ch = curl_init('https://sandbox.asaas.com/api/v3/payments');
+    // O Asaas exige apenas números no CPF/CNPJ
+    $cpfLimpo = preg_replace('/[^0-9]/', '', $cpfInput);
+
+    /* -------------------------------------------------------
+       PASSO 1: CADASTRAR OU LOCALIZAR O CLIENTE NO ASAAS
+    ------------------------------------------------------- */
+    $urlClientes = 'https://sandbox.asaas.com/api/v3/customers';
+    $dadosCliente = [
+        "name" => $nomeInput,
+        "cpfCnpj" => $cpfLimpo,
+        "email" => $emailInput
+    ];
+
+    $ch = curl_init($urlClientes);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
-        CURLOPT_SSL_VERIFYPEER => false, // 🛠️ DESATIVADO PARA XAMPP
-        CURLOPT_SSL_VERIFYHOST => false, // 🛠️ DESATIVADO PARA XAMPP
-        CURLOPT_POSTFIELDS => json_encode([
-            "customer" => $clienteId,
-            "billingType" => "PIX",
-            "value" => $valorInput,
-            "dueDate" => date('Y-m-d'),
-            "description" => "Pagamento de Teste Local"
-        ]),
-        CURLOPT_HTTPHEADER => ["Content-Type: application/json", "access_token: " . $apiKey]
+        CURLOPT_SSL_VERIFYPEER => false, // 🛠️ Ignora SSL no XAMPP
+        CURLOPT_SSL_VERIFYHOST => false, // 🛠️ Ignora SSL no XAMPP
+        CURLOPT_POSTFIELDS => json_encode($dadosCliente),
+        CURLOPT_HTTPHEADER => [
+            "Content-Type: application/json",
+            "access_token: " . $apiKey,
+            "User-Agent: mtnaildesigner-app" // 🛠️ CORREÇÃO DO SEU ERRO
+        ],
     ]);
+
+    $resClienteRaw = curl_exec($ch);
+    curl_close($ch);
+    $resCliente = json_decode($resClienteRaw, true);
+
+    $clienteId = $resCliente['id'] ?? null;
+
+    // Se o cliente já existir com esse CPF, o Asaas recusa criar. Buscamos o ID existente:
+    if (!$clienteId && isset($resCliente['errors']) && $resCliente['errors'][0]['code'] === 'has_already_a_customer_with_this_cpfCnpj') {
+        $chBusca = curl_init($urlClientes . "?cpfCnpj=" . $cpfLimpo);
+        curl_setopt_array($chBusca, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_HTTPHEADER => [
+                "access_token: " . $apiKey,
+                "User-Agent: mtnaildesigner-app" // 🛠️ CORREÇÃO DO SEU ERRO
+            ],
+        ]);
+        $resBusca = json_decode(curl_exec($chBusca), true);
+        curl_close($chBusca);
+        
+        if (!empty($resBusca['data'][0]['id'])) {
+            $clienteId = $resBusca['data'][0]['id'];
+        }
+    }
+
+    // Se mesmo assim não temos um ID de cliente, interrompe com o erro real da API
+    if (!$clienteId) {
+        http_response_code(400);
+        echo json_encode(["status" => "erro", "motivo" => "Falha ao cadastrar o cliente no Asaas.", "dados" => $resCliente]);
+        exit;
+    }
+
+    /* -------------------------------------------------------
+       PASSO 2: CRIAR A COBRANÇA PIX VINCULADA AO CLIENTE
+    ------------------------------------------------------- */
+    $urlCobranca = 'https://sandbox.asaas.com/api/v3/payments';
+    $dadosCobranca = [
+        "customer" => $clienteId,
+        "billingType" => "PIX",
+        "value" => $valorInput,
+        "dueDate" => date('Y-m-d'),
+        "description" => "Agendamento de Serviço - mtnaildesigner"
+    ];
+
+    $ch = curl_init($urlCobranca);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_POSTFIELDS => json_encode($dadosCobranca),
+        CURLOPT_HTTPHEADER => [
+            "Content-Type: application/json",
+            "access_token: " . $apiKey,
+            "User-Agent: mtnaildesigner-app" // 🛠️ CORREÇÃO DO SEU ERRO
+        ],
+    ]);
+
     $resCobranca = json_decode(curl_exec($ch), true);
     curl_close($ch);
 
@@ -73,21 +117,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
 
     if (!$paymentId) {
         http_response_code(400);
-        echo json_encode(["status" => "erro", "motivo" => "Falha ao criar cobranca local", "dados" => $resCobranca]);
+        echo json_encode(["status" => "erro", "motivo" => "Falha ao criar cobrança local.", "dados" => $resCobranca]);
         exit;
     }
 
-    // Passo 3: Buscar QR Code e Payload do Pix
+    /* -------------------------------------------------------
+       PASSO 3: BUSCAR O QR CODE E PAYLOAD COPIA E COLA
+    ------------------------------------------------------- */
     $ch = curl_init("https://sandbox.asaas.com/api/v3/payments/{$paymentId}/pixQrCode");
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false, // 🛠️ DESATIVADO PARA XAMPP
-        CURLOPT_SSL_VERIFYHOST => false, // 🛠️ DESATIVADO PARA XAMPP
-        CURLOPT_HTTPHEADER => ["access_token: " . $apiKey]
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_HTTPHEADER => [
+            "access_token: " . $apiKey,
+            "User-Agent: mtnaildesigner-app" // 🛠️ CORREÇÃO DO SEU ERRO
+        ],
     ]);
+    
     $resPix = curl_exec($ch);
     curl_close($ch);
 
+    // Retorna a imagem codificada e o payload direto para o JavaScript
     echo $resPix;
     exit;
 }
@@ -97,8 +148,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
+    <title>Checkout - mtnaildesigner</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .campo-grupo { margin-bottom: 12px; text-align: left; }
+        .campo-grupo label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .campo-grupo input { padding: 8px; width: 100%; box-sizing: border-box; }
+    </style>
 </head>
 <body>
 
@@ -114,9 +170,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
         <div id="pix" class="pagamento" style="display: none;">
             <h2>Pagamento via PIX</h2>
 
-            <div style="margin-bottom: 15px;">
-                <label for="valor_teste" style="display: block; margin-bottom: 5px; font-weight: bold;">Valor do Teste (R$):</label>
-                <input type="number" id="valor_teste" value="50.00" step="0.01" min="1.00" style="padding: 8px; width: 100%; box-sizing: border-box; text-align: center;">
+            <div class="campo-grupo">
+                <label for="cliente_nome">Nome Completo:</label>
+                <input type="text" id="cliente_nome" placeholder="Ex: João Silva">
+            </div>
+
+            <div class="campo-grupo">
+                <label for="cliente_cpf">CPF:</label>
+                <input type="text" id="cliente_cpf" placeholder="000.000.000-00">
+            </div>
+
+            <div class="campo-grupo">
+                <label for="cliente_email">E-mail:</label>
+                <input type="email" id="cliente_email" placeholder="joao@email.com">
+            </div>
+
+            <div class="campo-grupo">
+                <label for="valor_teste">Valor do Teste (R$):</label>
+                <input type="number" id="valor_teste" value="50.00" step="0.01" min="1.00" style="text-align: center;">
             </div>
 
             <div id="carregando-pix" style="display: none; font-weight: bold; margin: 15px 0;">Gerando QR Code...</div>
@@ -134,22 +205,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
         <div id="credito" class="pagamento" style="display: none;">
             <h2>Cartão de Crédito</h2>
             <input type="text" placeholder="Número do Cartão">
-            <input type="text" placeholder="Nome no Cartão">
-            <div class="linha">
-                <input type="text" placeholder="MM/AA">
-                <input type="text" placeholder="CVV">
-            </div>
             <button>Finalizar Compra</button>
         </div>
 
         <div id="debito" class="pagamento" style="display: none;">
             <h2>Cartão de Débito</h2>
             <input type="text" placeholder="Número do Cartão">
-            <input type="text" placeholder="Nome no Cartão">
-            <div class="linha">
-                <input type="text" placeholder="MM/AA">
-                <input type="text" placeholder="CVV">
-            </div>
             <button>Finalizar Compra</button>
         </div>
     </div>
@@ -165,7 +226,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
         const btnGerar = document.getElementById('btn-gerar-pix');
         const divCarregando = document.getElementById('carregando-pix');
         const divDados = document.getElementById('dados-qrcode');
+        
+        // Coleta valores do formulário HTML
         const valorTeste = document.getElementById('valor_teste').value;
+        const nomeReal = document.getElementById('cliente_nome').value;
+        const cpfReal = document.getElementById('cliente_cpf').value;
+        const emailReal = document.getElementById('cliente_email').value;
+
+        if (!nomeReal || !cpfReal || !emailReal) {
+            alert("Por favor, preencha todos os campos do cliente (Nome, CPF e E-mail).");
+            return;
+        }
 
         btnGerar.style.display = 'none';
         divCarregando.style.display = 'block';
@@ -174,7 +245,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
         try {
             const formData = new FormData();
             formData.append('valor', valorTeste);
+            formData.append('nome', nomeReal);
+            formData.append('cpf', cpfReal);
+            formData.append('email', emailReal);
 
+            // Envia para a própria página atual (?acao=gerar_pix) que processa o PHP no topo
             const response = await fetch('?acao=gerar_pix', { 
                 method: 'POST',
                 body: formData
@@ -185,7 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
             try {
                 dadosPix = JSON.parse(textoBruto);
             } catch (e) {
-                alert("O servidor não retornou um JSON válido. Resposta recebida: " + textoBruto);
+                alert("Erro de resposta inválida do servidor: " + textoBruto);
                 resetarInterface(btnGerar, divCarregando);
                 return;
             }
@@ -212,7 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
             }
         } catch (error) {
             console.error("Erro na requisição:", error);
-            alert("Não foi possível conectar ao servidor local Apache.");
+            alert("Erro ao conectar no servidor local.");
             resetarInterface(btnGerar, divCarregando);
         }
     }

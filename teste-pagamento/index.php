@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
     header("Content-Type: application/json; charset=utf-8");
 
     // ⚠️ COLOQUE SUA CHAVE DO SANDBOX AQUI
-    $apiKey = 'coloca seu api aqui'; 
+    $apiKey='coloca seu api aqui'; 
 
     // Coleta os dados enviados pelo formulário via JavaScript (Fetch)
     $nomeInput  = filter_input(INPUT_POST, 'nome', FILTER_DEFAULT);

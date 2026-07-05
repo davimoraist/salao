@@ -86,7 +86,7 @@ if (!$user) {
 
         <div class="item">
             <img src="imagem/decoraco.jpeg" alt="">
-            <p>Decoração</p>
+            <p>Reposição de Unha</p>
         </div>
 
         <div class="item">
@@ -101,7 +101,7 @@ if (!$user) {
 
         <div class="item">
             <img src="imagem/WhatsApp Image 2026-01-27 at 09.52.04.jpeg" alt="">
-            <p>Decoração em Alongamento</p>
+            <p>Decoração</p>
         </div>
 
     </div>

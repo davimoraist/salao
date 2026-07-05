@@ -82,7 +82,7 @@
  }
 
  /* BOTÃO */
- .paga input {
+ .paga a {
      display: block;
      width: 300px;
      margin: auto;
@@ -95,10 +95,12 @@
      font-weight: bold;
      cursor: pointer;
      transition: 0.3s;
+     text-align: center;
+     text-decoration: none;
  }
 
  /* HOVER */
- .paga input:hover {
+ .paga a:hover {
      background: var(--cor2);
      transform: scale(1.03);
  }

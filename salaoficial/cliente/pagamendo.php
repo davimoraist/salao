@@ -70,10 +70,8 @@ $tabela_precos = [
         </tbody>
     </table>
 
-    <input type="button" value="Pagamento" onclick="pagamento()">
+    <a href="paga.html"> Faço pagamento</a>
 </div>
-
-<script src="pagamento.js"></script>
 
 </body>
 </html>

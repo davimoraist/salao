@@ -1,0 +1,205 @@
+ @charset "UTF-8";
+
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Nunito:wght@300;400;600;700&display=swap');
+
+ :root {
+     --cor1: #EDB8AE;
+     --cor2: #C89991;
+     --cor3: #734440;
+     --cor4: #4b2e2e;
+     --cor5: #ffffff;
+     --cor6: #f8f8f8;
+ }
+
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+     font-family: 'Nunito', sans-serif;
+ }
+
+ body {
+     background: linear-gradient(135deg, var(--cor1), var(--cor2));
+     min-height: 100vh;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     padding: 30px;
+ }
+
+ #pagamento {
+     width: 100%;
+     max-width: 1200px;
+     min-height: 700px;
+     background: #fff;
+     border-radius: 20px;
+     overflow: hidden;
+     display: flex;
+     box-shadow: 0 15px 40px rgba(0, 0, 0, .18);
+ }
+
+ /* ==========================
+   LADO ESQUERDO
+========================== */
+
+ #dados {
+     width: 45%;
+     padding: 40px;
+     background: #fff;
+ }
+
+ #dados label {
+     display: block;
+     margin-top: 18px;
+     margin-bottom: 8px;
+     font-size: 16px;
+     font-weight: 700;
+     color: var(--cor3);
+ }
+
+ #dados input {
+     width: 100%;
+     height: 50px;
+     padding: 0 15px;
+     border: 2px solid #ddd;
+     border-radius: 10px;
+     font-size: 16px;
+     transition: .3s;
+ }
+
+ #dados input:focus {
+     outline: none;
+     border-color: var(--cor2);
+     box-shadow: 0 0 10px rgba(200, 153, 145, .35);
+ }
+
+ #dados p {
+     margin: 35px 0 20px;
+     text-align: center;
+     font-size: 20px;
+     font-weight: bold;
+     color: var(--cor3);
+ }
+
+ /* Botões */
+
+ .forma-pix,
+ .forma-credito,
+ .forma-debito {
+     margin-bottom: 15px;
+ }
+
+ #dados button {
+     width: 100%;
+     height: 55px;
+     border: none;
+     border-radius: 12px;
+     background: var(--cor3);
+     color: #fff;
+     font-size: 18px;
+     font-weight: bold;
+     cursor: pointer;
+     transition: .3s;
+ }
+
+ #dados button:hover {
+     background: var(--cor2);
+     transform: translateY(-3px);
+ }
+
+ #dados button:active {
+     transform: scale(.98);
+ }
+
+ /* ==========================
+   LADO DIREITO
+========================== */
+
+ #peco {
+     width: 55%;
+     background: linear-gradient(135deg, #734440, #4b2e2e);
+     padding: 40px;
+     display: flex;
+     flex-direction: column;
+     justify-content: flex-start;
+ }
+
+ /* Informações */
+
+ #peco p {
+     width: 100%;
+     background: rgba(255, 255, 255, .08);
+     border: 1px solid rgba(255, 255, 255, .15);
+     border-radius: 12px;
+     padding: 18px 20px;
+     color: #fff;
+     font-size: 20px;
+     font-weight: 600;
+     margin-bottom: 18px;
+ }
+
+ 
+
+ /* Espaço livre abaixo */
+
+ #peco::after {
+     content: "";
+     flex: 1;
+ }
+
+ .forma-pagamendo{
+    width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 12px;
+ }
+
+ .forma-pagamendo h1{
+        color: #fff;
+        font-size: 28px;
+         
+ }
+
+ /* ==========================
+   RESPONSIVO
+========================== */
+
+ @media (max-width:900px) {
+
+     #pagamento {
+         flex-direction: column;
+     }
+
+     #dados,
+     #peco {
+         width: 100%;
+     }
+
+ }
+
+ @media (max-width:600px) {
+
+     body {
+         padding: 15px;
+     }
+
+     #dados,
+     #peco {
+         padding: 25px;
+     }
+
+     #peco p:first-child {
+         font-size: 30px;
+     }
+
+     #peco p {
+         font-size: 18px;
+     }
+
+     #dados button {
+         height: 50px;
+         font-size: 16px;
+     }
+
+ }
+ 

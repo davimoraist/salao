@@ -1,6 +1,6 @@
  @charset "UTF-8";
 
- @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Nunito:wght@300;400;600;700&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght=500;700&family=Nunito:wght=300;400;600;700&display=swap');
 
  :root {
      --cor1: #EDB8AE;
@@ -81,8 +81,7 @@
      color: var(--cor3);
  }
 
- /* Botões */
-
+ /* Botões da Esquerda */
  .forma-pix,
  .forma-credito,
  .forma-debito {
@@ -124,8 +123,6 @@
      justify-content: flex-start;
  }
 
- /* Informações */
-
  #peco p {
      width: 100%;
      background: rgba(255, 255, 255, .08);
@@ -138,26 +135,61 @@
      margin-bottom: 18px;
  }
 
- 
+ /* Esconde as formas de pagamento por padrão */
+ .metodo-pagamento {
+     display: none;
+     width: 100%;
+ }
 
- /* Espaço livre abaixo */
+ /* Estilização dos inputs de Cartão na Direita */
+ .paga-credito input {
+     width: 100%;
+     height: 50px;
+     padding: 0 15px;
+     border: 2px solid rgba(255, 255, 255, 0.2);
+     background: rgba(255, 255, 255, 0.1);
+     border-radius: 10px;
+     font-size: 16px;
+     color: #fff;
+     transition: .3s;
+     outline: none;
+ }
+
+ .paga-credito input::placeholder {
+     color: rgba(255, 255, 255, 0.6);
+ }
+
+ .paga-credito input:focus {
+     border-color: var(--cor1);
+     box-shadow: 0 0 10px rgba(237, 184, 174, .35);
+ }
+
+ /* Botões de Ação na Direita */
+ .btn-pagar {
+     width: 100%;
+     height: 55px;
+     border: none;
+     border-radius: 12px;
+     background: var(--cor1);
+     color: var(--cor4);
+     font-size: 18px;
+     font-weight: bold;
+     cursor: pointer;
+     transition: .3s;
+ }
+
+ .btn-pagar:hover {
+     background: var(--cor5);
+     transform: translateY(-3px);
+ }
+
+ .btn-pagar:active {
+     transform: scale(.98);
+ }
 
  #peco::after {
      content: "";
      flex: 1;
- }
-
- .forma-pagamendo{
-    width: 100%;
-        height: 100%;
-        border: none;
-        border-radius: 12px;
- }
-
- .forma-pagamendo h1{
-        color: #fff;
-        font-size: 28px;
-         
  }
 
  /* ==========================
@@ -165,7 +197,6 @@
 ========================== */
 
  @media (max-width:900px) {
-
      #pagamento {
          flex-direction: column;
      }
@@ -174,11 +205,9 @@
      #peco {
          width: 100%;
      }
-
  }
 
  @media (max-width:600px) {
-
      body {
          padding: 15px;
      }
@@ -200,6 +229,4 @@
          height: 50px;
          font-size: 16px;
      }
-
  }
- 

@@ -18,7 +18,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 // Pega os serviços do banco
-$sql = "SELECT nome, preco FROM servicos ORDER BY id DESC";
+$sql = "SELECT nome, preco FROM servico ORDER BY id DESC";
 $result = $conn->query($sql);
 
 $dados = [];

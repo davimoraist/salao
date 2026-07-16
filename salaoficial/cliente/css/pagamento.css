@@ -81,6 +81,11 @@
      color: var(--cor4);
  }
 
+ .paga p{
+    text-align: center;
+    padding: 14px 0;
+ }
+
  /* BOTÃO */
  .paga a {
      display: block;

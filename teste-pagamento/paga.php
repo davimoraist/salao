@@ -14,11 +14,7 @@ $nomeCliente = filter_input(INPUT_POST, 'nome', FILTER_DEFAULT);
 $cpfCliente  = filter_input(INPUT_POST, 'cpf', FILTER_DEFAULT);
 $emailCliente = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
 $valorPix    = filter_input(INPUT_POST, 'valor', FILTER_VALIDATE_FLOAT);
-
-if (!$nomeCliente) $nomeCliente = "Cliente Ficticio " . rand(10, 99);
-if (!$cpfCliente)  $cpfCliente  = criarCpfFicticioForcado(); 
-if (!$valorPix || $valorPix <= 0) $valorPix = 50.00;
-
+ 
 /* =======================================================
    3. CADASTRO OU LOCALIZAÇÃO DO CLIENTE NO ASAAS
 ======================================================= */

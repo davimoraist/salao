@@ -200,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['acao']) && $_GET['acao
             </div>
 
             <button id="btn-gerar-pix" onclick="gerarPixNoAsaas()">Gerar QR Code PIX</button>
-        </div>
+        </div>  
 
         <div id="credito" class="pagamento" style="display: none;">
             <h2>Cartão de Crédito</h2>

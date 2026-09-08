@@ -65,9 +65,7 @@ $precoTotal = 0;
 $servicosValidos = [];
 
 while ($row = $result->fetch_assoc()) {
-
     $servicosValidos[] = $row['nome'];
-
     $precoTotal += (float)$row['preco'];
 }
 
@@ -91,9 +89,7 @@ $stmt->execute();
 $stmt->store_result();
 
 if ($stmt->num_rows > 0) {
-
     $stmt->close();
-
     die("Este horário já está reservado.");
 }
 
@@ -101,21 +97,13 @@ $stmt->close();
 
 // Salva os dados temporariamente
 $_SESSION['agendamento_temporario'] = [
-
     'id_cliente' => $id_cliente,
-
     'servico' => implode(", ", $servicosValidos),
-
     'preco_servico' => $precoTotal,
-
     'valor_sinal' => round($precoTotal * 0.30, 2),
-
     'data_agendamento' => $data,
-
     'hora_agendamento' => $hora,
-
     'criado_em' => time()
-
 ];
 
 // Redireciona para a confirmação

@@ -155,6 +155,20 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
 
 </div>
 
+<!-- Modal de Confirmação com Ícone Check (✓) -->
+<div id="modal-sucesso" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: #fff; padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="width: 60px; height: 60px; background: #4CAF50; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 15px auto;">
+            ✓
+        </div>
+        <h2 style="margin: 0 0 10px 0; color: #333;">Agendamento Confirmado!</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Seu pagamento foi aprovado e seu horário já está garantido.</p>
+        <button onclick="window.location.href='agenda.php'" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer;">
+            Concluir
+        </button>
+    </div>
+</div>
+
 <script src="paga.js"></script>
 
 </body>

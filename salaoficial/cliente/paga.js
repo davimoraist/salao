@@ -104,9 +104,12 @@ function enviarPagamento(metodo) {
                     if (areaQr) areaQr.style.display = 'block';
 
                     if (btnAtual) btnAtual.style.display = 'none';
+
+                    // Inicia o monitoramento de pagamento do PIX
+                    verificarStatusPix(data.payment_id);
                 } else {
-                    alert('Pagamento aprovado com sucesso!');
-                    window.location.href = 'sucesso.php';
+                    // Para cartão (Crédito/Débito) aprovado diretamente
+                    exibirSucessoModal();
                 }
             } else {
                 alert(data.mensagem || 'Erro ao processar o pagamento.');
@@ -134,4 +137,32 @@ function copiarPix() {
         navigator.clipboard.writeText(inputCopia.value);
         alert('Código Pix copiado!');
     }
+}
+
+let intervalChecagem = null;
+
+function exibirSucessoModal() {
+    const modal = document.getElementById('modal-sucesso');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        alert('Pagamento e Agendamento confirmados com sucesso! (✓)');
+        window.location.href = 'agenda.php';
+    }
+}
+
+function verificarStatusPix(paymentId) {
+    if (intervalChecagem) clearInterval(intervalChecagem);
+
+    intervalChecagem = setInterval(() => {
+        fetch(`asaas_config.php?acao=checar_status&payment_id=${paymentId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.pago) {
+                    clearInterval(intervalChecagem);
+                    exibirSucessoModal();
+                }
+            })
+            .catch(err => console.error('Erro na verificação de status:', err));
+    }, 5000); // Verifica a cada 5 segundos
 }

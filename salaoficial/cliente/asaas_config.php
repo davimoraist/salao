@@ -151,3 +151,73 @@ if ($metodo === 'PIX') {
     }
     exit;
 }
+
+function salvarAgendamentoNoBanco($conn) {
+    if (!isset($_SESSION['agendamento_temporario'])) {
+        return false;
+    }
+
+    $dados = $_SESSION['agendamento_temporario'];
+
+    $stmt = $conn->prepare("
+        INSERT INTO agendamentos (id_cliente, servico, preco_servico, valor_sinal, data_agendamento, hora_agendamento)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ");
+
+    if (!$stmt) {
+        return false;
+    }
+
+    $stmt->bind_param(
+        "isddss",
+        $dados['id_cliente'],
+        $dados['servico'],
+        $dados['preco_servico'],
+        $dados['valor_sinal'],
+        $dados['data_agendamento'],
+        $dados['hora_agendamento']
+    );
+
+    $sucesso = $stmt->execute();
+    $stmt->close();
+
+    if ($sucesso) {
+        unset($_SESSION['agendamento_temporario']);
+    }
+
+    return $sucesso;
+}
+
+$acao = filter_input(INPUT_GET, 'acao', FILTER_DEFAULT);
+
+if ($acao === 'checar_status') {
+    $paymentId = filter_input(INPUT_GET, 'payment_id', FILTER_DEFAULT);
+
+    if (!$paymentId) {
+        echo json_encode(['pago' => false]);
+        exit;
+    }
+
+    $ch = curl_init(ASAAS_API_URL . "/payments/{$paymentId}");
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'User-Agent: SistemaAgendamento',
+            'access_token: ' . $apiKey
+        ]
+    ]);
+
+    $res = json_decode(curl_exec($ch), true);
+    curl_close($ch);
+
+    $status = $res['status'] ?? '';
+    if (in_array($status, ['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'])) {
+        salvarAgendamentoNoBanco($conn);
+        echo json_encode(['pago' => true]);
+    } else {
+        echo json_encode(['pago' => false, 'status' => $status]);
+    }
+    exit;
+}

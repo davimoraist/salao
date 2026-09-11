@@ -170,7 +170,8 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
 </div>
 
 <script src="paga.js"></script>
-
+<!-- SweetAlert2 CSS e JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>

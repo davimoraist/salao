@@ -1,3 +1,43 @@
+let intervalChecagem = null;
+
+function verificarStatusPix(paymentId) {
+    if (intervalChecagem) clearInterval(intervalChecagem);
+
+    intervalChecagem = setInterval(() => {
+        // Checa o status do pagamento no Asaas
+        fetch(`asaas_config.php?acao=checar_status&payment_id=${paymentId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.pago) {
+                    clearInterval(intervalChecagem);
+
+                    // PAGAMENTO CONFIRMADO! 
+                    // Grava os dados no banco automaticamente via POST
+                    salvarAgendamentoAutomatico();
+                }
+            })
+            .catch(err => console.error('Erro na verificação de status:', err));
+    }, 5000); // Checa a cada 5 segundos
+}
+
+function salvarAgendamentoAutomatico() {
+    fetch('angedadado.php', {
+        method: 'POST'
+    })
+        .then(res => res.json())
+        .then(resultado => {
+            if (resultado.sucesso) {
+                // Sucesso total! Exibe o modal e redireciona
+                exibirSucessoModal();
+            } else {
+                alert('Pagamento aprovado, mas ocorreu um erro ao agendar: ' + resultado.erro);
+            }
+        })
+        .catch(err => {
+            console.error('Erro ao salvar agendamento:', err);
+        });
+}
+
 // ====== CONTROLE DE EXIBIÇÃO DE TELAS DE PAGAMENTO ======
 
 function esconderTodosMetodos() {
@@ -31,7 +71,6 @@ function debitopaga() {
 // ====== PROCESSAMENTO DE PAGAMENTO COM ASAAS ======
 
 function enviarPagamento(metodo) {
-    // Função auxiliar para capturar valor com segurança sem quebrar o código
     const getVal = (id) => {
         const el = document.getElementById(id);
         return el ? el.value.trim() : '';
@@ -51,7 +90,6 @@ function enviarPagamento(metodo) {
     formData.append('cep', cep);
     formData.append('valor', valor);
 
-    // Captura dados do cartão apenas se for Crédito ou Débito
     if (metodo === 'CREDIT_CARD') {
         formData.append('cartao_nome', getVal('credito_nome'));
         formData.append('cartao_numero', getVal('credito_numero'));
@@ -66,7 +104,6 @@ function enviarPagamento(metodo) {
         formData.append('cartao_ccv', getVal('debito_ccv'));
     }
 
-    // Identifica o botão clicado para dar feedback visual
     let btnAtual = null;
     if (metodo === 'PIX') btnAtual = document.getElementById('btn-gerar-pix');
     if (metodo === 'CREDIT_CARD') btnAtual = document.getElementById('btn-pagar-credito');
@@ -78,7 +115,6 @@ function enviarPagamento(metodo) {
         btnAtual.innerText = 'Processando...';
     }
 
-    // Envio para o PHP
     fetch('asaas_config.php', {
         method: 'POST',
         body: formData
@@ -89,7 +125,7 @@ function enviarPagamento(metodo) {
                 return JSON.parse(text);
             } catch (e) {
                 console.error('Resposta bruta do servidor (não JSON):', text);
-                throw new Error('Servidor retornou uma resposta inválida.');
+                throw new Error('Servidor retornou um erro do PHP.');
             }
         })
         .then(data => {
@@ -105,11 +141,10 @@ function enviarPagamento(metodo) {
 
                     if (btnAtual) btnAtual.style.display = 'none';
 
-                    // Inicia o monitoramento de pagamento do PIX
                     verificarStatusPix(data.payment_id);
                 } else {
-                    // Para cartão (Crédito/Débito) aprovado diretamente
-                    exibirSucessoModal();
+                    // Para Cartão de Crédito ou Débito aprovados, salva direto no banco
+                    salvarAgendamentoAutomatico();
                 }
             } else {
                 alert(data.mensagem || 'Erro ao processar o pagamento.');
@@ -121,7 +156,7 @@ function enviarPagamento(metodo) {
         })
         .catch(err => {
             console.error('Erro de execução:', err);
-            alert('Erro ao processar requisição. Verifique o console do navegador (F12).');
+            alert('Ocorreu um erro no servidor. Verifique o console do navegador.');
             if (btnAtual) {
                 btnAtual.disabled = false;
                 btnAtual.innerText = btnAtual.dataset.textoOriginal || 'Tentar Novamente';
@@ -139,30 +174,65 @@ function copiarPix() {
     }
 }
 
-let intervalChecagem = null;
-
 function exibirSucessoModal() {
     const modal = document.getElementById('modal-sucesso');
     if (modal) {
         modal.style.display = 'flex';
     } else {
-        alert('Pagamento e Agendamento confirmados com sucesso! (✓)');
+        alert('Pagamento e Agendamento confirmados com sucesso!');
         window.location.href = 'agenda.php';
     }
 }
 
-function verificarStatusPix(paymentId) {
-    if (intervalChecagem) clearInterval(intervalChecagem);
+function exibirSucessoModal() {
+    Swal.fire({
+        icon: 'success',
+        title: 'Agendamento Confirmado!',
+        text: 'Seu pagamento foi aprovado e o horário está garantido.',
+        confirmButtonText: 'Ver meus agendamentos',
+        confirmButtonColor: '#28a745',
+        allowOutsideClick: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'agenda.php';
+        }
+    });
+}
 
-    intervalChecagem = setInterval(() => {
-        fetch(`asaas_config.php?acao=checar_status&payment_id=${paymentId}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.pago) {
-                    clearInterval(intervalChecagem);
-                    exibirSucessoModal();
-                }
-            })
-            .catch(err => console.error('Erro na verificação de status:', err));
-    }, 5000); // Verifica a cada 5 segundos
+function salvarAgendamentoAutomatico() {
+    // Exibe um carregando amigável enquanto grava no banco
+    Swal.fire({
+        title: 'Processando agendamento...',
+        text: 'Aguarde enquanto confirmamos sua reserva.',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    fetch('angedadado.php', {
+        method: 'POST'
+    })
+        .then(res => res.json())
+        .then(resultado => {
+            if (resultado.sucesso) {
+                exibirSucessoModal();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Atenção',
+                    text: 'Pagamento aprovado, mas ocorreu um erro ao agendar: ' + resultado.erro,
+                    confirmButtonColor: '#d33'
+                });
+            }
+        })
+        .catch(err => {
+            console.error('Erro ao salvar agendamento:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro de conexão',
+                text: 'Não foi possível registrar o agendamento no sistema.',
+                confirmButtonColor: '#d33'
+            });
+        });
 }

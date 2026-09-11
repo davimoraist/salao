@@ -25,12 +25,13 @@ if (
 
 $id_cliente = (int)$_SESSION['id'];
 
-$servicos = $_POST['servocosalao'] ?? [];
+// Converte os IDs recebidos para inteiros
+$servicosIds = array_map('intval', $_POST['servocosalao'] ?? []);
 $data = trim($_POST['data'] ?? '');
 $hora = trim($_POST['hora'] ?? '');
 
 // Valida serviços
-if (empty($servicos)) {
+if (empty($servicosIds)) {
     die("Selecione pelo menos um serviço.");
 }
 
@@ -39,32 +40,32 @@ if (empty($data) || empty($hora)) {
     die("Selecione uma data e um horário.");
 }
 
-// Limpa os nomes
-$servicos = array_map('trim', $servicos);
+// Busca os IDs, nomes e preços reais no banco filtrando por ID
+$placeholders = implode(",", array_fill(0, count($servicosIds), "?"));
 
-// Busca os preços reais no banco
-$placeholders = implode(",", array_fill(0, count($servicos), "?"));
-
-$sql = "SELECT nome, preco
+$sql = "SELECT id, nome, preco
         FROM servico
-        WHERE nome IN ($placeholders)";
+        WHERE id IN ($placeholders)";
 
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    die("Erro: ".$conn->error);
+    die("Erro: " . $conn->error);
 }
 
-$tipos = str_repeat("s", count($servicos));
-$stmt->bind_param($tipos, ...$servicos);
+// "i" para inteiros (IDs)
+$tipos = str_repeat("i", count($servicosIds));
+$stmt->bind_param($tipos, ...$servicosIds);
 $stmt->execute();
 
 $result = $stmt->get_result();
 
 $precoTotal = 0;
 $servicosValidos = [];
+$idsServicos = [];
 
 while ($row = $result->fetch_assoc()) {
+    $idsServicos[] = (int)$row['id'];
     $servicosValidos[] = $row['nome'];
     $precoTotal += (float)$row['preco'];
 }
@@ -95,17 +96,20 @@ if ($stmt->num_rows > 0) {
 
 $stmt->close();
 
-// Salva os dados temporariamente
+// Salva os dados temporariamente na sessão
 $_SESSION['agendamento_temporario'] = [
-    'id_cliente' => $id_cliente,
-    'servico' => implode(", ", $servicosValidos),
-    'preco_servico' => $precoTotal,
-    'valor_sinal' => round($precoTotal * 0.30, 2),
+    'id_cliente'       => $id_cliente,
+    'servico'          => implode(", ", $servicosValidos),
+    'id_servicos'      => $idsServicos[0] ?? 0,
+    'preco_servico'    => $precoTotal,
+    'valor_sinal'      => round($precoTotal * 0.30, 2),
     'data_agendamento' => $data,
     'hora_agendamento' => $hora,
-    'criado_em' => time()
+    'status'           => 'Pendente',
+    'criado_em'        => date('Y-m-d H:i:s')
 ];
 
-// Redireciona para a confirmação
+// Redireciona para o pagamento
 header("Location: pagamendo.php");
 exit;
+?>

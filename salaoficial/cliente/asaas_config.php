@@ -2,8 +2,8 @@
 session_start();
 require_once "conecte.php"; // deve definir $conn (mysqli) já conectado
 
-// Oculta avisos do PHP que quebram a resposta JSON do JavaScript
- ini_set('display_errors', 1);
+// Oculta avisos visuais do PHP para evitar quebrar a resposta JSON do JavaScript
+ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 header("Content-Type: application/json; charset=utf-8");
@@ -47,23 +47,30 @@ function salvarAgendamentoNoBanco($conn) {
 
     $dados = $_SESSION['agendamento_temporario'];
 
-    $stmt = $conn->prepare("
-        INSERT INTO agendamentos (id_cliente, servico, preco_servico, valor_sinal, data_agendamento, hora_agendamento)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
+    $sql = "INSERT INTO agendamentos 
+            (id_cliente, servico, preco_servico, data_agendamento, hora_agendamento, status, criado_em, id_servicos) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+    $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
         return false;
     }
 
+    $status = 'Confirmado';
+    $criado_em = date('Y-m-d H:i:s');
+    $id_servico = $dados['id_servicos'] ?? 0;
+
     $stmt->bind_param(
-        "isddss",
+        "isdssssi",
         $dados['id_cliente'],
         $dados['servico'],
         $dados['preco_servico'],
-        $dados['valor_sinal'],
         $dados['data_agendamento'],
-        $dados['hora_agendamento']
+        $dados['hora_agendamento'],
+        $status,
+        $criado_em,
+        $id_servico
     );
 
     $sucesso = $stmt->execute();
@@ -111,15 +118,14 @@ if ($acao === 'checar_status') {
     exit;
 }
 
-// A partir daqui, é o fluxo de criação de cobrança (POST vindo de enviarPagamento no JS)
+// ====== FLUXO DE CRIAÇÃO DE COBRANÇA (POST vindo de enviarPagamento no JS) ======
 
-// Captura os dados do POST
-$metodo      = filter_input(INPUT_POST, 'metodo', FILTER_DEFAULT) ?? 'PIX';
-$nomeCliente = filter_input(INPUT_POST, 'nome', FILTER_DEFAULT);
-$emailCliente= filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-$cpfCliente  = filter_input(INPUT_POST, 'cpf', FILTER_DEFAULT);
-$cepCliente  = filter_input(INPUT_POST, 'cep', FILTER_DEFAULT);
-$valor       = filter_input(INPUT_POST, 'valor', FILTER_VALIDATE_FLOAT);
+$metodo       = filter_input(INPUT_POST, 'metodo', FILTER_DEFAULT) ?? 'PIX';
+$nomeCliente  = filter_input(INPUT_POST, 'nome', FILTER_DEFAULT);
+$emailCliente = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+$cpfCliente   = filter_input(INPUT_POST, 'cpf', FILTER_DEFAULT);
+$cepCliente   = filter_input(INPUT_POST, 'cep', FILTER_DEFAULT);
+$valor        = filter_input(INPUT_POST, 'valor', FILTER_VALIDATE_FLOAT);
 
 if (!$nomeCliente)  $nomeCliente  = "Cliente Ficticio " . rand(10, 99);
 if (!$emailCliente) $emailCliente = "cliente" . rand(100, 999) . "@exemplo.com";
@@ -136,7 +142,7 @@ $ch = curl_init(ASAAS_API_URL . '/customers');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST           => true,
-    CURLOPT_SSL_VERIFYPEER => false, // Evita falhas de certificado no localhost
+    CURLOPT_SSL_VERIFYPEER => false,
     CURLOPT_POSTFIELDS     => json_encode([
         'name'       => $nomeCliente,
         'email'      => $emailCliente,
@@ -199,8 +205,9 @@ if ($metodo === 'PIX') {
         exit;
     }
 
-    // Guarda o payment_id na sessão também, como reforço (útil se quiser conferir depois)
-    $_SESSION['agendamento_temporario']['payment_id'] = $paymentId;
+    if (isset($_SESSION['agendamento_temporario'])) {
+        $_SESSION['agendamento_temporario']['payment_id'] = $paymentId;
+    }
 
     // Buscar QR Code e Código Copia e Cola
     $ch = curl_init(ASAAS_API_URL . "/payments/{$paymentId}/pixQrCode");
@@ -245,15 +252,12 @@ if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
         exit;
     }
 
-    // O Asaas usa o mesmo endpoint /payments para os dois tipos.
-    // billingType 'CREDIT_CARD' cobre débito também na maioria das contas Asaas;
-    // se sua conta tiver billingType específico para débito, ajuste aqui.
     $payloadCartao = [
-        'customer'          => $customerId,
-        'billingType'       => 'CREDIT_CARD',
-        'value'             => $valor,
-        'dueDate'           => date('Y-m-d'),
-        'description'       => 'Sinal de Agendamento',
+        'customer'             => $customerId,
+        'billingType'          => 'CREDIT_CARD',
+        'value'                => $valor,
+        'dueDate'              => date('Y-m-d'),
+        'description'          => 'Sinal de Agendamento',
         'creditCard' => [
             'holderName'  => $cartaoNome,
             'number'      => $cartaoNumero,
@@ -262,10 +266,10 @@ if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
             'ccv'         => $cartaoCcv
         ],
         'creditCardHolderInfo' => [
-            'name'        => $nomeCliente,
-            'email'       => $emailCliente,
-            'cpfCnpj'     => $cpfLimpo,
-            'postalCode'  => preg_replace('/[^0-9]/', '', (string)$cepCliente),
+            'name'          => $nomeCliente,
+            'email'         => $emailCliente,
+            'cpfCnpj'       => $cpfLimpo,
+            'postalCode'    => preg_replace('/[^0-9]/', '', (string)$cepCliente),
             'addressNumber' => '0'
         ],
         'remoteIp' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
@@ -290,7 +294,6 @@ if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
     $status = $resCartao['status'] ?? '';
 
     if (in_array($status, ['RECEIVED', 'CONFIRMED'])) {
-        // Pagamento aprovado na hora: grava direto no banco
         $gravou = salvarAgendamentoNoBanco($conn);
 
         echo json_encode([
@@ -309,3 +312,4 @@ if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
 // Método não reconhecido
 echo json_encode(['sucesso' => false, 'mensagem' => 'Método de pagamento inválido.']);
 exit;
+?>

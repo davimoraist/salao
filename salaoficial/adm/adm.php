@@ -54,47 +54,48 @@ try {
 
 <div class="conteudo">
 
-    <div id="agenda" class="tela ativa">
-        <?php
-        // Adicionado a.id para o botão finalizar funcionar
-        $sql = $pdo->query("SELECT 
-            a.id,
-            c.nome,
-            a.servico,
-            a.data_agendamento,
-            a.hora_agendamento,
-            a.status,
-            a.id_cliente
-        FROM agendamentos a
-        LEFT JOIN cliente c ON a.id_cliente = c.id
-        WHERE a.status = 'pendente'
-        ORDER BY a.data_agendamento, a.hora_agendamento");
+     <div id="agenda" class="tela ativa">
+    <?php
+    // Query corrigida: aceita 'Confirmado' ou 'pendente' e previne falhas no JOIN de clientes
+    $sql = $pdo->query("SELECT 
+        a.id,
+        COALESCE(c.nome, 'Cliente não cadastrado') AS nome,
+        a.servico,
+        a.data_agendamento,
+        a.hora_agendamento,
+        a.status,
+        a.id_cliente
+    FROM agendamentos a
+    LEFT JOIN cliente c ON a.id_cliente = c.id
+    WHERE a.status IN ('Confirmado', 'pendente')
+    ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
 
-        $agendamentos = $sql->fetchAll(PDO::FETCH_ASSOC);
-        ?>
+    $agendamentos = $sql->fetchAll(PDO::FETCH_ASSOC);
+    ?>
 
-        <h2>Agendamentos</h2>
+    <h2>Agendamentos</h2>
 
-        <table class="tabela-agendamentos">
-            <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Serviço</th>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Status</th>
-                    <th>Ver mais</th>
-                    <th>Finalizar</th>
-                </tr>
-            </thead>
-            <tbody>
+    <table class="tabela-agendamentos">
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Status</th>
+                <th>Ver mais</th>
+                <th>Finalizar</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($agendamentos)): ?>
                 <?php foreach($agendamentos as $agendamento){ ?>
                 <tr>
-                    <td><?php echo $agendamento['nome']; ?></td>
-                    <td><?php echo $agendamento['servico']; ?></td>
-                    <td><?php echo $agendamento['data_agendamento']; ?></td>
-                    <td><?php echo $agendamento['hora_agendamento']; ?></td>
-                    <td><?php echo $agendamento['status']; ?></td>
+                    <td><?php echo htmlspecialchars($agendamento['nome']); ?></td>
+                    <td><?php echo htmlspecialchars($agendamento['servico']); ?></td>
+                    <td><?php echo date('d/m/Y', strtotime($agendamento['data_agendamento'])); ?></td>
+                    <td><?php echo htmlspecialchars($agendamento['hora_agendamento']); ?></td>
+                    <td><strong><?php echo htmlspecialchars($agendamento['status']); ?></strong></td>
                     
                     <td>
                         <button type="button" onclick="mostrarTela('cliente', <?php echo $agendamento['id_cliente']; ?>)">
@@ -110,9 +111,14 @@ try {
                     </td>
                 </tr>
                 <?php } ?>
-            </tbody>
-        </table>
-    </div>
+            <?php else: ?>
+                <tr>
+                    <td colspan="7" style="text-align: center;">Nenhum agendamento encontrado no banco.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
 
     <div id="servicos" class="tela">
         <h1 class="titulo-servicos">Cadastro de Serviços</h1>

@@ -10,7 +10,7 @@ header("Content-Type: application/json; charset=utf-8");
 
 // Configuração do Asaas
 define('ASAAS_API_URL', 'https://sandbox.asaas.com/api/v3'); // Mude para https://www.asaas.com/api/v3 em produção
-$apiKey = 'coloca seu api aqui'; // Insira sua API Key do Asaas aqui
+$apiKey = 'coloca seu chave api aqui!'; // Insira sua API Key do Asaas aqui
 
 function criarCpfFicticioForcado() {
     $n = [];

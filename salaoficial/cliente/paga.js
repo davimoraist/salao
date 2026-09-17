@@ -1,42 +1,57 @@
 let intervalChecagem = null;
 
+// ====== VERIFICAÇÃO DE STATUS DO PIX ======
+
 function verificarStatusPix(paymentId) {
     if (intervalChecagem) clearInterval(intervalChecagem);
 
     intervalChecagem = setInterval(() => {
-        // Checa o status do pagamento no Asaas
         fetch(`asaas_config.php?acao=checar_status&payment_id=${paymentId}`)
             .then(res => res.json())
             .then(data => {
                 if (data.pago) {
                     clearInterval(intervalChecagem);
 
-                    // PAGAMENTO CONFIRMADO! 
-                    // Grava os dados no banco automaticamente via POST
-                    salvarAgendamentoAutomatico();
+                    // O próprio asaas_config.php já salvou o agendamento
+                    // no banco (dentro de salvarAgendamentoNoBanco) e nos
+                    // diz aqui se deu certo — não é preciso chamar mais
+                    // nada, e chamar de novo daria erro (a sessão
+                    // temporária já foi apagada por ele).
+                    if (data.salvo_no_banco) {
+                        exibirSucessoModal();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Atenção',
+                            text: 'Pagamento aprovado, mas houve um erro ao gravar o agendamento. Entre em contato com o salão para confirmar seu horário.'
+                        });
+                    }
                 }
             })
             .catch(err => console.error('Erro na verificação de status:', err));
-    }, 5000); // Checa a cada 5 segundos
+    }, 5000);
 }
 
-function salvarAgendamentoAutomatico() {
-    fetch('angedadado.php', {
-        method: 'POST'
-    })
-        .then(res => res.json())
-        .then(resultado => {
-            if (resultado.sucesso) {
-                // Sucesso total! Exibe o modal e redireciona
-                exibirSucessoModal();
-            } else {
-                alert('Pagamento aprovado, mas ocorreu um erro ao agendar: ' + resultado.erro);
-            }
-        })
-        .catch(err => {
-            console.error('Erro ao salvar agendamento:', err);
-        });
+// ====== SALVAMENTO NO BANCO E EXIBIÇÃO DE MODAL ======
+
+function exibirSucessoModal() {
+    Swal.fire({
+        icon: 'success',
+        title: 'Agendamento Confirmado!',
+        text: 'Seu pagamento foi aprovado e o horário está garantido.',
+        confirmButtonText: 'Ver meus agendamentos',
+        confirmButtonColor: '#28a745',
+        allowOutsideClick: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'agenda.php';
+        }
+    });
 }
+
+// (a função de finalização automática foi removida — o asaas_config.php
+// já grava o agendamento no banco por conta própria, tanto no Pix quanto
+// no cartão, e devolve isso via `salvo_no_banco` na própria resposta)
 
 // ====== CONTROLE DE EXIBIÇÃO DE TELAS DE PAGAMENTO ======
 
@@ -143,11 +158,26 @@ function enviarPagamento(metodo) {
 
                     verificarStatusPix(data.payment_id);
                 } else {
-                    // Para Cartão de Crédito ou Débito aprovados, salva direto no banco
-                    salvarAgendamentoAutomatico();
+                    // Cartão de crédito/débito: o asaas_config.php já
+                    // gravou o agendamento no banco nesse mesmo request
+                    // (dentro do bloco CREDIT_CARD/DEBIT_CARD) e devolveu
+                    // salvo_no_banco na resposta.
+                    if (data.salvo_no_banco) {
+                        exibirSucessoModal();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Atenção',
+                            text: 'Pagamento aprovado, mas houve um erro ao gravar o agendamento. Entre em contato com o salão para confirmar seu horário.'
+                        });
+                    }
                 }
             } else {
-                alert(data.mensagem || 'Erro ao processar o pagamento.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Atenção',
+                    text: data.mensagem || 'Erro ao processar o pagamento.'
+                });
                 if (btnAtual) {
                     btnAtual.disabled = false;
                     btnAtual.innerText = btnAtual.dataset.textoOriginal;
@@ -156,7 +186,11 @@ function enviarPagamento(metodo) {
         })
         .catch(err => {
             console.error('Erro de execução:', err);
-            alert('Ocorreu um erro no servidor. Verifique o console do navegador.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro de Conexão',
+                text: 'Ocorreu um erro no servidor. Verifique o console do navegador.'
+            });
             if (btnAtual) {
                 btnAtual.disabled = false;
                 btnAtual.innerText = btnAtual.dataset.textoOriginal || 'Tentar Novamente';
@@ -170,69 +204,13 @@ function copiarPix() {
         inputCopia.select();
         inputCopia.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(inputCopia.value);
-        alert('Código Pix copiado!');
-    }
-}
 
-function exibirSucessoModal() {
-    const modal = document.getElementById('modal-sucesso');
-    if (modal) {
-        modal.style.display = 'flex';
-    } else {
-        alert('Pagamento e Agendamento confirmados com sucesso!');
-        window.location.href = 'agenda.php';
-    }
-}
-
-function exibirSucessoModal() {
-    Swal.fire({
-        icon: 'success',
-        title: 'Agendamento Confirmado!',
-        text: 'Seu pagamento foi aprovado e o horário está garantido.',
-        confirmButtonText: 'Ver meus agendamentos',
-        confirmButtonColor: '#28a745',
-        allowOutsideClick: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = 'agenda.php';
-        }
-    });
-}
-
-function salvarAgendamentoAutomatico() {
-    // Exibe um carregando amigável enquanto grava no banco
-    Swal.fire({
-        title: 'Processando agendamento...',
-        text: 'Aguarde enquanto confirmamos sua reserva.',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    fetch('angedadado.php', {
-        method: 'POST'
-    })
-        .then(res => res.json())
-        .then(resultado => {
-            if (resultado.sucesso) {
-                exibirSucessoModal();
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Atenção',
-                    text: 'Pagamento aprovado, mas ocorreu um erro ao agendar: ' + resultado.erro,
-                    confirmButtonColor: '#d33'
-                });
-            }
-        })
-        .catch(err => {
-            console.error('Erro ao salvar agendamento:', err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro de conexão',
-                text: 'Não foi possível registrar o agendamento no sistema.',
-                confirmButtonColor: '#d33'
-            });
+        Swal.fire({
+            icon: 'success',
+            title: 'Copiado!',
+            text: 'Código Pix copiado para a área de transferência.',
+            timer: 2000,
+            showConfirmButton: false
         });
+    }
 }

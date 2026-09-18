@@ -10,7 +10,7 @@ header("Content-Type: application/json; charset=utf-8");
 
 // Configuração do Asaas
 define('ASAAS_API_URL', 'https://sandbox.asaas.com/api/v3'); // Mude para https://www.asaas.com/api/v3 em produção
-$apiKey = 'coloca seu chave api aqui!'; // Insira sua API Key do Asaas aqui
+$apiKey = 'coloca seu api aqui'; // Insira sua API Key do Asaas aqui
 
 function criarCpfFicticioForcado() {
     $n = [];
@@ -39,14 +39,17 @@ function criarCpfFicticioForcado() {
     return implode('', $todosDigitos);
 }
 
-// ====== FUNÇÃO QUE GRAVA O AGENDAMENTO NO BANCO ======
-function salvarAgendamentoNoBanco($conn) {
+// ====== FUNÇÃO QUE GRAVA O AGENDAMENTO + O PAGAMENTO NO BANCO ======
+// $metodo: 'PIX', 'CREDIT_CARD' ou 'DEBIT_CARD'
+// $paymentIdAsaas: id da cobrança no Asaas (pode vir null)
+function salvarAgendamentoNoBanco($conn, $metodo, $paymentIdAsaas = null) {
     if (!isset($_SESSION['agendamento_temporario'])) {
         return false;
     }
 
     $dados = $_SESSION['agendamento_temporario'];
 
+    // --- 1. Grava o agendamento ---
     $sql = "INSERT INTO agendamentos 
             (id_cliente, servico, preco_servico, data_agendamento, hora_agendamento, status, criado_em, id_servicos) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -54,6 +57,7 @@ function salvarAgendamentoNoBanco($conn) {
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
+        error_log("Erro ao preparar INSERT em agendamentos: " . $conn->error);
         return false;
     }
 
@@ -74,13 +78,56 @@ function salvarAgendamentoNoBanco($conn) {
     );
 
     $sucesso = $stmt->execute();
+    $idAgendamento = $conn->insert_id;
     $stmt->close();
 
-    if ($sucesso) {
-        unset($_SESSION['agendamento_temporario']);
+    if (!$sucesso) {
+        error_log("Erro ao executar INSERT em agendamentos: " . $conn->error);
+        return false;
     }
 
-    return $sucesso;
+    // --- 2. Grava o pagamento (valor pago agora x valor restante) ---
+    $valorTotal    = (float)($dados['preco_servico'] ?? 0);
+    $valorPago     = (float)($dados['valor_sinal'] ?? 0);
+    $valorRestante = round($valorTotal - $valorPago, 2);
+    $statusPagamento = 'Confirmado';
+
+    $sqlPagamento = "INSERT INTO pagamentos
+            (id_agendamento, id_cliente, metodo_pagamento, payment_id_asaas,
+             valor_total, valor_pago, valor_restante, status_pagamento, criado_em)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    $stmtPagamento = $conn->prepare($sqlPagamento);
+
+    if (!$stmtPagamento) {
+        error_log("Erro ao preparar INSERT em pagamentos: " . $conn->error);
+        // O agendamento já foi gravado; retornamos true mesmo assim,
+        // mas registramos o erro pra investigar depois.
+        return true;
+    }
+
+    $stmtPagamento->bind_param(
+        "iissdddss",
+        $idAgendamento,
+        $dados['id_cliente'],
+        $metodo,
+        $paymentIdAsaas,
+        $valorTotal,
+        $valorPago,
+        $valorRestante,
+        $statusPagamento,
+        $criado_em
+    );
+
+    if (!$stmtPagamento->execute()) {
+        error_log("Erro ao executar INSERT em pagamentos: " . $stmtPagamento->error);
+    }
+
+    $stmtPagamento->close();
+
+    unset($_SESSION['agendamento_temporario']);
+
+    return true;
 }
 
 // ====== ROTA: CHECAR STATUS DO PIX (chamada via GET pelo polling do JS) ======
@@ -110,7 +157,7 @@ if ($acao === 'checar_status') {
 
     $status = $res['status'] ?? '';
     if (in_array($status, ['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'])) {
-        $gravou = salvarAgendamentoNoBanco($conn);
+        $gravou = salvarAgendamentoNoBanco($conn, 'PIX', $paymentId);
         echo json_encode(['pago' => true, 'salvo_no_banco' => $gravou]);
     } else {
         echo json_encode(['pago' => false, 'status' => $status]);
@@ -294,7 +341,7 @@ if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
     $status = $resCartao['status'] ?? '';
 
     if (in_array($status, ['RECEIVED', 'CONFIRMED'])) {
-        $gravou = salvarAgendamentoNoBanco($conn);
+        $gravou = salvarAgendamentoNoBanco($conn, $metodo, $resCartao['id'] ?? null);
 
         echo json_encode([
             'sucesso'       => true,

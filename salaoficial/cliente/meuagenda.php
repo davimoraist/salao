@@ -1,3 +1,45 @@
+ <?php
+session_start();
+require_once __DIR__ . "/conecte.php";
+
+if (!isset($_SESSION['id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$id_cliente = $_SESSION['id'];
+ $sql = "SELECT a.id, a.servico, a.data_agendamento, a.hora_agendamento, a.status,
+               p.valor_pago, p.valor_restante
+        FROM agendamentos a
+        INNER JOIN pagamentos p ON a.id = p.id_agendamento
+        WHERE a.id_cliente = ?
+        ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC";
+        
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $id_cliente); // "i" = integer
+$stmt->execute();
+$resultado = $stmt->get_result(); // transforma o resultado em algo percorrível
+$agendamentos = $resultado->fetch_all(MYSQLI_ASSOC); // pega tudo como array associativo
+
+$proximos = [];
+$historico = [];
+
+foreach ($agendamentos as $ag) {
+    if ($ag['status'] === 'confirmado') {
+        $proximos[] = $ag;
+    } else {
+        $historico[] = $ag;
+    }
+}
+
+function formatarData($data) {
+    return date('d/m/Y', strtotime($data));
+}
+function formatarValor($valor) {
+    return 'R$ ' . number_format($valor, 2, ',', '.');
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -12,30 +54,44 @@
 <body>
 
     <main class="container">
-        <!-- Container principal do card -->
-        <div class="meu-agendamentos">
+        <div class="meus-agendamentos">
             <h1>Meus Agendamentos</h1>
 
-            <div class="meuagenda">
-                <p><strong>Nome:</strong> <span id="nome">Carregando...</span></p>
-            </div>
-            <div class="meuagenda">
-                <p><strong>Serviço:</strong> <span id="servico">Carregando...</span></p>
-            </div>
-            <div class="meuagenda">
-                <p><strong>Data:</strong> <span id="data">Carregando...</span></p>
-            </div>
-            <div class="meuagenda">
-                <p><strong>Horários:</strong> <span id="hora">Carregando...</span></p>
-            </div>
-            <div class="meuagenda">
-                <p><strong>Entrada paga:</strong> <span id="entrada" class="valor-pago">R$ 0,00</span></p>
-            </div>
-            <div class="meuagenda">
-                <p><strong>Falta pagar:</strong> <span id="falta" class="valor-falta">R$ 0,00</span></p>
-            </div>
+            <h2>Próximos</h2>
+            <?php if (empty($proximos)): ?>
+                <p>Você não tem agendamentos futuros.</p>
+            <?php else: ?>
+                <?php foreach ($proximos as $ag): ?>
+                    <div class="card-agendamento">
+                        <p><strong>Serviço:</strong> <?= htmlspecialchars($ag['servico']) ?></p>
+                        <p><strong>Data:</strong> <?= formatarData($ag['data_agendamento']) ?></p>
+                        <p><strong>Horário:</strong> <?= htmlspecialchars($ag['hora_agendamento']) ?></p>
+                        <p><strong>Entrada paga:</strong>
+                            <span class="valor-pago"><?= formatarValor($ag['valor_pago']) ?></span>
+                        </p>
+                        <p><strong>Falta pagar:</strong>
+                            <span class="valor-falta"><?= formatarValor($ag['valor_restante']) ?></span>
+                        </p>
+                        <button type="button" class="Cancelar" onclick="cancelar(<?= $ag['id'] ?>)">
+                            Cancelar o Serviço
+                        </button>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
 
-            <button type="button" class="Cancelar" onclick="cancelar()">Cancelar o Serviço</button>
+            <h2>Histórico</h2>
+            <?php if (empty($historico)): ?>
+                <p>Nenhum agendamento no histórico ainda.</p>
+            <?php else: ?>
+                <?php foreach ($historico as $ag): ?>
+                    <div class="card-agendamento historico">
+                        <p><strong>Serviço:</strong> <?= htmlspecialchars($ag['servico']) ?></p>
+                        <p><strong>Data:</strong> <?= formatarData($ag['data_agendamento']) ?></p>
+                        <p><strong>Status:</strong> <?= htmlspecialchars(ucfirst($ag['status'])) ?></p>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+
         </div>
     </main>
 

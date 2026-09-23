@@ -1,11 +1,9 @@
  @charset "UTF-8";
 
- /* Import das fontes */
  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
  @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
  @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
- /* VARIÁVEIS */
  :root {
      --cor1: #c88c8e;
      --cor2: #734440;
@@ -19,7 +17,6 @@
      --fonte-texto: "Nunito", sans-serif;
  }
 
- /* RESET */
  * {
      margin: 0;
      padding: 0;
@@ -30,19 +27,17 @@
  body {
      background: #f8f7f7;
      min-height: 100vh;
-     display: flex;
-     justify-content: center;
-     align-items: center;
      padding: 20px;
  }
 
  .container {
      width: 100%;
      max-width: 500px;
+     margin: 0 auto;
  }
 
- /* CARD DE AGENDAMENTO */
- .meu-agendamentos {
+ /* CARD PRINCIPAL */
+ .meus-agendamentos {
      background: #ffffff;
      padding: 30px;
      border: 2px solid var(--cor2);
@@ -50,7 +45,7 @@
      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
  }
 
- .meu-agendamentos h1 {
+ .meus-agendamentos h1 {
      font-family: var(--fonte-titulo);
      color: var(--cor2);
      text-align: center;
@@ -60,17 +55,55 @@
      padding-bottom: 10px;
  }
 
- .meuagenda {
+ .meus-agendamentos h2 {
+     font-family: var(--fonte-titulo);
+     color: var(--cor2);
+     font-size: 18px;
+     margin-top: 24px;
      margin-bottom: 12px;
  }
 
- .meuagenda p {
-     font-size: 16px;
-     color: #444;
+ .meus-agendamentos h2:first-of-type {
+     margin-top: 0;
  }
 
- .meuagenda p strong {
+ /* CADA AGENDAMENTO VIRA UM CARD SEPARADO */
+ .card-agendamento {
+     background: #faf9f9;
+     border: 1px solid var(--cor5);
+     border-radius: 10px;
+     padding: 16px 18px;
+     margin-bottom: 14px;
+ }
+
+ .card-agendamento p {
+     font-size: 15px;
+     color: #444;
+     margin-bottom: 6px;
+     line-height: 1.4;
+ }
+
+ .card-agendamento p:last-child {
+     margin-bottom: 0;
+ }
+
+ .card-agendamento p strong {
      color: var(--cor2);
+ }
+
+ /* CARDS DO HISTÓRICO — visual mais discreto, sem destaque forte */
+ .card-agendamento.historico {
+     background: #f2f2f2;
+     border-color: #ddd;
+     opacity: 0.85;
+ }
+
+ /* MENSAGEM QUANDO A LISTA ESTÁ VAZIA */
+ .meus-agendamentos>p {
+     font-size: 14px;
+     color: #888;
+     font-style: italic;
+     margin-bottom: 20px;
  }
 
  /* DESTAQUES DE PAGAMENTO */
@@ -88,7 +121,7 @@
  .Cancelar {
      width: 100%;
      padding: 12px;
-     margin-top: 15px;
+     margin-top: 10px;
      background-color: var(--cor4);
      color: #ffffff;
      border: none;

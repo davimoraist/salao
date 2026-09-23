@@ -67,7 +67,7 @@ try {
         a.id_cliente
     FROM agendamentos a
     LEFT JOIN cliente c ON a.id_cliente = c.id
-    WHERE a.status IN ('Confirmado', 'pendente')
+    WHERE a.status IN ('confirmado', 'pendente')
     ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
 
     $agendamentos = $sql->fetchAll(PDO::FETCH_ASSOC);

@@ -236,3 +236,23 @@ document.addEventListener("DOMContentLoaded", function () {
     setInterval(atualizarTabelaClientes, 5000);
     setInterval(atualizarTabelaHistorico, 5000);
 });
+
+
+function confirmarFinalizar(id, valorPago, valorRestante) {
+    const pago = valorPago.toFixed(2).replace('.', ',');
+    const restante = valorRestante.toFixed(2).replace('.', ',');
+
+    Swal.fire({
+        title: 'Finalizar este serviço?',
+        html: `Valor pago: <strong>R$ ${pago}</strong><br>Valor restante: <strong>R$ ${restante}</strong>`,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Finalizar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#734440'
+    }).then((resultado) => {
+        if (resultado.isConfirmed) {
+            location.href = 'finalizar_agendamento.php?id=' + id;
+        }
+    });
+}

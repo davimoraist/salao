@@ -163,7 +163,7 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
         </div>
         <h2 style="margin: 0 0 10px 0; color: #333;">Agendamento Confirmado!</h2>
         <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Seu pagamento foi aprovado e seu horário já está garantido.</p>
-        <button onclick="window.location.href='agenda.php'" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer;">
+        <button onclick="window.location.href='meuagenda.php'" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer;">
             Concluir
         </button>
     </div>

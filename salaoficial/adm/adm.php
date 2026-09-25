@@ -57,18 +57,21 @@ try {
      <div id="agenda" class="tela ativa">
     <?php
     // Query corrigida: aceita 'Confirmado' ou 'pendente' e previne falhas no JOIN de clientes
-    $sql = $pdo->query("SELECT 
-        a.id,
-        COALESCE(c.nome, 'Cliente não cadastrado') AS nome,
-        a.servico,
-        a.data_agendamento,
-        a.hora_agendamento,
-        a.status,
-        a.id_cliente
-    FROM agendamentos a
-    LEFT JOIN cliente c ON a.id_cliente = c.id
-    WHERE a.status IN ('confirmado', 'pendente')
-    ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
+ $sql = $pdo->query("SELECT 
+    a.id,
+    COALESCE(c.nome, 'Cliente não cadastrado') AS nome,
+    a.servico,
+    a.data_agendamento,
+    a.hora_agendamento,
+    a.status,
+    a.id_cliente,
+    p.valor_pago,
+    p.valor_restante
+FROM agendamentos a
+LEFT JOIN cliente c ON a.id_cliente = c.id
+LEFT JOIN pagamentos p ON a.id = p.id_agendamento
+WHERE a.status IN ('confirmado', 'pendente')
+ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
 
     $agendamentos = $sql->fetchAll(PDO::FETCH_ASSOC);
     ?>
@@ -103,9 +106,13 @@ try {
                         </button>
                     </td>
 
-                    <td>
+                     <td>
                         <button type="button" 
-                                onclick="if(confirm('Finalizar este serviço?')){ location.href='finalizar_agendamento.php?id=<?php echo $agendamento['id']; ?>'; }" >
+                                onclick="confirmarFinalizar(
+                                    <?php echo $agendamento['id']; ?>, 
+                                    <?php echo $agendamento['valor_pago'] ?? 0; ?>, 
+                                    <?php echo $agendamento['valor_restante'] ?? 0; ?>
+                                )">
                             Finalizar
                         </button>
                     </td>
@@ -177,7 +184,7 @@ try {
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="script.js"></script>
-
 </body>
 </html>

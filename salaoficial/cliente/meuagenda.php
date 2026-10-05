@@ -8,13 +8,13 @@ if (!isset($_SESSION['id'])) {
 }
 
 $id_cliente = $_SESSION['id'];
- $sql = "SELECT a.id, a.servico, a.data_agendamento, a.hora_agendamento, a.status,
-               p.valor_pago, p.valor_restante
+$sql = "SELECT a.id, a.servico, a.data_agendamento, a.hora_agendamento, a.status,
+               a.finalizado_em, p.valor_pago, p.valor_restante
         FROM agendamentos a
         INNER JOIN pagamentos p ON a.id = p.id_agendamento
         WHERE a.id_cliente = ?
         ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC";
-        
+
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id_cliente); // "i" = integer
 $stmt->execute();
@@ -25,7 +25,10 @@ $proximos = [];
 $historico = [];
 
 foreach ($agendamentos as $ag) {
-    if ($ag['status'] === 'confirmado') {
+    // Comparação em minúsculas: no banco o status é gravado como
+    // "Confirmado", "Cancelado", etc. — sem strtolower() aqui, a
+    // comparação exata nunca batia e nada caía em "Próximos".
+    if (strtolower($ag['status']) === 'confirmado') {
         $proximos[] = $ag;
     } else {
         $historico[] = $ag;
@@ -37,6 +40,9 @@ function formatarData($data) {
 }
 function formatarValor($valor) {
     return 'R$ ' . number_format($valor, 2, ',', '.');
+}
+function formatarDataHora($dataHora) {
+    return date('d/m/Y \à\s H:i', strtotime($dataHora));
 }
 ?>
 
@@ -62,7 +68,7 @@ function formatarValor($valor) {
                 <p>Você não tem agendamentos futuros.</p>
             <?php else: ?>
                 <?php foreach ($proximos as $ag): ?>
-                    <div class="card-agendamento">
+                    <div class="card-agendamento" id="agendamento-<?= $ag['id'] ?>">
                         <p><strong>Serviço:</strong> <?= htmlspecialchars($ag['servico']) ?></p>
                         <p><strong>Data:</strong> <?= formatarData($ag['data_agendamento']) ?></p>
                         <p><strong>Horário:</strong> <?= htmlspecialchars($ag['hora_agendamento']) ?></p>
@@ -88,6 +94,9 @@ function formatarValor($valor) {
                         <p><strong>Serviço:</strong> <?= htmlspecialchars($ag['servico']) ?></p>
                         <p><strong>Data:</strong> <?= formatarData($ag['data_agendamento']) ?></p>
                         <p><strong>Status:</strong> <?= htmlspecialchars(ucfirst($ag['status'])) ?></p>
+                        <?php if (strtolower($ag['status']) === 'concluido' && !empty($ag['finalizado_em'])): ?>
+                            <p><strong>Finalizado em:</strong> <?= formatarDataHora($ag['finalizado_em']) ?></p>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -95,8 +104,10 @@ function formatarValor($valor) {
         </div>
     </main>
 
-    <script src="meuagenda.js"></script>
+    <!-- SweetAlert2 precisa carregar ANTES do meuagenda.js, senão
+         Swal.fire() ainda não existe quando o cancelar() é chamado -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="meuagenda.js"></script>
 </body>
 
 </html>

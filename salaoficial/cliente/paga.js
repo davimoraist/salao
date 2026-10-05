@@ -95,7 +95,33 @@ function enviarPagamento(metodo) {
     const email = getVal('cliente_email');
     const cpf = getVal('cliente_cpf');
     const cep = getVal('cliente_cep');
+    const telefone = getVal('cliente_telefone');
     const valor = getVal('valor_sinal');
+
+    // Validação dos dados obrigatórios antes de prosseguir.
+    // O CEP é exigido pela API do Asaas (postalCode) — sem essa
+    // checagem, o formulário deixava enviar vazio e o pagamento
+    // passava mesmo assim.
+    const cepLimpo = cep.replace(/\D/g, '');
+
+    if (!nome) {
+        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha seu nome completo.' });
+        return;
+    }
+    if (!email) {
+        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha seu e-mail.' });
+        return;
+    }
+    if (!cep || cepLimpo.length !== 8) {
+        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha um CEP válido (8 dígitos).' });
+        return;
+    }
+    // Telefone só é exigido pelo Asaas no pagamento com cartão
+    // (crédito/débito) — não é necessário pro Pix.
+    if ((metodo === 'CREDIT_CARD' || metodo === 'DEBIT_CARD') && telefone.replace(/\D/g, '').length < 10) {
+        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha um telefone válido com DDD.' });
+        return;
+    }
 
     const formData = new FormData();
     formData.append('metodo', metodo);
@@ -103,6 +129,7 @@ function enviarPagamento(metodo) {
     formData.append('email', email);
     formData.append('cpf', cpf);
     formData.append('cep', cep);
+    formData.append('telefone', telefone);
     formData.append('valor', valor);
 
     if (metodo === 'CREDIT_CARD') {
@@ -150,7 +177,21 @@ function enviarPagamento(metodo) {
                     const inputCopia = document.getElementById('input-copia-cola');
                     const areaQr = document.getElementById('area-qr-code');
 
-                    if (imgQr) imgQr.src = 'data:image/png;base64,' + data.qr_code;
+                    if (data.gerar_qr_localmente) {
+                        // A imagem do Asaas falhou (comum no Sandbox) —
+                        // gera o QR code no navegador a partir do
+                        // código "copia e cola", usando a QRious.
+                        if (imgQr && typeof QRious !== 'undefined') {
+                            new QRious({
+                                element: imgQr,
+                                value: data.copia_cola,
+                                size: 220
+                            });
+                        }
+                    } else if (imgQr) {
+                        imgQr.src = 'data:image/png;base64,' + data.qr_code;
+                    }
+
                     if (inputCopia) inputCopia.value = data.copia_cola;
                     if (areaQr) areaQr.style.display = 'block';
 

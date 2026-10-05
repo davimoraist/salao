@@ -172,10 +172,20 @@ $nomeCliente  = filter_input(INPUT_POST, 'nome', FILTER_DEFAULT);
 $emailCliente = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
 $cpfCliente   = filter_input(INPUT_POST, 'cpf', FILTER_DEFAULT);
 $cepCliente   = filter_input(INPUT_POST, 'cep', FILTER_DEFAULT);
+$telefoneCliente = filter_input(INPUT_POST, 'telefone', FILTER_DEFAULT);
 $valor        = filter_input(INPUT_POST, 'valor', FILTER_VALIDATE_FLOAT);
+$telefoneLimpo = preg_replace('/[^0-9]/', '', (string)$telefoneCliente);
 
 if (!$nomeCliente)  $nomeCliente  = "Cliente Ficticio " . rand(10, 99);
 if (!$emailCliente) $emailCliente = "cliente" . rand(100, 999) . "@exemplo.com";
+
+// CEP é obrigatório — validação do lado do servidor, já que a do
+// JS pode ser contornada (JS desabilitado, chamada direta à API, etc.)
+$cepLimpo = preg_replace('/[^0-9]/', '', (string)$cepCliente);
+if (strlen($cepLimpo) !== 8) {
+    echo json_encode(['sucesso' => false, 'mensagem' => 'CEP inválido ou não informado.']);
+    exit;
+}
 
 $cpfLimpo = preg_replace('/[^0-9]/', '', (string)$cpfCliente);
 if (empty($cpfLimpo) || strlen($cpfLimpo) !== 11) {
@@ -194,7 +204,7 @@ curl_setopt_array($ch, [
         'name'       => $nomeCliente,
         'email'      => $emailCliente,
         'cpfCnpj'    => $cpfLimpo,
-        'postalCode' => preg_replace('/[^0-9]/', '', (string)$cepCliente)
+        'postalCode' => $cepLimpo
     ]),
     CURLOPT_HTTPHEADER     => [
         'Content-Type: application/json',
@@ -256,22 +266,40 @@ if ($metodo === 'PIX') {
         $_SESSION['agendamento_temporario']['payment_id'] = $paymentId;
     }
 
-    // Buscar QR Code e Código Copia e Cola
-    $ch = curl_init(ASAAS_API_URL . "/payments/{$paymentId}/pixQrCode");
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_HTTPHEADER     => [
-            'Content-Type: application/json',
-            'User-Agent: SistemaAgendamento',
-            'access_token: ' . $apiKey
-        ]
-    ]);
+    // Buscar QR Code e Código Copia e Cola.
+    // No ambiente Sandbox do Asaas, a geração da IMAGEM do QR code às
+    // vezes falha de forma intermitente (limitação documentada do
+    // próprio Asaas), mesmo com a cobrança e a chave Pix corretas.
+    // Por isso tentamos algumas vezes, com uma pequena espera entre
+    // as tentativas.
+    $resPix = null;
+    $tentativas = 3;
 
-    $resPix = json_decode(curl_exec($ch), true);
-    curl_close($ch);
+    for ($i = 1; $i <= $tentativas; $i++) {
+        usleep(800000); // 0.8 segundo antes de cada tentativa
+
+        $ch = curl_init(ASAAS_API_URL . "/payments/{$paymentId}/pixQrCode");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'User-Agent: SistemaAgendamento',
+                'access_token: ' . $apiKey
+            ]
+        ]);
+
+        $resPix = json_decode(curl_exec($ch), true);
+        curl_close($ch);
+
+        // Já temos imagem + payload: sucesso completo, pode parar.
+        if (isset($resPix['encodedImage']) && isset($resPix['payload'])) {
+            break;
+        }
+    }
 
     if (isset($resPix['encodedImage']) && isset($resPix['payload'])) {
+        // Caminho normal: o Asaas devolveu a imagem pronta.
         echo json_encode([
             'sucesso'    => true,
             'tipo'       => 'PIX',
@@ -279,8 +307,21 @@ if ($metodo === 'PIX') {
             'qr_code'    => $resPix['encodedImage'],
             'copia_cola' => $resPix['payload']
         ]);
+    } elseif (isset($resPix['payload'])) {
+        // A imagem falhou (comum no Sandbox), mas o payload (código
+        // "copia e cola") veio certo — o front gera o QR code a
+        // partir desse texto, sem depender da imagem do Asaas.
+        echo json_encode([
+            'sucesso'           => true,
+            'tipo'              => 'PIX',
+            'payment_id'        => $paymentId,
+            'qr_code'           => null,
+            'gerar_qr_localmente' => true,
+            'copia_cola'        => $resPix['payload']
+        ]);
     } else {
-        echo json_encode(['sucesso' => false, 'mensagem' => 'Erro ao obter o QR Code do Asaas.']);
+        $erroPix = $resPix['errors'][0]['description'] ?? 'Erro ao obter o QR Code do Asaas.';
+        echo json_encode(['sucesso' => false, 'mensagem' => $erroPix]);
     }
     exit;
 }
@@ -299,6 +340,18 @@ if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
         exit;
     }
 
+    // O Asaas exige telefone com DDD do titular do cartão nessa chamada.
+    if (strlen($telefoneLimpo) < 10) {
+        echo json_encode(['sucesso' => false, 'mensagem' => 'Informe um telefone válido com DDD.']);
+        exit;
+    }
+
+    // IMPORTANTE: o Asaas não aceita enviar dados de cartão de débito
+    // diretamente pela API (só crédito) — por isso billingType fica
+    // fixo em 'CREDIT_CARD' aqui mesmo quando $metodo é 'DEBIT_CARD'.
+    // Ainda falta decidir como tratar débito de verdade (ver conversa
+    // anterior): tirar a opção do site, ou redirecionar pro invoiceUrl
+    // do Asaas. Por enquanto, clicar em "Débito" processa como crédito.
     $payloadCartao = [
         'customer'             => $customerId,
         'billingType'          => 'CREDIT_CARD',
@@ -316,8 +369,10 @@ if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
             'name'          => $nomeCliente,
             'email'         => $emailCliente,
             'cpfCnpj'       => $cpfLimpo,
-            'postalCode'    => preg_replace('/[^0-9]/', '', (string)$cepCliente),
-            'addressNumber' => '0'
+            'postalCode'    => $cepLimpo,
+            'addressNumber' => '0',
+            'phone'         => $telefoneLimpo,
+            'mobilePhone'   => $telefoneLimpo
         ],
         'remoteIp' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
     ];

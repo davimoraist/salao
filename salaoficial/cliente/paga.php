@@ -71,6 +71,9 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
         <label>CEP</label>
         <input type="text" id="cliente_cep" placeholder="Digite seu CEP">
 
+        <label>Telefone (com DDD)</label>
+        <input type="text" id="cliente_telefone" placeholder="(99) 99999-9999">
+
         <p>Forma de pagamento</p>
 
         <div class="forma-pix">
@@ -114,7 +117,7 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
             <div id="area-qr-code" style="display: none; margin-top: 15px; text-align: center;">
                 <p>Escaneie o QR Code abaixo para pagar:</p>
                 <img id="img-qrcode" src="" alt="QR Code Pix" style="max-width: 200px; width: 100%; height: auto;">
-                
+
                 <p style="margin-top: 10px;">Ou copie o código Pix abaixo:</p>
                 <input type="text" id="input-copia-cola" readonly style="width: 100%; padding: 8px; text-align: center;">
                 <button type="button" onclick="copiarPix()" style="margin-top: 8px; padding: 6px 12px; cursor: pointer;">
@@ -169,6 +172,9 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
     </div>
 </div>
 
+<!-- QRious: gera QR code no navegador a partir do "copia e cola",
+     usado quando o Asaas (comum no Sandbox) não devolve a imagem pronta -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script src="paga.js"></script>
 <!-- SweetAlert2 CSS e JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

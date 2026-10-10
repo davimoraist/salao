@@ -41,10 +41,15 @@ if (!$user) {
     <div class="logo">
     <img src="imagem/Maria.png" alt="logo da empresa">
 </div>
-    <div class="menu">
-        <span class="material-symbols-outlined" >account_circle</span>
-        <h2>Olá, <?= htmlspecialchars(explode(' ', $user['nome'])[0]) ?></h2>
+ <div class="menu user-container">
+    <span class="material-symbols-outlined" id="userIcon">account_circle</span>
+    <h2>Olá, <?= htmlspecialchars(explode(' ', $user['nome'])[0]) ?></h2>
+    
+    <div class="menu-contra" id="userMenu">
+        <a href="#">Minha conta</a>
+        <a href="#">Sair</a>
     </div>
+</div>
     
 </div>
     <div class="agendamedo">
@@ -106,6 +111,22 @@ if (!$user) {
 
     </div>
 </section>
+<script>
+    const userIcon = document.getElementById('userIcon');
+    const userMenu = document.getElementById('userMenu');
 
+    // Abre/fecha ao clicar no ícone
+    userIcon.addEventListener('click', (event) => {
+        event.stopPropagation();
+        userMenu.classList.toggle('active');
+    });
+
+    // Fecha se clicar em qualquer outro lugar da tela
+    document.addEventListener('click', (event) => {
+        if (!userMenu.contains(event.target) && event.target !== userIcon) {
+            userMenu.classList.remove('active');
+        }
+    });
+</script>
 </body>
 </html>

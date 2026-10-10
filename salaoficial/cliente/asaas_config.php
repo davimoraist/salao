@@ -40,7 +40,7 @@ function criarCpfFicticioForcado() {
 }
 
 // ====== FUNÇÃO QUE GRAVA O AGENDAMENTO + O PAGAMENTO NO BANCO ======
-// $metodo: 'PIX', 'CREDIT_CARD' ou 'DEBIT_CARD'
+// $metodo: 'PIX', 'CREDIT_CARD' ou 'DEBIT_CARD' (débito vem pela página do Asaas)
 // $paymentIdAsaas: id da cobrança no Asaas (pode vir null)
 function salvarAgendamentoNoBanco($conn, $metodo, $paymentIdAsaas = null) {
     if (!isset($_SESSION['agendamento_temporario'])) {
@@ -157,7 +157,8 @@ if ($acao === 'checar_status') {
 
     $status = $res['status'] ?? '';
     if (in_array($status, ['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'])) {
-        $gravou = salvarAgendamentoNoBanco($conn, 'PIX', $paymentId);
+        $metodoSalvo = $_SESSION['agendamento_temporario']['metodo_pagamento'] ?? 'PIX';
+        $gravou = salvarAgendamentoNoBanco($conn, $metodoSalvo, $paymentId);
         echo json_encode(['pago' => true, 'salvo_no_banco' => $gravou]);
     } else {
         echo json_encode(['pago' => false, 'status' => $status]);
@@ -169,23 +170,10 @@ if ($acao === 'checar_status') {
 
 $metodo       = filter_input(INPUT_POST, 'metodo', FILTER_DEFAULT) ?? 'PIX';
 $nomeCliente  = filter_input(INPUT_POST, 'nome', FILTER_DEFAULT);
-$emailCliente = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
 $cpfCliente   = filter_input(INPUT_POST, 'cpf', FILTER_DEFAULT);
-$cepCliente   = filter_input(INPUT_POST, 'cep', FILTER_DEFAULT);
-$telefoneCliente = filter_input(INPUT_POST, 'telefone', FILTER_DEFAULT);
 $valor        = filter_input(INPUT_POST, 'valor', FILTER_VALIDATE_FLOAT);
-$telefoneLimpo = preg_replace('/[^0-9]/', '', (string)$telefoneCliente);
 
 if (!$nomeCliente)  $nomeCliente  = "Cliente Ficticio " . rand(10, 99);
-if (!$emailCliente) $emailCliente = "cliente" . rand(100, 999) . "@exemplo.com";
-
-// CEP é obrigatório — validação do lado do servidor, já que a do
-// JS pode ser contornada (JS desabilitado, chamada direta à API, etc.)
-$cepLimpo = preg_replace('/[^0-9]/', '', (string)$cepCliente);
-if (strlen($cepLimpo) !== 8) {
-    echo json_encode(['sucesso' => false, 'mensagem' => 'CEP inválido ou não informado.']);
-    exit;
-}
 
 $cpfLimpo = preg_replace('/[^0-9]/', '', (string)$cpfCliente);
 if (empty($cpfLimpo) || strlen($cpfLimpo) !== 11) {
@@ -201,10 +189,8 @@ curl_setopt_array($ch, [
     CURLOPT_POST           => true,
     CURLOPT_SSL_VERIFYPEER => false,
     CURLOPT_POSTFIELDS     => json_encode([
-        'name'       => $nomeCliente,
-        'email'      => $emailCliente,
-        'cpfCnpj'    => $cpfLimpo,
-        'postalCode' => $cepLimpo
+        'name'    => $nomeCliente,
+        'cpfCnpj' => $cpfLimpo
     ]),
     CURLOPT_HTTPHEADER     => [
         'Content-Type: application/json',
@@ -264,6 +250,7 @@ if ($metodo === 'PIX') {
 
     if (isset($_SESSION['agendamento_temporario'])) {
         $_SESSION['agendamento_temporario']['payment_id'] = $paymentId;
+        $_SESSION['agendamento_temporario']['metodo_pagamento'] = 'PIX';
     }
 
     // Buscar QR Code e Código Copia e Cola.
@@ -326,63 +313,25 @@ if ($metodo === 'PIX') {
     exit;
 }
 
-// --- 3. PROCESSAR CRÉDITO OU DÉBITO ---
+// --- 3. PROCESSAR CRÉDITO OU DÉBITO (página de pagamento do Asaas) ---
+// Os dados do cartão nunca passam pelo nosso site: criamos a cobrança sem
+// dados de cartão e mandamos o cliente pra página de fatura do Asaas
+// (invoiceUrl), onde ele escolhe Cartão de Crédito ou Cartão de Débito.
+// Com billingType CREDIT_CARD, a fatura mostra só as opções de cartão,
+// sem boleto nem Pix. A confirmação é feita pelo mesmo polling do Pix.
 if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
-
-    $cartaoNome   = filter_input(INPUT_POST, 'cartao_nome', FILTER_DEFAULT);
-    $cartaoNumero = preg_replace('/\s+/', '', (string) filter_input(INPUT_POST, 'cartao_numero', FILTER_DEFAULT));
-    $cartaoMes    = filter_input(INPUT_POST, 'cartao_mes', FILTER_DEFAULT);
-    $cartaoAno    = filter_input(INPUT_POST, 'cartao_ano', FILTER_DEFAULT);
-    $cartaoCcv    = filter_input(INPUT_POST, 'cartao_ccv', FILTER_DEFAULT);
-
-    if (!$cartaoNome || !$cartaoNumero || !$cartaoMes || !$cartaoAno || !$cartaoCcv) {
-        echo json_encode(['sucesso' => false, 'mensagem' => 'Preencha todos os dados do cartão.']);
-        exit;
-    }
-
-    // O Asaas exige telefone com DDD do titular do cartão nessa chamada.
-    if (strlen($telefoneLimpo) < 10) {
-        echo json_encode(['sucesso' => false, 'mensagem' => 'Informe um telefone válido com DDD.']);
-        exit;
-    }
-
-    // IMPORTANTE: o Asaas não aceita enviar dados de cartão de débito
-    // diretamente pela API (só crédito) — por isso billingType fica
-    // fixo em 'CREDIT_CARD' aqui mesmo quando $metodo é 'DEBIT_CARD'.
-    // Ainda falta decidir como tratar débito de verdade (ver conversa
-    // anterior): tirar a opção do site, ou redirecionar pro invoiceUrl
-    // do Asaas. Por enquanto, clicar em "Débito" processa como crédito.
-    $payloadCartao = [
-        'customer'             => $customerId,
-        'billingType'          => 'CREDIT_CARD',
-        'value'                => $valor,
-        'dueDate'              => date('Y-m-d'),
-        'description'          => 'Sinal de Agendamento',
-        'creditCard' => [
-            'holderName'  => $cartaoNome,
-            'number'      => $cartaoNumero,
-            'expiryMonth' => $cartaoMes,
-            'expiryYear'  => $cartaoAno,
-            'ccv'         => $cartaoCcv
-        ],
-        'creditCardHolderInfo' => [
-            'name'          => $nomeCliente,
-            'email'         => $emailCliente,
-            'cpfCnpj'       => $cpfLimpo,
-            'postalCode'    => $cepLimpo,
-            'addressNumber' => '0',
-            'phone'         => $telefoneLimpo,
-            'mobilePhone'   => $telefoneLimpo
-        ],
-        'remoteIp' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
-    ];
-
     $ch = curl_init(ASAAS_API_URL . '/payments');
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_POSTFIELDS     => json_encode($payloadCartao),
+        CURLOPT_POSTFIELDS     => json_encode([
+            'customer'    => $customerId,
+            'billingType' => 'CREDIT_CARD',
+            'value'       => $valor,
+            'dueDate'     => date('Y-m-d'),
+            'description' => 'Sinal de Agendamento'
+        ]),
         CURLOPT_HTTPHEADER     => [
             'Content-Type: application/json',
             'User-Agent: SistemaAgendamento',
@@ -393,21 +342,27 @@ if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
     $resCartao = json_decode(curl_exec($ch), true);
     curl_close($ch);
 
-    $status = $resCartao['status'] ?? '';
+    $paymentId  = $resCartao['id'] ?? null;
+    $invoiceUrl = $resCartao['invoiceUrl'] ?? null;
 
-    if (in_array($status, ['RECEIVED', 'CONFIRMED'])) {
-        $gravou = salvarAgendamentoNoBanco($conn, $metodo, $resCartao['id'] ?? null);
-
-        echo json_encode([
-            'sucesso'       => true,
-            'tipo'          => $metodo,
-            'payment_id'    => $resCartao['id'] ?? null,
-            'salvo_no_banco'=> $gravou
-        ]);
-    } else {
-        $erroMsg = $resCartao['errors'][0]['description'] ?? 'Pagamento recusado pela operadora.';
+    if (!$paymentId || !$invoiceUrl) {
+        $erroMsg = $resCartao['errors'][0]['description'] ?? 'Erro ao gerar a cobrança no Asaas.';
         echo json_encode(['sucesso' => false, 'mensagem' => $erroMsg]);
+        exit;
     }
+
+    if (isset($_SESSION['agendamento_temporario'])) {
+        $_SESSION['agendamento_temporario']['payment_id'] = $paymentId;
+        $_SESSION['agendamento_temporario']['metodo_pagamento'] = $metodo;
+    }
+
+    echo json_encode([
+        'sucesso'     => true,
+        'tipo'        => 'CARD_REDIRECT',
+        'metodo'      => $metodo,
+        'payment_id'  => $paymentId,
+        'invoice_url' => $invoiceUrl
+    ]);
     exit;
 }
 

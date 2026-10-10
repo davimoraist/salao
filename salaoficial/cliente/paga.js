@@ -44,7 +44,7 @@ function exibirSucessoModal() {
         allowOutsideClick: false
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = 'agenda.php';
+            window.location.href = 'meuagenda.php';
         }
     });
 }
@@ -92,59 +92,19 @@ function enviarPagamento(metodo) {
     };
 
     const nome = getVal('cliente_nome');
-    const email = getVal('cliente_email');
     const cpf = getVal('cliente_cpf');
-    const cep = getVal('cliente_cep');
-    const telefone = getVal('cliente_telefone');
     const valor = getVal('valor_sinal');
-
-    // Validação dos dados obrigatórios antes de prosseguir.
-    // O CEP é exigido pela API do Asaas (postalCode) — sem essa
-    // checagem, o formulário deixava enviar vazio e o pagamento
-    // passava mesmo assim.
-    const cepLimpo = cep.replace(/\D/g, '');
 
     if (!nome) {
         Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha seu nome completo.' });
-        return;
-    }
-    if (!email) {
-        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha seu e-mail.' });
-        return;
-    }
-    if (!cep || cepLimpo.length !== 8) {
-        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha um CEP válido (8 dígitos).' });
-        return;
-    }
-    // Telefone só é exigido pelo Asaas no pagamento com cartão
-    // (crédito/débito) — não é necessário pro Pix.
-    if ((metodo === 'CREDIT_CARD' || metodo === 'DEBIT_CARD') && telefone.replace(/\D/g, '').length < 10) {
-        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha um telefone válido com DDD.' });
         return;
     }
 
     const formData = new FormData();
     formData.append('metodo', metodo);
     formData.append('nome', nome);
-    formData.append('email', email);
     formData.append('cpf', cpf);
-    formData.append('cep', cep);
-    formData.append('telefone', telefone);
     formData.append('valor', valor);
-
-    if (metodo === 'CREDIT_CARD') {
-        formData.append('cartao_nome', getVal('credito_nome'));
-        formData.append('cartao_numero', getVal('credito_numero'));
-        formData.append('cartao_mes', getVal('credito_mes'));
-        formData.append('cartao_ano', getVal('credito_ano'));
-        formData.append('cartao_ccv', getVal('credito_ccv'));
-    } else if (metodo === 'DEBIT_CARD') {
-        formData.append('cartao_nome', getVal('debito_nome'));
-        formData.append('cartao_numero', getVal('debito_numero'));
-        formData.append('cartao_mes', getVal('debito_mes'));
-        formData.append('cartao_ano', getVal('debito_ano'));
-        formData.append('cartao_ccv', getVal('debito_ccv'));
-    }
 
     let btnAtual = null;
     if (metodo === 'PIX') btnAtual = document.getElementById('btn-gerar-pix');
@@ -172,7 +132,29 @@ function enviarPagamento(metodo) {
         })
         .then(data => {
             if (data.sucesso) {
-                if (data.tipo === 'PIX') {
+                if (data.tipo === 'CARD_REDIRECT') {
+                    // Crédito/débito: abre a página de pagamento do Asaas e
+                    // continua verificando em segundo plano (igual ao Pix).
+                    const ehDebito = data.metodo === 'DEBIT_CARD';
+                    Swal.fire({
+                        icon: 'info',
+                        title: ehDebito ? 'Pagamento no débito' : 'Pagamento no crédito',
+                        html: ehDebito
+                            ? 'Na página do Asaas, <strong>clique em "Cartão de Débito"</strong> antes de preencher os dados (ela abre em Crédito). Depois de pagar, volte para esta página.'
+                            : 'Na página do Asaas, deixe selecionado <strong>"Cartão de Crédito"</strong> e preencha os dados. Depois de pagar, volte para esta página.',
+                        confirmButtonText: 'Ir para o pagamento',
+                        allowOutsideClick: false
+                    }).then(() => {
+                        window.open(data.invoice_url, '_blank');
+                    });
+
+                    if (btnAtual) {
+                        btnAtual.disabled = false;
+                        btnAtual.innerText = btnAtual.dataset.textoOriginal;
+                    }
+
+                    verificarStatusPix(data.payment_id);
+                } else if (data.tipo === 'PIX') {
                     const imgQr = document.getElementById('img-qrcode');
                     const inputCopia = document.getElementById('input-copia-cola');
                     const areaQr = document.getElementById('area-qr-code');
@@ -198,20 +180,6 @@ function enviarPagamento(metodo) {
                     if (btnAtual) btnAtual.style.display = 'none';
 
                     verificarStatusPix(data.payment_id);
-                } else {
-                    // Cartão de crédito/débito: o asaas_config.php já
-                    // gravou o agendamento no banco nesse mesmo request
-                    // (dentro do bloco CREDIT_CARD/DEBIT_CARD) e devolveu
-                    // salvo_no_banco na resposta.
-                    if (data.salvo_no_banco) {
-                        exibirSucessoModal();
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Atenção',
-                            text: 'Pagamento aprovado, mas houve um erro ao gravar o agendamento. Entre em contato com o salão para confirmar seu horário.'
-                        });
-                    }
                 }
             } else {
                 Swal.fire({

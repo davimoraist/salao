@@ -62,17 +62,8 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
         <label>Nome Completo</label>
         <input type="text" id="cliente_nome" value="<?= htmlspecialchars($user['nome']) ?>" readonly>
 
-        <label>E-mail</label>
-        <input type="email" id="cliente_email" value="<?= htmlspecialchars($user['email']) ?>" readonly>
-
         <label>CPF</label>
         <input type="text" id="cliente_cpf" value="<?= htmlspecialchars($user['cpf']) ?>" readonly>
-
-        <label>CEP</label>
-        <input type="text" id="cliente_cep" placeholder="Digite seu CEP">
-
-        <label>Telefone (com DDD)</label>
-        <input type="text" id="cliente_telefone" placeholder="(99) 99999-9999">
 
         <p>Forma de pagamento</p>
 
@@ -126,29 +117,21 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
             </div>
         </div>
 
-        <!-- METODO 2: CRÉDITO -->
+        <!-- METODO 2: CRÉDITO (pago na página segura do Asaas) -->
         <div id="container-credito" class="metodo-pagamento paga-credito">
-            <input type="text" id="credito_nome" placeholder="Nome impresso no cartão">
-            <input type="text" id="credito_numero" placeholder="Número do Cartão">
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="credito_mes" placeholder="MM (Ex: 12)" maxlength="2">
-                <input type="text" id="credito_ano" placeholder="AAAA (Ex: 2028)" maxlength="4">
-                <input type="text" id="credito_ccv" placeholder="CCV" maxlength="4">
-            </div>
+            <p style="margin-bottom: 10px;">
+                O pagamento no crédito é feito em uma página segura do Asaas, que abrirá em uma nova aba. Nessa página, deixe selecionado <strong>"Cartão de Crédito"</strong> e preencha os dados do cartão. Depois de pagar, volte para esta página e seu agendamento será confirmado automaticamente.
+            </p>
             <button class="btn-pagar" id="btn-pagar-credito" onclick="enviarPagamento('CREDIT_CARD')">
                 Pagar com Crédito
             </button>
         </div>
 
-        <!-- METODO 3: DÉBITO -->
+        <!-- METODO 3: DÉBITO (pago na página segura do Asaas) -->
         <div id="container-debito" class="metodo-pagamento paga-credito">
-            <input type="text" id="debito_nome" placeholder="Nome impresso no cartão">
-            <input type="text" id="debito_numero" placeholder="Número do Cartão">
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="debito_mes" placeholder="MM (Ex: 12)" maxlength="2">
-                <input type="text" id="debito_ano" placeholder="AAAA (Ex: 2028)" maxlength="4">
-                <input type="text" id="debito_ccv" placeholder="CCV" maxlength="4">
-            </div>
+            <p style="margin-bottom: 10px;">
+                O pagamento no débito é feito em uma página segura do Asaas, que abrirá em uma nova aba. <strong>Nessa página, clique em "Cartão de Débito" antes de preencher os dados</strong> (ela abre em "Cartão de Crédito"). Depois de pagar, volte para esta página e seu agendamento será confirmado automaticamente.
+            </p>
             <button class="btn-pagar" id="btn-pagar-debito" onclick="enviarPagamento('DEBIT_CARD')">
                 Pagar com Débito
             </button>

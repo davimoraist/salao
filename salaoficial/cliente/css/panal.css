@@ -50,9 +50,20 @@
      gap: 10px;
  }
 
+ .user-container {
+     position: relative;
+     /* Importante para posicionar o dropdown */
+ }
+
  .menu span {
      font-size: 40px;
      color: #d46a92;
+     cursor: pointer;
+     display: block;
+ }
+
+ .menu span:hover {
+     color: #d05081;
  }
 
  .menu h2 {
@@ -60,6 +71,36 @@
      color: #333;
  }
 
+ /* Submenu flutuante e inicialmente oculto */
+ .menu .menu-contra {
+     display: none;
+     /* Escondido por padrão */
+     position: absolute;
+     top: 100%;
+     left: 0;
+     background-color: #EDB8AE;
+     padding: 10px;
+     border-radius: 4px;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     z-index: 1000;
+     min-width: 130px;
+ }
+
+ .menu .menu-contra.active {
+     display: block;
+     /* Mostra quando tem a classe active */
+ }
+
+ .menu .menu-contra a {
+     text-decoration: none;
+     display: block;
+     color: #333;
+     padding: 5px 0;
+ }
+
+ .menu .menu-contra a:hover {
+     font-weight: bold;
+ }
  /* BANNER */
  .agendamedo {
      width: 100%;
@@ -168,6 +209,8 @@
          font-size: 35px;
          /* Corrigido de 70px que quebrava o topo */
      }
+
+     
 
      .menu h2 {
          font-size: 20px;

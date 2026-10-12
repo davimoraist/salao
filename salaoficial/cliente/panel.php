@@ -46,7 +46,7 @@ if (!$user) {
     <h2>Olá, <?= htmlspecialchars(explode(' ', $user['nome'])[0]) ?></h2>
     
     <div class="menu-contra" id="userMenu">
-        <a href="#">Minha conta</a>
+        <a href="perfil.php">Minha conta</a>
         <a href="#">Sair</a>
     </div>
 </div>

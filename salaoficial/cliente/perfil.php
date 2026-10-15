@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // As duas tabelas são atualizadas juntas, ou nenhuma é
                 $db->begin_transaction();
 
-                // A. Atualiza ou Insere na tabela 'pessoais' (só telefone e endereço)
+                // A. Atualiza ou Insere na tabela 'pessoais' (só telefone e endereco)
                 $stmtCheckP = $db->prepare("SELECT COUNT(*) FROM pessoais WHERE id_cliente = ?");
                 $stmtCheckP->bind_param("i", $id);
                 $stmtCheckP->execute();
@@ -185,11 +185,7 @@ $stmt->execute();
 $resultado = $stmt->get_result();
 $dados = $resultado->fetch_assoc() ?? [];
 $stmt->close();
-
-// Estilo dos campos que não podem ser editados
-$bloqueado = 'width: 100%; padding: 8px; box-sizing: border-box; background: #f1f1f1; color: #555; cursor: not-allowed;';
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -197,6 +193,7 @@ $bloqueado = 'width: 100%; padding: 8px; box-sizing: border-box; background: #f1
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Conta | MT Nail Designer</title>
     <link rel="stylesheet" href="css/panal.css">
+    <link rel="stylesheet" href="css/perfil.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
@@ -212,185 +209,204 @@ $bloqueado = 'width: 100%; padding: 8px; box-sizing: border-box; background: #f1
     </div>
 </div>
 
-<div style="max-width: 650px; margin: 40px auto; padding: 25px; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+<div class="perfil-box">
     <h2>Meus Dados e Ficha de Saúde</h2>
 
     <?php if (!empty($dados['data_cadastro'])): ?>
-        <p style="color: #666; margin-top: 0;">Data de Cadastro: <?= htmlspecialchars(date('d/m/Y', strtotime($dados['data_cadastro']))) ?></p>
+        <p class="data-cadastro">Data de Cadastro: <?= htmlspecialchars(date('d/m/Y', strtotime($dados['data_cadastro']))) ?></p>
     <?php endif; ?>
 
     <?php if (!empty($mensagem)): ?>
-        <p style="padding: 10px; background: #d4edda; color: #155724; border-radius: 4px; margin-bottom: 15px;">
-            <?= htmlspecialchars($mensagem) ?>
-        </p>
+        <p class="msg msg-sucesso"><?= htmlspecialchars($mensagem) ?></p>
     <?php endif; ?>
 
     <?php if (!empty($erro)): ?>
-        <p style="padding: 10px; background: #f8d7da; color: #721c24; border-radius: 4px; margin-bottom: 15px;">
-            <?= htmlspecialchars($erro) ?>
-        </p>
+        <p class="msg msg-erro"><?= htmlspecialchars($erro) ?></p>
     <?php endif; ?>
 
     <form action="perfil.php" method="POST" autocomplete="off">
         <h3>Informações Pessoais</h3>
-        <p style="color: #888; font-size: 13px; margin-top: 0;">Nome, Email, CPF, Data de Nascimento e Como nos conheceu não podem ser alterados.</p>
+        <p class="aviso-campos">Nome, Email, CPF, Data de Nascimento e Como nos conheceu não podem ser alterados.</p>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Nome:</label>
-            <input type="text" value="<?= htmlspecialchars($dados['nome'] ?? '') ?>" readonly tabindex="-1" style="<?= $bloqueado ?>">
+        <div class="campo">
+            <label>Nome:</label>
+            <input type="text" class="bloqueado" value="<?= htmlspecialchars($dados['nome'] ?? '') ?>" readonly tabindex="-1">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email:</label>
-            <input type="email" value="<?= htmlspecialchars($dados['email'] ?? '') ?>" readonly tabindex="-1" style="<?= $bloqueado ?>">
+        <div class="campo">
+            <label>Email:</label>
+            <input type="email" class="bloqueado" value="<?= htmlspecialchars($dados['email'] ?? '') ?>" readonly tabindex="-1">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Telefone:</label>
-            <input type="text" name="telefone" value="<?= htmlspecialchars($dados['telefone'] ?? '') ?>" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Telefone:</label>
+            <input type="text" name="telefone" value="<?= htmlspecialchars($dados['telefone'] ?? '') ?>">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">CPF:</label>
-            <input type="text" value="<?= htmlspecialchars($dados['cpf'] ?? '') ?>" readonly tabindex="-1" style="<?= $bloqueado ?>">
+        <div class="campo">
+            <label>CPF:</label>
+            <input type="text" class="bloqueado" value="<?= htmlspecialchars($dados['cpf'] ?? '') ?>" readonly tabindex="-1">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Data de Nascimento:</label>
-            <input type="date" value="<?= htmlspecialchars($dados['data_nascimento'] ?? '') ?>" readonly tabindex="-1" style="<?= $bloqueado ?>">
+        <div class="campo">
+            <label>Data de Nascimento:</label>
+            <input type="date" class="bloqueado" value="<?= htmlspecialchars($dados['data_nascimento'] ?? '') ?>" readonly tabindex="-1">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Endereço:</label>
-            <input type="text" name="endereco" value="<?= htmlspecialchars($dados['endereco'] ?? '') ?>" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Endereço:</label>
+            <input type="text" name="endereco" value="<?= htmlspecialchars($dados['endereco'] ?? '') ?>">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Como nos conheceu:</label>
-            <input type="text" value="<?= htmlspecialchars($dados['como_conheceu'] ?? '') ?>" readonly tabindex="-1" style="<?= $bloqueado ?>">
+        <div class="campo">
+            <label>Como nos conheceu:</label>
+            <input type="text" class="bloqueado" value="<?= htmlspecialchars($dados['como_conheceu'] ?? '') ?>" readonly tabindex="-1">
         </div>
 
-        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #ddd;">
+        <hr class="separador">
 
         <h3>Ficha de Anamnese (Saúde)</h3>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Diabetes:</label>
-            <select name="diabetes" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Diabetes:</label>
+            <select name="diabetes">
                 <option value="Não" <?= sel($dados, 'diabetes', 'Não', 'Não') ?>>Não</option>
                 <option value="Sim" <?= sel($dados, 'diabetes', 'Sim', 'Não') ?>>Sim</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Gestante:</label>
-            <select name="gestante" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Gestante:</label>
+            <select name="gestante">
                 <option value="Não" <?= sel($dados, 'gestante', 'Não', 'Não') ?>>Não</option>
                 <option value="Sim" <?= sel($dados, 'gestante', 'Sim', 'Não') ?>>Sim</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Alergias:</label>
-            <select name="alergias" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Alergias:</label>
+            <select name="alergias">
                 <option value="Não" <?= sel($dados, 'alergias', 'Não', 'Não') ?>>Não</option>
                 <option value="Sim" <?= sel($dados, 'alergias', 'Sim', 'Não') ?>>Sim</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Especificar Alergia:</label>
-            <input type="text" name="especificar_alergia" value="<?= htmlspecialchars($dados['especificar_alergia'] ?? '') ?>" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Especificar Alergia:</label>
+            <input type="text" name="especificar_alergia" value="<?= htmlspecialchars($dados['especificar_alergia'] ?? '') ?>">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Cuticula:</label>
-            <select name="cuticula" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Cuticula:</label>
+            <select name="cuticula">
                 <option value="Sim" <?= sel($dados, 'cuticula', 'Sim', 'Sim') ?>>Sim</option>
                 <option value="Não" <?= sel($dados, 'cuticula', 'Não', 'Sim') ?>>Não</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Onicomicose:</label>
-            <select name="onicomicose" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Onicomicose:</label>
+            <select name="onicomicose">
                 <option value="Não" <?= sel($dados, 'onicomicose', 'Não', 'Não') ?>>Não</option>
                 <option value="Sim" <?= sel($dados, 'onicomicose', 'Sim', 'Não') ?>>Sim</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Especificar Onicomicose:</label>
-            <input type="text" name="especificar_onico" value="<?= htmlspecialchars($dados['especificar_onico'] ?? '') ?>" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Especificar Onicomicose:</label>
+            <input type="text" name="especificar_onico" value="<?= htmlspecialchars($dados['especificar_onico'] ?? '') ?>">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Medicamento:</label>
-            <select name="medicamento" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Medicamento:</label>
+            <select name="medicamento">
                 <option value="Não" <?= sel($dados, 'medicamento', 'Não', 'Não') ?>>Não</option>
                 <option value="Sim" <?= sel($dados, 'medicamento', 'Sim', 'Não') ?>>Sim</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Qual Medicamento:</label>
-            <input type="text" name="qual_medicamento" value="<?= htmlspecialchars($dados['qual_medicamento'] ?? '') ?>" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Qual Medicamento:</label>
+            <input type="text" name="qual_medicamento" value="<?= htmlspecialchars($dados['qual_medicamento'] ?? '') ?>">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Lamina:</label>
-            <input type="text" name="lamina" value="<?= htmlspecialchars($dados['lamina'] ?? '') ?>" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Lamina:</label>
+            <input type="text" name="lamina" value="<?= htmlspecialchars($dados['lamina'] ?? '') ?>">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Outro Lamina:</label>
-            <input type="text" name="outro_lamina" value="<?= htmlspecialchars($dados['outro_lamina'] ?? '') ?>" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Outro Lamina:</label>
+            <input type="text" name="outro_lamina" value="<?= htmlspecialchars($dados['outro_lamina'] ?? '') ?>">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Encravada:</label>
-            <select name="encravada" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Encravada:</label>
+            <select name="encravada">
                 <option value="Não" <?= sel($dados, 'encravada', 'Não', 'Não') ?>>Não</option>
                 <option value="Sim" <?= sel($dados, 'encravada', 'Sim', 'Não') ?>>Sim</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Onicofagia:</label>
-            <select name="onicofagia" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Onicofagia:</label>
+            <select name="onicofagia">
                 <option value="Não" <?= sel($dados, 'onicofagia', 'Não', 'Não') ?>>Não</option>
                 <option value="Sim" <?= sel($dados, 'onicofagia', 'Sim', 'Não') ?>>Sim</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Esporte:</label>
-            <select name="esporte" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Esporte:</label>
+            <select name="esporte">
                 <option value="Não" <?= sel($dados, 'esporte', 'Não', 'Não') ?>>Não</option>
                 <option value="Sim" <?= sel($dados, 'esporte', 'Sim', 'Não') ?>>Sim</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Piscina:</label>
-            <select name="piscina" style="width: 100%; padding: 8px; box-sizing: border-box;">
+        <div class="campo">
+            <label>Piscina:</label>
+            <select name="piscina">
                 <option value="Não" <?= sel($dados, 'piscina', 'Não', 'Não') ?>>Não</option>
                 <option value="Sim" <?= sel($dados, 'piscina', 'Sim', 'Não') ?>>Sim</option>
             </select>
         </div>
 
-        <hr style="margin: 25px 0; border: 0; border-top: 1px solid #ddd;">
+        <hr class="separador">
 
-        <!-- Confirmação de Segurança -->
-        <div style="margin-bottom: 20px; background: #fff3cd; padding: 15px; border-radius: 6px; border: 1px solid #ffeeba;">
-            <label for="senha_atual" style="display: block; margin-bottom: 5px; font-weight: bold; color: #856404;">Confirme a sua Senha Atual para Salvar:</label>
-            <input type="password" id="senha_atual" name="senha_atual" required autocomplete="current-password" placeholder="Digite a sua senha" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        <!-- Confirmação de segurança (com botão mostrar/ocultar senha) -->
+        <div class="confirmar-senha">
+            <label for="senha_atual">Confirme a sua Senha Atual para Salvar:</label>
+            <div class="senha-wrapper">
+                <input type="password" id="senha_atual" name="senha_atual" required autocomplete="new-password" placeholder="Digite a sua senha">
+                <button type="button" class="btn-olho" onclick="toggleSenha()" title="Mostrar/Ocultar Senha">👁️</button>
+            </div>
         </div>
 
-        <button type="submit" style="padding: 10px 20px; background: #d81b60; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Salvar Alterações</button>
-        <a href="painel.php" style="margin-left: 15px; color: #666; text-decoration: none;">Voltar ao Painel</a>
+        <button type="submit" class="btn-salvar">Salvar Alterações</button>
+        <a href="panel.php" class="link-voltar">Voltar ao Painel</a>
     </form>
 </div>
 
+<script>
+// Garante que o navegador não preencha a senha sozinho:
+// limpa o campo logo após o carregamento, se a cliente ainda não digitou nada.
+(function () {
+    const campo = document.getElementById('senha_atual');
+    let digitou = false;
+    campo.addEventListener('input', function () { digitou = true; });
+    function limpar() { if (!digitou) campo.value = ''; }
+    window.addEventListener('load', function () {
+        limpar();
+        setTimeout(limpar, 100);
+        setTimeout(limpar, 500);
+    });
+})();
+
+function toggleSenha() {
+    const inputSenha = document.getElementById('senha_atual');
+    inputSenha.type = inputSenha.type === 'password' ? 'text' : 'password';
+}
+</script>
 </body>
 </html>

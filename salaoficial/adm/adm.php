@@ -47,7 +47,6 @@ try {
     <button onclick="mostrarTela('servico')">Histórico</button>
     <button onclick="mostrarTela('servicos')">Cadastro de Serviços</button>
     <button onclick="mostrarTela('faturamento')">Faturamento</button>
-    <button onclick="mostrarTela('grafico')">Gráficos</button>
     <button onclick="mostrarTela('config')">Configurações</button>
     <button onclick="window.location='sair.php'">Sair</button>
 </div>
@@ -179,7 +178,7 @@ ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
     </div>
 
     <div id="faturamento" class="tela"><h1>Faturamento</h1></div>
-    <div id="grafico" class="tela"><h1>Gráficos</h1></div>
+    
     <div id="config" class="tela"><h1>Configurações</h1></div>
 
 </div>

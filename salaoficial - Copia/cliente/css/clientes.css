@@ -1,0 +1,206 @@
+ @charset "UTF-8";
+
+ /* Import das fontes */
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+ /* VARIÁVEIS */
+ :root {
+     --cor1: #c88c8e;
+     --cor2: #734440;
+     --cor3: #bf93be;
+     --cor4: #a67272;
+     --cor5: #EDB8AE;
+     --cor6: #C89991;
+
+     --fonte-logo: "Great Vibes", cursive;
+     --fonte-titulo: "Cinzel", serif;
+     --fonte-texto: "Nunito", sans-serif;
+ }
+
+ /* RESET */
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+     font-family: var(--fonte-texto);
+ }
+
+ body {
+     background: #f8f7f7;
+     min-height: 100vh;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     padding: 20px;
+ }
+
+ /* CONTAINER */
+ .auth-container {
+     width: 100%;
+     max-width: 420px;
+ }
+
+ .logo-area {
+     text-align: center;
+     margin-bottom: 25px;
+ }
+
+ .logo-area h1 {
+     color: var(--cor2);
+     font-size: 40px;
+     margin-bottom: 8px;
+ }
+
+ .logo-area p {
+     color: #666;
+ }
+
+ /* CARD COM ESTRUTURA PARA ANIMAÇÃO FLUIDA */
+ .card-auth {
+     background: white;
+     border-radius: 30px;
+     padding: 30px;
+     box-shadow: 0 15px 40px rgba(0, 0, 0, .08);
+     position: relative;
+     overflow: hidden;
+ }
+
+ .tabs {
+     display: flex;
+     background: #f1f1f1;
+     border-radius: 15px;
+     padding: 4px;
+     margin-bottom: 25px;
+ }
+
+ .tab {
+     flex: 1;
+     border: none;
+     background: none;
+     padding: 12px;
+     border-radius: 12px;
+     cursor: pointer;
+     font-weight: 700;
+     transition: 0.2s ease, color 0.2s ease;
+ }
+
+ .tab.active {
+     background: var(--cor6);
+     color: white;
+ }
+
+ /* ANIMAÇÃO LEVE DOS FORMULÁRIOS (Apenas opacidade e transform de 0.25 segundos) */
+ .form-auth {
+     display: flex;
+     flex-direction: column;
+     opacity: 1;
+     visibility: visible;
+     transform: scale(1);
+     transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+ }
+
+ /* Estado escondido super otimizado (Sem usar display:none) */
+ .hidden {
+     position: absolute;
+     top: 84px;
+     /* Ajusta para ficar perfeitamente alinhado abaixo das abas */
+     left: 30px;
+     right: 30px;
+     opacity: 0;
+     visibility: hidden;
+     transform: scale(0.98);
+     /* Dá um efeito sutil de aproximação quando aparece */
+     pointer-events: none;
+ }
+
+ .input-box {
+     position: relative;
+     margin-bottom: 16px;
+ }
+
+ .input-box input {
+     width: 100%;
+     height: 58px;
+     border: none;
+     background: #f3f3f3;
+     border-radius: 15px;
+     padding: 0 50px 0 18px;
+     font-size: 16px;
+     outline: none;
+     transition: 0.2s;
+ }
+
+ .input-box input:focus {
+     background: #ebebeb;
+ }
+
+ .input-box span {
+     position: absolute;
+     right: 16px;
+     top: 50%;
+     transform: translateY(-50%);
+     color: #666;
+ }
+
+ .btn-principal {
+     width: 100%;
+     height: 55px;
+     border: none;
+     border-radius: 15px;
+     background: var(--cor6);
+     color: white;
+     font-size: 17px;
+     font-weight: 700;
+     cursor: pointer;
+     transition: 0.2s, transform 0.1s;
+ }
+
+ .btn-principal:hover {
+     background: var(--cor4);
+ }
+
+ .btn-principal:active {
+     transform: scale(0.98);
+ }
+
+ .termos {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     margin: 10px 0 20px;
+     font-size: 14px;
+ }
+
+ .termos a {
+     text-decoration: none;
+     color: #1a73e8;
+ }
+
+ .material-symbols-outlined {
+     cursor: pointer;
+     user-select: none;
+ }
+
+ /* RESPONSIVO */
+ @media(max-width:480px) {
+     .card-auth {
+         padding: 22px;
+         border-radius: 25px;
+     }
+
+     .logo-area h1 {
+         font-size: 32px;
+     }
+
+     .input-box input {
+         height: 54px;
+     }
+
+     .hidden {
+         top: 76px;
+         left: 22px;
+         right: 22px;
+     }
+ }

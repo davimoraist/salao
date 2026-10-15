@@ -1,0 +1,189 @@
+ <?php
+session_start();
+require "verificar.php";
+
+if (!isset($_SESSION['idusuario']) || empty($_SESSION['idusuario'])) {
+    header("Location: index.php");
+    exit;
+}
+
+// conexão banco
+$host = "localhost";
+$db = "salao";
+$user = "root";
+$pass = "";
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
+} catch (PDOException $e) {
+    die("Erro: " . $e->getMessage());
+}
+?>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/adm.css">
+    <title>ADM DO SALÃO</title>
+</head>
+
+<body>
+
+<div class="cabeca">
+    <h1>Salão da Maria - ADM</h1>
+    <span class="nome-usuario">
+        Olá! <?php echo $pessoa; ?>
+    </span>
+</div>
+<div class="menu-mobile">
+    <button id="btnMenu">☰</button>
+</div>
+<div class="menu">
+    <button onclick="mostrarTela('agenda')" class="active">Agenda</button>
+    <button onclick="mostrarTela('cliente')">Clientes</button>
+    <button onclick="mostrarTela('servico')">Histórico</button>
+    <button onclick="mostrarTela('servicos')">Cadastro de Serviços</button>
+    <button onclick="mostrarTela('faturamento')">Faturamento</button>
+    <button onclick="mostrarTela('config')">Configurações</button>
+    <button onclick="window.location='sair.php'">Sair</button>
+</div>
+
+<div class="conteudo">
+
+     <div id="agenda" class="tela ativa">
+    <?php
+    // Query corrigida: aceita 'Confirmado' ou 'pendente' e previne falhas no JOIN de clientes
+ $sql = $pdo->query("SELECT 
+    a.id,
+    COALESCE(c.nome, 'Cliente não cadastrado') AS nome,
+    a.servico,
+    a.data_agendamento,
+    a.hora_agendamento,
+    a.status,
+    a.id_cliente,
+    p.valor_pago,
+    p.valor_restante
+FROM agendamentos a
+LEFT JOIN cliente c ON a.id_cliente = c.id
+LEFT JOIN pagamentos p ON a.id = p.id_agendamento
+WHERE a.status IN ('confirmado', 'pendente')
+ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
+
+    $agendamentos = $sql->fetchAll(PDO::FETCH_ASSOC);
+    ?>
+
+    <h2>Agendamentos</h2>
+
+    <table class="tabela-agendamentos">
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Serviço</th>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Status</th>
+                <th>Ver mais</th>
+                <th>Finalizar</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($agendamentos)): ?>
+                <?php foreach($agendamentos as $agendamento){ ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($agendamento['nome']); ?></td>
+                    <td><?php echo htmlspecialchars($agendamento['servico']); ?></td>
+                    <td><?php echo date('d/m/Y', strtotime($agendamento['data_agendamento'])); ?></td>
+                    <td><?php echo htmlspecialchars($agendamento['hora_agendamento']); ?></td>
+                    <td><strong><?php echo htmlspecialchars($agendamento['status']); ?></strong></td>
+                    
+                    <td>
+                        <button type="button" onclick="mostrarTela('cliente', <?php echo $agendamento['id_cliente']; ?>)">
+                            Ver mais
+                        </button>
+                    </td>
+
+                     <td>
+                        <button type="button" 
+                                onclick="confirmarFinalizar(
+                                    <?php echo $agendamento['id']; ?>, 
+                                    <?php echo $agendamento['valor_pago'] ?? 0; ?>, 
+                                    <?php echo $agendamento['valor_restante'] ?? 0; ?>
+                                )">
+                            Finalizar
+                        </button>
+                    </td>
+                </tr>
+                <?php } ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="7" style="text-align: center;">Nenhum agendamento encontrado no banco.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+    <div id="servicos" class="tela">
+        <h1 class="titulo-servicos">Cadastro de Serviços</h1>
+        <h2 class="subtitulo-servicos">Gerenciar Serviços e Preços</h2>
+        <div id="servicos-area"></div>
+        <button id="fab">+</button>
+    </div>
+
+    <div id="servico" class="tela">
+        <h1>Histórico do Cliente</h1>
+        <div class="container-historico">
+
+    <!-- TABELA -->
+    <div class="tabela-historico">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Histórico</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-tabela-historico"></tbody>
+        </table>
+    </div>
+
+    <!-- PAINEL LATERAL -->
+    <div id="painel-historico" class="painel-historico">
+        <h3>Histórico do Cliente</h3>
+        <div id="conteudo-historico">
+            Clique em "Ver histórico"
+        </div>
+    </div>
+
+</div>
+    </div>
+
+    <div id="cliente" class="tela">
+        <h1>Clientes</h1>
+        <table class="tabela-clientes">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Ver mais</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-tabela-clientes">
+
+            </tbody>
+        </table>
+    </div>
+
+    <div id="faturamento" class="tela"><h1>Faturamento</h1></div>
+    
+    <div id="config" class="tela"><h1>Configurações</h1></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="script.js"></script>
+</body>
+</html>

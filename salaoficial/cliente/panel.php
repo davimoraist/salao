@@ -47,7 +47,7 @@ if (!$user) {
     
     <div class="menu-contra" id="userMenu">
         <a href="perfil.php">Minha conta</a>
-        <a href="#">Sair</a>
+        <a href="logout.php">Sair</a>
     </div>
 </div>
     

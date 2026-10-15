@@ -179,7 +179,10 @@ ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
 
     <div id="faturamento" class="tela"><h1>Faturamento</h1></div>
     
-    <div id="config" class="tela"><h1>Configurações</h1></div>
+    <div id="config" class="tela">
+    <h1>Configurações</h1>
+
+     </div>
 
 </div>
 

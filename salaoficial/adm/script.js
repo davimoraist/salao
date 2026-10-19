@@ -78,11 +78,18 @@ function atualizarTabelaClientes() {
         .catch(err => console.error("Erro clientes:", err));
 }
 
+let pedidoHistorico = 0; // evita resposta antiga sobrescrever a mais nova
+
 function atualizarTabelaHistorico() {
-    // Esta função atualiza a LISTA da esquerda
-    fetch("get.historico.php")
+    // Atualiza a LISTA da esquerda (respeitando o texto da busca)
+    const campo = document.getElementById("busca-historico");
+    const termo = campo ? campo.value.trim() : "";
+    const meuPedido = ++pedidoHistorico;
+
+    fetch("buscar_agendamentos.php?q=" + encodeURIComponent(termo))
         .then(res => res.text())
         .then(html => {
+            if (meuPedido !== pedidoHistorico) return; // chegou atrasada
             const corpo = document.getElementById("corpo-tabela-historico");
             if (corpo) {
                 corpo.innerHTML = html;
@@ -196,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
         btnNovoServico.onclick = () => areaServicos.appendChild(criarServico());
     }
 
-    
+
     window.addEventListener("load", function () {
 
         const botaoHamburguer = document.getElementById("btnMenu");
@@ -226,6 +233,16 @@ document.addEventListener("DOMContentLoaded", function () {
             };
         }
     });
+
+    // ===================== BUSCA NO HISTÓRICO =====================
+    const campoBusca = document.getElementById("busca-historico");
+    if (campoBusca) {
+        let timer;
+        campoBusca.addEventListener("input", function () {
+            clearTimeout(timer);
+            timer = setTimeout(atualizarTabelaHistorico, 300); // espera parar de digitar
+        });
+    }
 
     // ===================== INICIAR SISTEMA =====================
     carregarServicos();

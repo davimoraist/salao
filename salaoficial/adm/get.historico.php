@@ -1,66 +1,83 @@
  <?php
-$pdo = new PDO("mysql:host=localhost;dbname=salao;charset=utf8", "root", "");
+date_default_timezone_set('America/Sao_Paulo');
 
-$id_cliente = isset($_GET['id']) ? (int)$_GET['id'] : null;
+try {
+    $pdo = new PDO("mysql:host=localhost;dbname=salao;charset=utf8", "root", "", [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
+} catch (PDOException $e) {
+    error_log($e->getMessage());
+    http_response_code(500);
+    echo "Erro ao conectar ao banco.";
+    exit;
+}
 
-if ($id_cliente) {
-    // =========================================================
-    // MODO DETALHES (Lado Direito)
-    // =========================================================
-    $sql = $pdo->prepare("SELECT h.*, c.nome 
-                          FROM agendamentos h 
-                          INNER JOIN cliente c ON h.id_cliente = c.id 
-                          WHERE h.id_cliente = ? 
-                          ORDER BY h.data_agendamento DESC, h.hora_agendamento DESC");
-    $sql->execute([$id_cliente]);
-    $historicos = $sql->fetchAll(PDO::FETCH_ASSOC);
+$id_cliente = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-    if ($historicos) {
+try {
+
+    if ($id_cliente > 0) {
+        // =========================================================
+        // MODO DETALHES (lado direito): todos os atendimentos da cliente
+        // (a lista da esquerda, com busca, está em buscar_agendamentos.php)
+        // =========================================================
+        $sql = $pdo->prepare(
+            "SELECT a.id, a.servico, a.data_agendamento, a.hora_agendamento, a.status, c.nome,
+                    (SELECT COALESCE(SUM(p.valor_pago), 0)
+                       FROM pagamentos p
+                      WHERE p.id_agendamento = a.id) AS pago
+               FROM agendamentos a
+         INNER JOIN cliente c ON a.id_cliente = c.id
+              WHERE a.id_cliente = ?
+           ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC"
+        );
+        $sql->execute([$id_cliente]);
+        $historicos = $sql->fetchAll();
+
+        if (!$historicos) {
+            echo "Nenhum histórico encontrado.";
+            exit;
+        }
+
+        echo "<h4 style='margin-bottom: 12px;'>" . htmlspecialchars($historicos[0]['nome']) . "</h4>";
+
         foreach ($historicos as $item) {
-            // Lógica simples para diferenciar "Já fez" de "Vai fazer"
-            $data_agendada = $item['data_agendamento'] . ' ' . $item['hora_agendamento'];
-            $estilo_status = (strtotime($data_agendada) < time()) ? "color: #777;" : "color: #2ecc71; font-weight: bold;";
-            $label = (strtotime($data_agendada) < time()) ? "Realizado" : "Agendado";
+            $status = strtolower(trim($item['status'] ?? ''));
+            $quando = strtotime($item['data_agendamento'] . ' ' . $item['hora_agendamento']);
+            $passou = $quando < time();
 
-            echo "<div style='margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; $estilo_status'>";
-            echo "<strong>Data:</strong> " . date('d/m/Y', strtotime($item['data_agendamento'])) . " às " . date('H:i', strtotime($item['hora_agendamento'])) . "<br>";
+            if ($status === 'cancelado') {
+                $label = 'Cancelado';
+                $estilo = 'color: #c53030; font-weight: bold;';
+            } elseif (in_array($status, ['realizado', 'finalizado'], true)) {
+                $label = 'Realizado';
+                $estilo = 'color: #777;';
+            } elseif ($passou) {
+                $label = 'Aguardando finalização';
+                $estilo = 'color: #d69e2e; font-weight: bold;';
+            } else {
+                $label = 'Agendado';
+                $estilo = 'color: #2ecc71; font-weight: bold;';
+            }
+
+            echo "<div style='margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;'>";
+            echo "<strong>Data:</strong> " . date('d/m/Y', $quando) . " às " . date('H:i', $quando) . "<br>";
             echo "<strong>Serviço:</strong> " . htmlspecialchars($item['servico']) . "<br>";
-            echo "<strong>Situação:</strong> " . $label;
+            if ((float)$item['pago'] > 0) {
+                echo "<strong>Valor pago:</strong> R$ " . number_format((float)$item['pago'], 2, ',', '.') . "<br>";
+            }
+            echo "<strong>Situação:</strong> <span style='$estilo'>$label</span>";
             echo "</div>";
         }
+
     } else {
-        echo "Nenhum histórico encontrado.";
+        echo "Selecione uma cliente.";
     }
 
-} else {
-    // =========================================================
-    // MODO LISTA (Lado Esquerdo) - Mostra TUDO (Passado e Futuro)
-    // =========================================================
-    // REMOVI O "GROUP BY" para listar cada agendamento individualmente
-    $sql = $pdo->query("SELECT h.id, h.id_cliente, c.nome, h.servico, h.data_agendamento, h.hora_agendamento 
-                        FROM agendamentos h 
-                        INNER JOIN cliente c ON h.id_cliente = c.id 
-                        ORDER BY h.data_agendamento DESC, h.hora_agendamento DESC");
-    
-    $lista = $sql->fetchAll(PDO::FETCH_ASSOC);
-
-    foreach ($lista as $item): 
-        $data_agendada = $item['data_agendamento'] . ' ' . $item['hora_agendamento'];
-        $passou = strtotime($data_agendada) < time();
-    ?>
-        <tr style="<?= $passou ? 'opacity: 0.7;' : 'border-left: 4px solid #2ecc71;' ?>">
-            <td><?= htmlspecialchars($item['nome']) ?></td>
-            <td><?= htmlspecialchars($item['servico']) ?></td>
-            <td>
-                <?= date('d/m/Y', strtotime($item['data_agendamento'])) ?><br>
-                <small><?= date('H:i', strtotime($item['hora_agendamento'])) ?></small>
-            </td>
-            <td>
-                <button class="ver-detalhes-btn" onclick="verhistorico(<?= $item['id_cliente'] ?>)">
-                    Ver detalhes
-                </button>
-            </td>
-        </tr>
-    <?php endforeach;
+} catch (PDOException $e) {
+    error_log("get.historico.php: " . $e->getMessage());
+    http_response_code(500);
+    echo "Erro ao carregar o histórico.";
 }
 ?>

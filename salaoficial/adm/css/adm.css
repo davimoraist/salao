@@ -1,217 +1,265 @@
  @charset "UTF-8";
 
-/* Import das fontes */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+ /* Fontes */
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Great+Vibes&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
-/* VARIÁVEIS */
-:root {
-    --cor1: #c88c8e; 
-    --cor2: #734440;
-    --cor3: #bf93be;
-    --cor4: #a67272;
-    --cor5: #c89991;
-
-    --fonte-logo: "Great Vibes", cursive;
-    --fonte-titulo: "Cinzel", serif;
-    --fonte-texto: "Nunito", sans-serif;
-}
-
-/* RESET */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-    font-family: var(--fonte-texto);
-    background-color: #fafafa;
-}
-
-/* Cabeçalho */
-  .cabeca {
-  background-color: var(--cor4);
-  width: 100%;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* ISSO AQUI */
-  padding: 0 20px;
-}
-
-.nome-usuario {
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-
-/* MENU LATERAL */
-.menu {
-  border-right: 2px solid #ddd;
-  width: 220px;
-  height: calc(100vh - 100px);
-  position: fixed;
-  top: 100px;
-  left: 0;
-  padding: 20px;
-  background-color: #fff;
-}
-
-.menu button {
-   width: 100%;
-   padding: 15px;
-   border: none;
-   background: none;
-   text-align: left;
-   font-size: 18px;
-   cursor: pointer;
-   border-bottom: 1px solid #eee;
-}
-
-.menu button.active {
-   background: #d19a9a;
-   color: white;
-}
-
-/* ÁREA DE CONTEÚDO */
-.conteudo {
-   margin-left: 240px; /* dá espaço para o menu */
-   padding: 20px;
-}
-
-.tela {
-   display: none;
-}
-
-.tela.ativa {
-   display: block;
-}
- /* CONTAINER DE SERVIÇOS */
-#servicos {
-    background: #ffffff;
-    border: 2px solid #000000;
-    border-radius: 10px;
-
-    padding: 25px;
-    margin-top: 20px;
-
-    box-shadow: 0 0 15px rgba(0,0,0,0.15);
-    position: relative;
-}
-
-/* TÍTULOS */
-.titulo-servicos {
-    font-family: var(--fonte-titulo);
-    font-size: 28px;
-    margin-bottom: 10px;
-    color: var(--cor2);
-}
-
-.subtitulo-servicos {
-    font-family: var(--fonte-texto);
-    font-size: 18px;
-    color: #444;
-    margin-bottom: 20px;
-}
-
-/* ÁREA DOS CARDS */
-#servicos-area {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
- 
-/* BOTÃO FLUTUANTE (FAB) */
-#fab {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-
-    width: 55px;
-    height: 55px;
-
-    border: none;
-    cursor: pointer;
-
-    font-size: 28px;
-    color: white;
-
-    border-radius: 50%;
-    background-color: var(--cor2);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-
-    transition: 0.2s;
-}
-
-/* efeito ao passar o mouse */
-#fab:hover {
-    background-color: var(--cor1);
-    transform: scale(1.1);
-}
-
-       /* ==========================
-   Estilo da tabela de clientes
+ /* ==========================
+   VARIÁVEIS
 ========================== */
-.tabela-clientes {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-family: 'Nunito', sans-serif;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    overflow: hidden;
-}
+ :root {
+     --cor1: #c88c8e;
+     --cor2: #734440;
+     --cor3: #bf93be;
+     --cor4: #a67272;
+     --cor5: #c89991;
 
-.tabela-clientes th, 
-.tabela-clientes td {
-    padding: 12px 15px;
-    text-align: left;
-}
+     --fonte-logo: "Great Vibes", cursive;
+     --fonte-titulo: "Cinzel", serif;
+     --fonte-texto: "Nunito", sans-serif;
+ }
 
-.tabela-clientes th {
-    background-color: #4CAF50; /* verde do painel */
-    color: white;
-    font-size: 16px;
-    text-transform: uppercase;
-}
+ /* ==========================
+   RESET
+========================== */
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
 
-.tabela-clientes tr {
-    border-bottom: 1px solid #ddd;
-}
+ body {
+     font-family: var(--fonte-texto);
+     background-color: #fafafa;
+ }
 
- 
-.tabela-clientes td {
-    font-size: 14px;
-    color: #333;
-}
+ /* ==========================
+   CABEÇALHO
+========================== */
+ .cabeca {
+     background-color: var(--cor4);
+     width: 100%;
+     height: 100px;
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 0 20px;
+     position: sticky;
+     top: 0;
+     z-index: 100;
+ }
 
-.tabela-clientes .ver-mais button{
-    background-color: var(--cor5);
-    color: white;
-    border-radius: 100px;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-}
+ .cabeca h1 {
+     color: white;
+ }
+
+ .nome-usuario {
+     color: white;
+     font-size: 20px;
+     font-weight: bold;
+ }
+
+ /* Botão hambúrguer: escondido no desktop */
+ .menu-mobile {
+     display: none;
+ }
+
+ /* ==========================
+   MENU LATERAL
+========================== */
+ .menu {
+     border-right: 2px solid #ddd;
+     width: 220px;
+     height: calc(100vh - 100px);
+     position: fixed;
+     top: 100px;
+     left: 0;
+     padding: 20px;
+     background-color: #fff;
+     overflow-y: auto;
+ }
+
+ .menu button {
+     width: 100%;
+     padding: 15px;
+     border: none;
+     background: none;
+     text-align: left;
+     font-family: var(--fonte-texto);
+     font-size: 18px;
+     cursor: pointer;
+     border-bottom: 1px solid #eee;
+     transition: background 0.2s;
+ }
+
+ .menu button:hover {
+     background: #f6e9e9;
+ }
+
+ .menu button.active {
+     background: #d19a9a;
+     color: white;
+ }
+
+ .menu button:focus:not(:focus-visible) {
+     outline: none;
+ }
+
+ .menu button:focus-visible {
+     outline: 2px solid var(--cor2);
+     outline-offset: -2px;
+ }
+
+ /* ==========================
+   ÁREA DE CONTEÚDO
+========================== */
+ .conteudo {
+     margin-left: 240px;
+     padding: 20px;
+ }
+
+ .tela {
+     display: none;
+ }
+
+ .tela.ativa {
+     display: block;
+ }
+
+ /* ==========================
+   TABELAS (agendamentos, clientes, histórico)
+========================== */
+ .tabela-clientes,
+ .tabela-agendamentos,
+ .tabela-historico table {
+     width: 100%;
+     border-collapse: collapse;
+     margin-top: 20px;
+     background-color: #fff;
+ }
+
+ .tabela-clientes {
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     border-radius: 8px;
+     overflow: hidden;
+ }
+
+ .tabela-clientes th,
+ .tabela-clientes td,
+ .tabela-agendamentos th,
+ .tabela-agendamentos td,
+ .tabela-historico th,
+ .tabela-historico td {
+     padding: 12px 15px;
+     text-align: left;
+ }
+
+ .tabela-clientes th,
+ .tabela-agendamentos th,
+ .tabela-historico th {
+     background-color: #4CAF50;
+     /* verde do painel */
+     color: white;
+     font-size: 16px;
+     text-transform: uppercase;
+ }
+
+ .tabela-clientes td {
+     font-size: 14px;
+     color: #333;
+ }
+
+ .tabela-clientes tr {
+     border-bottom: 1px solid #ddd;
+ }
+
+ .tabela-agendamentos tbody td,
+ .tabela-historico tbody td {
+     border: 1px solid #ddd;
+ }
+
+ /* Botões dentro das tabelas */
+ .tabela-clientes .ver-mais button,
+ .tabela-agendamentos tbody td button,
+ .tabela-historico tbody td button {
+     border: none;
+     background-color: var(--cor5);
+     color: white;
+     padding: 10px 14px;
+     border-radius: 100px;
+     cursor: pointer;
+     font-family: var(--fonte-texto);
+     white-space: nowrap;
+     transition: background-color 0.2s;
+ }
+
+ .tabela-agendamentos tbody td button:hover,
+ .tabela-historico tbody td button:hover {
+     background-color: #f1bcb2;
+ }
+
+ /* ==========================
+   HISTÓRICO
+========================== */
+ .campo-busca {
+     width: 100%;
+     max-width: 360px;
+     padding: 12px 18px;
+     margin-top: 15px;
+     border: 1px solid #ccc;
+     border-radius: 30px;
+     font-family: var(--fonte-texto);
+     font-size: 15px;
+     background: #fff;
+     transition: border-color 0.2s, box-shadow 0.2s;
+ }
+
+ .campo-busca:focus {
+     border-color: var(--cor1);
+     outline: none;
+     box-shadow: 0 0 0 3px rgba(200, 140, 142, 0.25);
+ }
+
+ .busca-vazia {
+     display: none;
+     margin-top: 15px;
+     color: #777;
+ }
+
+ .container-historico {
+     display: flex;
+     gap: 20px;
+     align-items: flex-start;
+ }
+
+ .tabela-historico {
+     flex: 1 1 auto;
+     min-width: 0;
+ }
+
+ .painel-historico {
+     flex: 0 0 320px;
+     position: sticky;
+     top: 120px;
+     margin-top: 20px;
+     background: #fff;
+     padding: 20px;
+     border-radius: 10px;
+     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+ }
 
  /* ==========================
    CADASTRO DE SERVIÇOS
 ========================== */
-
  #servicos {
-     background: #ffffff;
-     border: 2px solid #000000;
+     background: #fff;
+     border: 2px solid #000;
      border-radius: 10px;
      padding: 25px;
      margin-top: 20px;
      box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+     position: relative;
  }
 
- /* TITULO */
  .titulo-servicos {
      font-family: var(--fonte-titulo);
      font-size: 28px;
@@ -225,39 +273,44 @@ body {
      margin-bottom: 25px;
  }
 
- /* AREA DOS SERVIÇOS */
  #servicos-area {
      display: flex;
      flex-direction: column;
      gap: 15px;
  }
 
- /* LINHA DE SERVIÇO */
+ /* Linha de serviço (o JS cria .servico-box) */
+ .servico-box,
  .servico-item {
      display: flex;
      align-items: center;
      gap: 10px;
  }
 
- /* INPUT NOME */
  .nome-input {
      flex: 2;
      padding: 12px;
+     font-family: var(--fonte-texto);
      font-size: 16px;
      border: 1px solid #ccc;
      border-radius: 6px;
  }
 
- /* INPUT PREÇO */
  .preco-input {
      width: 120px;
      padding: 12px;
+     font-family: var(--fonte-texto);
      font-size: 16px;
      border: 1px solid #ccc;
      border-radius: 6px;
  }
 
- /* BOTÕES */
+ .nome-input:read-only,
+ .preco-input:read-only {
+     background-color: #f5f5f5;
+     color: #555;
+ }
+
  .editar-btn,
  .delete-btn {
      padding: 10px 18px;
@@ -270,7 +323,6 @@ body {
      transition: 0.2s;
  }
 
- /* HOVER BOTÕES */
  .editar-btn:hover {
      background-color: var(--cor3);
  }
@@ -279,7 +331,7 @@ body {
      background-color: #a94444;
  }
 
- /* BOTÃO FLUTUANTE + */
+ /* Botão flutuante + */
  #fab {
      position: fixed;
      bottom: 25px;
@@ -300,316 +352,246 @@ body {
      background-color: var(--cor1);
      transform: scale(1.1);
  }
- 
-.tabela-agendamentos{
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
 
-}
+ /* ==========================
+   CARD DE EMERGÊNCIA
+========================== */
+ .card-emergencia {
+     background-color: #fff5f5;
+     border: 2px solid #feb2b2;
+     border-radius: 10px;
+     padding: 24px;
+     max-width: 500px;
+     margin: 20px auto;
+     box-shadow: 0 4px 12px rgba(229, 62, 62, 0.1);
+     font-family: var(--fonte-texto);
+ }
 
-.tabela-agendamentos th, 
-.tabela-agendamentos td {
-    padding: 12px 15px;
-    text-align: left;
-}
+ .emergencia-header {
+     display: flex;
+     align-items: center;
+     gap: 10px;
+     margin-bottom: 12px;
+ }
 
-.tabela-agendamentos th {
-    background-color: #4CAF50; /* verde do painel */
-    color: white;
+ .emergencia-header h3 {
+     color: #c53030;
+     margin: 0;
+     font-size: 1.25rem;
+     font-weight: 700;
+ }
 
-    font-size: 16px;
-    text-transform: uppercase;
-}
+ .emergencia-icone {
+     font-size: 1.5rem;
+ }
 
-.tabela-agendamentos tbody td {
-    border: 1px solid #ddd;
-}
+ .emergencia-descricao {
+     font-size: 0.9rem;
+     color: #742a2a;
+     line-height: 1.4;
+     margin-bottom: 20px;
+ }
 
-.tabela-agendamentos tbody td button{
-    border: none;
-    background-color: var(--cor5);
-    color: white;
-    padding: 10px;
-    border-radius: 100px;
-    cursor: pointer;
-}
+ .form-grupo-datas {
+     display: flex;
+     gap: 15px;
+     margin-bottom: 15px;
+ }
 
-.tabela-agendamentos tbody td button:hover{
-    background-color: #f1bcb2;
-}
+ .campo-data {
+     flex: 1;
+ }
 
-.tabela-historico {
-    width: 40%;
-    border-collapse: collapse;
-    margin-top: 20px;
+ .campo-data label,
+ .campo-motivo label {
+     display: block;
+     font-size: 0.85rem;
+     font-weight: 600;
+     color: #4a5568;
+     margin-bottom: 6px;
+ }
 
-}
+ .campo-data input[type="date"],
+ .campo-motivo input[type="text"],
+ .campo-motivo input[type="password"] {
+     width: 100%;
+     padding: 10px;
+     border: 1px solid #cbd5e0;
+     border-radius: 6px;
+     font-family: var(--fonte-texto);
+     font-size: 0.95rem;
+     background-color: #fff;
+     transition: border-color 0.2s;
+ }
 
-.tabela-historico th,
-.tabela-historico td {
-    padding: 12px 15px;
-    text-align: left;
-}
+ .campo-data input[type="date"]:focus,
+ .campo-motivo input[type="text"]:focus,
+ .campo-motivo input[type="password"]:focus {
+     border-color: #e53e3e;
+     outline: none;
+ }
 
-.tabela-historico th {
-    background-color: #4CAF50;
-    /* verde do painel */
-    color: white;
+ .campo-motivo {
+     margin-bottom: 20px;
+ }
 
-    font-size: 16px;
-    text-transform: uppercase;
-}
+ .btn-emergencia {
+     width: 100%;
+     padding: 14px;
+     background-color: #e53e3e;
+     color: #fff;
+     border: none;
+     border-radius: 6px;
+     font-family: var(--fonte-texto);
+     font-size: 1rem;
+     font-weight: 700;
+     cursor: pointer;
+     transition: background-color 0.2s, transform 0.1s;
+ }
 
-.tabela-historico tbody td {
-    border: 1px solid #ddd;
-}
+ .btn-emergencia:hover {
+     background-color: #c53030;
+ }
 
-.tabela-historico tbody td button {
-    border: none;
-    background-color: var(--cor5);
-    color: white;
-    padding: 10px;
-    border-radius: 100px;
-    cursor: pointer;
-}
+ .btn-emergencia:active {
+     transform: scale(0.98);
+ }
 
-.tabela-historico tbody td button:hover {
-    background-color: #f1bcb2;
-}
+ .busca-historico {
+     margin-top: 15px;
+ }
 
-.container-historico {
-    display: flex;
-    gap: 20px;
-}
+ .busca-historico input {
+     width: 100%;
+     max-width: 400px;
+     padding: 12px 14px;
+     font-family: var(--fonte-texto);
+     font-size: 16px;
+     border: 1px solid #ccc;
+     border-radius: 30px;
+     background: #fff;
+     transition: border-color 0.2s;
+ }
 
-.painel-historico {
-    width: 50%;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+ .busca-historico input:focus {
+     border-color: var(--cor1);
+     outline: none;
+ }
 
-/* ==========================
+ /* ==========================
+   HISTÓRICO EMPILHADO (até 1100px)
+========================== */
+ @media (max-width: 1100px) {
+     .container-historico {
+         flex-direction: column;
+     }
+
+     .tabela-historico,
+     .painel-historico {
+         width: 100%;
+     }
+
+     .painel-historico {
+         flex: 0 0 auto;
+         position: static;
+         margin-top: 0;
+     }
+ }
+
+ /* ==========================
    TABLET
 ========================== */
-@media (max-width: 1024px) {
+ @media (max-width: 1024px) {
+     .menu {
+         width: 180px;
+     }
 
-    .menu {
-        width: 180px;
-    }
+     .conteudo {
+         margin-left: 200px;
+     }
 
-    .conteudo {
-        margin-left: 200px;
-    }
+     .cabeca h1 {
+         font-size: 24px;
+     }
 
-    .cabeca h1 {
-        font-size: 24px;
-    }
+     .nome-usuario {
+         font-size: 18px;
+     }
+ }
 
-    .nome-usuario {
-        font-size: 18px;
-    }
-}
-
-/* ==========================
-   CELULAR
+ /* ==========================
+   CELULAR (menu vira gaveta)
 ========================== */
-@media (max-width: 768px) {
-
-    /* CABEÇALHO */
-    .cabeca {
-        height: auto;
-        flex-direction: column;
-        gap: 10px;
-        padding: 15px;
-        text-align: center;
-    }
-
-    .cabeca h1 {
-        font-size: 22px;
-    }
-
-    .nome-usuario {
-        font-size: 16px;
-    }
-
-    /* MENU */
-    .menu {
-        position: relative;
-        top: 0;
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 2px solid #ddd;
-
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-
-        padding: 15px;
-    }
-
-    .menu button {
-        width: auto;
-        min-width: 140px;
-        text-align: center;
-        border: none;
-        border-radius: 10px;
-        background: #f5f5f5;
-    }
-
-    /* CONTEÚDO */
-    .conteudo {
-        margin-left: 0;
-        padding: 15px;
-    }
-
-    /* TABELAS */
-    .tabela-agendamentos,
-    .tabela-clientes,
-    .tabela-historico {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-
-    /* HISTÓRICO */
-    .container-historico {
-        flex-direction: column;
-    }
-
-    .tabela-historico {
-        width: 100%;
-    }
-
-    .painel-historico {
-        width: 100%;
-    }
-
-    /* SERVIÇOS */
-    .servico-item {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .nome-input {
-        width: 100%;
-        margin: 4px 0px;
-    }
-
-    .preco-input {
-        width: 100%;
-    }
-
-    .editar-btn,
-    .delete-btn {
-        margin: 7px 0px;
-        width: 100%;
-    }
-
-    /* FAB */
-    #fab {
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-        right: 15px;
-        bottom: 15px;
-    }
-}
-
-/* ==========================
-   CELULAR PEQUENO
-========================== */
-@media (max-width: 480px) {
-
-    .cabeca h1 {
-        font-size: 18px;
-    }
-
-    .nome-usuario {
-        font-size: 14px;
-    }
-
-    .menu button {
-        min-width: 120px;
-        font-size: 14px;
-        padding: 10px;
-    }
-
-    .titulo-servicos {
-        font-size: 22px;
-    }
-
-    .subtitulo-servicos {
-        font-size: 15px;
-    }
-
-    .tabela-agendamentos th,
-    .tabela-agendamentos td,
-    .tabela-clientes th,
-    .tabela-clientes td,
-    .tabela-historico th,
-    .tabela-historico td {
-        padding: 10px;
-        font-size: 13px;
-    }
-}
-
  @media (max-width: 768px) {
 
-     /* BOTÃO HAMBÚRGUER (Sempre visível no celular) */
+     /* Cabeçalho */
+     body {
+         padding-top: 56px;
+         /* espaço da barra fixa do ☰ */
+     }
+
+     .cabeca {
+         position: static;
+         height: auto;
+         flex-direction: column;
+         gap: 10px;
+         padding: 15px;
+         text-align: center;
+     }
+
+     .cabeca h1 {
+         font-size: 22px;
+     }
+
+     .nome-usuario {
+         font-size: 16px;
+     }
+
+     /* Barra do hambúrguer: fixa no topo */
      .menu-mobile {
-         display: block;
+         display: flex;
+         align-items: center;
+         height: 56px;
+         padding: 0 10px;
          background: #7a5252;
-         /* Cor de fundo do topo */
-         padding: 10px;
-         text-align: left;
+         position: fixed;
+         top: 0;
+         left: 0;
+         right: 0;
+         z-index: 10000;
      }
 
      #btnMenu {
-         background: rgb(6, 6, 6);
+         background: #060606;
          color: white;
          border: none;
-         padding: 10px 15px;
+         padding: 6px 14px;
          border-radius: 10px;
          font-size: 24px;
          cursor: pointer;
      }
 
-     /* MENU LATERAL (Abre por cima do conteúdo) */
+     /* Gaveta lateral, logo abaixo da barra */
      .menu {
          display: none;
-         /* Começa escondido, o JS quem ativa */
          position: fixed;
-         /* Fixado na tela, sobrepondo tudo */
-         top: 60px;
-         /* Fica logo abaixo do seu cabeçalho */
+         top: 56px;
          left: 0;
          width: 260px;
-         /* Largura da gaveta lateral */
-         height: calc(100vh - 60px);
-         /* Ocupa o resto da altura da tela */
-         background: #ffffff;
+         height: calc(100vh - 56px);
          padding: 20px 15px;
+         background: #fff;
+         border-right: none;
          box-shadow: 4px 0 10px rgba(0, 0, 0, 0.15);
-         /* Sombra para dar o efeito flutuante */
          z-index: 9999;
-         /* Fica na frente de tabelas e inputs */
-         box-sizing: border-box;
-
          flex-direction: column;
          gap: 12px;
      }
 
-     /* Quando o botão injetar a classe .ativo via JS, o menu aparece */
      .menu.ativo {
          display: flex;
      }
 
-     /* Estilização dos botões de navegação dentro do menu */
      .menu button {
          width: 100%;
          text-align: left;
@@ -619,7 +601,6 @@ body {
          background: #fdfdfd;
          font-size: 15px;
          color: #333;
-         transition: 0.2s;
      }
 
      .menu button:active,
@@ -628,14 +609,103 @@ body {
          color: white;
      }
 
-     /* CONTEÚDO (Fica por baixo do menu quando ele abre) */
+     /* Conteúdo */
      .conteudo {
          margin-left: 0;
          padding: 15px;
          width: 100%;
-         box-sizing: border-box;
          position: relative;
          z-index: 1;
-         /* Camada inferior ao menu */
+     }
+
+     /* Tabelas com rolagem lateral */
+     .tabela-agendamentos,
+     .tabela-clientes,
+     .tabela-historico {
+         display: block;
+         overflow-x: auto;
+         white-space: nowrap;
+     }
+
+     /* Histórico em coluna */
+     .container-historico {
+         flex-direction: column;
+     }
+
+     .tabela-historico,
+     .painel-historico {
+         width: 100%;
+     }
+
+     /* Serviços */
+     .servico-box,
+     .servico-item {
+         flex-direction: column;
+         align-items: stretch;
+     }
+
+     .nome-input,
+     .preco-input {
+         width: 100%;
+     }
+
+     .editar-btn,
+     .delete-btn {
+         width: 100%;
+         margin: 4px 0;
+     }
+
+     /* FAB */
+     #fab {
+         width: 50px;
+         height: 50px;
+         font-size: 24px;
+         right: 15px;
+         bottom: 15px;
+     }
+ }
+
+ /* ==========================
+   CELULAR PEQUENO
+========================== */
+ @media (max-width: 480px) {
+     .cabeca h1 {
+         font-size: 18px;
+     }
+
+     .nome-usuario {
+         font-size: 14px;
+     }
+
+     .menu button {
+         font-size: 14px;
+         padding: 12px;
+     }
+
+     .titulo-servicos {
+         font-size: 22px;
+     }
+
+     .subtitulo-servicos {
+         font-size: 15px;
+     }
+
+     .tabela-agendamentos th,
+     .tabela-agendamentos td,
+     .tabela-clientes th,
+     .tabela-clientes td,
+     .tabela-historico th,
+     .tabela-historico td {
+         padding: 10px;
+         font-size: 13px;
+     }
+
+     .card-emergencia {
+         padding: 16px;
+     }
+
+     .form-grupo-datas {
+         flex-direction: column;
+         gap: 10px;
      }
  }

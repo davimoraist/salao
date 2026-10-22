@@ -457,6 +457,103 @@
      transform: scale(0.98);
  }
 
+ /* ==========================
+   AVISAR CLIENTES (cancelamento)
+========================== */
+ .card-avisos {
+     background: #fff;
+     border: 2px solid #c88c8e;
+     border-radius: 10px;
+     padding: 20px;
+     max-width: 500px;
+     margin: 20px auto;
+     font-family: var(--fonte-texto);
+ }
+
+ .card-avisos h3 {
+     color: var(--cor2);
+     margin-bottom: 6px;
+ }
+
+ .avisos-descricao {
+     font-size: 0.85rem;
+     color: #555;
+     margin-bottom: 14px;
+ }
+
+ .aviso-item {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     gap: 12px;
+     padding: 12px 0;
+     border-top: 1px solid #eee;
+ }
+
+ .aviso-info {
+     display: flex;
+     flex-direction: column;
+     gap: 2px;
+     font-size: 0.9rem;
+ }
+
+ .aviso-info small {
+     color: #a94444;
+ }
+
+ .aviso-acoes {
+     display: flex;
+     flex-direction: column;
+     gap: 6px;
+     align-items: stretch;
+     min-width: 120px;
+ }
+
+ .btn-zap,
+ .btn-avisada {
+     display: block;
+     text-align: center;
+     padding: 8px 12px;
+     border-radius: 30px;
+     border: none;
+     font-family: var(--fonte-texto);
+     font-size: 0.85rem;
+     cursor: pointer;
+     text-decoration: none;
+     white-space: nowrap;
+ }
+
+ .btn-zap {
+     background: #25d366;
+     color: #fff;
+ }
+
+ .btn-zap:hover {
+     background: #1ebe5b;
+ }
+
+ .btn-avisada {
+     background: #eee;
+     color: #444;
+ }
+
+ .btn-avisada:hover {
+     background: #ddd;
+ }
+
+ .sem-zap {
+     font-size: 0.8rem;
+     color: #a94444;
+     text-align: center;
+ }
+
+ @media (max-width: 480px) {
+     .aviso-item {
+         flex-direction: column;
+         align-items: stretch;
+     }
+ }
+
  .busca-historico {
      margin-top: 15px;
  }
@@ -708,4 +805,123 @@
          flex-direction: column;
          gap: 10px;
      }
+ }
+
+
+ /* ==========================
+   PRÉVIA DA EMERGÊNCIA
+========================== */
+ .previa-emergencia {
+     margin-bottom: 15px;
+ }
+
+ .previa-titulo {
+     font-size: 0.9rem;
+     color: #742a2a;
+     margin-bottom: 8px;
+ }
+
+ .previa-vazia {
+     font-size: 0.9rem;
+     color: #4a5568;
+     text-align: center;
+     padding: 8px 0;
+ }
+
+ .previa-tabela-wrap,
+ .tabela-avisos-wrap {
+     overflow-x: auto;
+ }
+
+ .previa-tabela {
+     width: 100%;
+     border-collapse: collapse;
+     background: #fff;
+     font-size: 0.85rem;
+ }
+
+ .previa-tabela th,
+ .previa-tabela td {
+     padding: 7px 9px;
+     text-align: left;
+     border: 1px solid #f0c8c8;
+     white-space: nowrap;
+ }
+
+ .previa-tabela th {
+     background: #feb2b2;
+     color: #742a2a;
+ }
+
+ /* ==========================
+   CLIENTES PARA AVISAR (WHATSAPP)
+========================== */
+ .card-avisos {
+     background: #fff;
+     border: 2px solid #c6f6d5;
+     border-radius: 10px;
+     padding: 24px;
+     max-width: 900px;
+     margin: 20px auto;
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+     font-family: var(--fonte-texto);
+ }
+
+ .card-avisos h3 {
+     color: #22543d;
+     margin-bottom: 10px;
+ }
+
+ .avisos-descricao,
+ .avisos-vazio {
+     font-size: 0.9rem;
+     color: #4a5568;
+     line-height: 1.4;
+     margin-bottom: 14px;
+ }
+
+ .tabela-avisos {
+     width: 100%;
+     border-collapse: collapse;
+ }
+
+ .tabela-avisos th,
+ .tabela-avisos td {
+     padding: 10px 12px;
+     text-align: left;
+     border: 1px solid #e2e8f0;
+     font-size: 14px;
+     white-space: nowrap;
+ }
+
+ .tabela-avisos th {
+     background: #25D366;
+     color: #fff;
+     text-transform: uppercase;
+     font-size: 13px;
+ }
+
+ .btn-whatsapp {
+     display: inline-block;
+     background: #25D366;
+     color: #fff;
+     text-decoration: none;
+     padding: 8px 16px;
+     border-radius: 100px;
+     font-weight: 700;
+     font-size: 14px;
+     transition: background-color 0.2s;
+ }
+
+ .btn-whatsapp:hover {
+     background: #1ebe5b;
+ }
+
+ .btn-whatsapp.enviado {
+     background: #a0aec0;
+ }
+
+ .sem-telefone {
+     color: #c53030;
+     font-size: 13px;
  }

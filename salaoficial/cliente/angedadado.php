@@ -1,6 +1,7 @@
  <?php
 session_start();
 require_once "conecte.php";
+require_once "bloqueios.php";
 
 // Verifica se o cliente está logado
 if (!isset($_SESSION['id'])) {
@@ -48,6 +49,17 @@ if (isset($_GET['acao']) && $_GET['acao'] === 'finalizar') {
         exit;
     }
 
+    // A agenda pode ter sido bloqueada (emergência) depois que a cliente escolheu a data
+    $bloqueada = dataBloqueada($conn, $dados['data_agendamento']);
+    if ($bloqueada === null) {
+        echo json_encode(['sucesso' => false, 'erro' => 'Não foi possível verificar a agenda. Entre em contato com o salão.']);
+        exit;
+    }
+    if ($bloqueada) {
+        echo json_encode(['sucesso' => false, 'erro' => 'O salão fechou a agenda para esta data. Entre em contato com o salão para resolver o seu pagamento.']);
+        exit;
+    }
+
     // Revalida se o horário ainda está livre (pode ter sido ocupado
     // entre a escolha do serviço e a confirmação do pagamento)
     $stmt = $conn->prepare("
@@ -55,6 +67,7 @@ if (isset($_GET['acao']) && $_GET['acao'] === 'finalizar') {
         FROM agendamentos
         WHERE data_agendamento = ?
         AND hora_agendamento = ?
+        AND (status IS NULL OR status <> 'cancelado')
         LIMIT 1
     ");
     $stmt->bind_param("ss", $dados['data_agendamento'], $dados['hora_agendamento']);
@@ -142,6 +155,21 @@ if (empty($data) || empty($hora)) {
     die("Selecione uma data e um horário.");
 }
 
+// Valida o formato da data (AAAA-MM-DD)
+$dataObj = DateTime::createFromFormat('Y-m-d', $data);
+if (!$dataObj || $dataObj->format('Y-m-d') !== $data) {
+    die("Data inválida.");
+}
+
+// Agenda bloqueada (emergência / ausência)? Confere ANTES de gerar qualquer cobrança.
+$bloqueada = dataBloqueada($conn, $data);
+if ($bloqueada === null) {
+    die("Não foi possível verificar a agenda. Tente novamente.");
+}
+if ($bloqueada) {
+    die("O salão não estará atendendo na data escolhida. Escolha outro dia.");
+}
+
 // Busca os IDs, nomes e preços reais no banco filtrando por ID
 $placeholders = implode(",", array_fill(0, count($servicosIds), "?"));
 
@@ -184,6 +212,7 @@ SELECT id
 FROM agendamentos
 WHERE data_agendamento = ?
 AND hora_agendamento = ?
+AND (status IS NULL OR status <> 'cancelado')
 LIMIT 1
 ");
 

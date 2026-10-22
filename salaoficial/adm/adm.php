@@ -47,6 +47,40 @@ function conferirSenhaUsuario(PDO $pdo, int $idUsuario, string $senhaDigitada): 
     return hash_equals($guardada, $senhaDigitada);
 }
 
+// ===================== AVISO DE CANCELAMENTO (WHATSAPP) =====================
+// Só aceita celular completo: DDD (2 dígitos) + 9 + 8 dígitos. Nunca "adivinha" dígito faltando,
+// para não mandar a mensagem para o número errado.
+function telefoneWhatsApp(?string $tel): ?string {
+    $d = preg_replace('/\D+/', '', (string) $tel);
+    if (strlen($d) >= 12 && substr($d, 0, 2) === '55') {
+        $d = substr($d, 2);
+    }
+    if (preg_match('/^[1-9][1-9]9\d{8}$/', $d)) {
+        return '55' . $d;
+    }
+    return null;
+}
+
+function linkAvisoWhatsApp(array $av): ?string {
+    $fone = telefoneWhatsApp($av['telefone'] ?? '');
+    if (!$fone) {
+        return null;
+    }
+    $primeiro = explode(' ', trim($av['nome']))[0];
+    $data = date('d/m/Y', strtotime($av['data_agendamento']));
+    $hora = substr((string) $av['hora_agendamento'], 0, 5);
+
+    $msg = "Olá, $primeiro! Aqui é do MT Nail Designer. Infelizmente precisamos cancelar o seu horário de "
+         . $av['servico'] . " do dia $data às $hora, por um imprevisto. Pedimos desculpas pelo transtorno!";
+    if ((float) $av['valor_pago'] > 0) {
+        $msg .= " O sinal que você pagou (R$ " . number_format((float) $av['valor_pago'], 2, ',', '.')
+              . ") ficou como crédito para você; vamos combinar a devolução ou o uso numa nova data.";
+    }
+    $msg .= " Quando quiser remarcar, é só acessar o site ou responder esta mensagem. 💅";
+
+    return 'https://wa.me/' . $fone . '?text=' . rawurlencode($msg);
+}
+
 // ===================== EMERGÊNCIA / AUSÊNCIA =====================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ativar_emergencia'])) {
 
@@ -96,33 +130,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ativar_emergencia']))
         try {
             $pdo->beginTransaction();
 
-            // 1) PAGAMENTOS: registra crédito para cada agendamento que já tinha valor pago
-            //    (SUM + GROUP BY evita duplicar caso haja mais de um pagamento por agendamento)
+            // 1) AFETADAS: levanta quem será cancelada e quem já tinha pago
+            //    (o valor pago continua registrado em "pagamentos"; nenhuma tabela nova é usada)
             $stmt = $pdo->prepare(
-                "SELECT a.id, a.id_cliente, SUM(p.valor_pago) AS pago
+                "SELECT a.id,
+                        (SELECT COALESCE(SUM(p.valor_pago), 0)
+                           FROM pagamentos p
+                          WHERE p.id_agendamento = a.id) AS pago
                    FROM agendamentos a
-                   JOIN pagamentos p ON p.id_agendamento = a.id
                   WHERE a.data_agendamento BETWEEN :inicio AND :fim
-                    AND a.status IN ('confirmado', 'pendente')
-                  GROUP BY a.id, a.id_cliente
-                 HAVING pago > 0"
+                    AND a.status IN ('confirmado', 'pendente')"
             );
             $stmt->execute([':inicio' => $inicio, ':fim' => $fim]);
-            $comPagamento = $stmt->fetchAll();
+            $afetadas = $stmt->fetchAll();
 
-            $stmtCredito = $pdo->prepare(
-                "INSERT IGNORE INTO creditos_clientes (id_cliente, id_agendamento, valor, motivo)
-                 VALUES (:cliente, :agendamento, :valor, :motivo)"
-            );
+            $comPagamento = [];
             $totalCreditos = 0.0;
-            foreach ($comPagamento as $linha) {
-                $stmtCredito->execute([
-                    ':cliente'     => $linha['id_cliente'],
-                    ':agendamento' => $linha['id'],
-                    ':valor'       => $linha['pago'],
-                    ':motivo'      => $motivo,
-                ]);
-                $totalCreditos += (float) $linha['pago'];
+            foreach ($afetadas as $linha) {
+                if ((float) $linha['pago'] > 0) {
+                    $comPagamento[] = $linha;
+                    $totalCreditos += (float) $linha['pago'];
+                }
             }
 
             // 2) cancela agendamentos do período
@@ -146,12 +174,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ativar_emergencia']))
 
             $msg = "Emergência ativada! Agenda bloqueada de "
                  . $d1->format('d/m/Y') . " a " . $d2->format('d/m/Y')
-                 . ". Agendamentos cancelados: $cancelados.";
+                 . ". Agendamentos cancelados: $cancelados."
+                 . ($cancelados > 0 ? " Avise as clientes pelo WhatsApp na lista abaixo." : "");
             if (count($comPagamento) > 0) {
                 $msg .= " Atenção: " . count($comPagamento)
                       . " cliente(s) já tinham pago, total de R$ "
                       . number_format($totalCreditos, 2, ',', '.')
-                      . " registrado como crédito pendente.";
+                      . ". Combine a devolução ou o uso na remarcação.";
+            }
+            if (count($afetadas) > 0) {
+                $msg .= " Avise as " . count($afetadas) . " cliente(s) pela lista \"Avisar clientes\" abaixo.";
             }
             $_SESSION['flash'] = ['tipo' => 'success', 'msg' => $msg];
 
@@ -171,6 +203,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ativar_emergencia']))
 
 $formEmerg = $_SESSION['emerg_form'] ?? [];
 unset($_SESSION['emerg_form']);
+
+// ===================== AVISO DAS CLIENTES (WHATSAPP) =====================
+function linkWhatsapp(?string $telefone, string $mensagem): ?string {
+    $d = ltrim(preg_replace('/\D/', '', (string) $telefone), '0');
+    if (strlen($d) >= 12 && substr($d, 0, 2) === '55') {
+        $d = substr($d, 2);                            // já veio com o código do Brasil
+    }
+    if (strlen($d) === 10 && preg_match('/^[6-9]/', substr($d, 2, 1))) {
+        $d = substr($d, 0, 2) . '9' . substr($d, 2);   // celular antigo (8 dígitos): acrescenta o 9
+    }
+    if (strlen($d) !== 11) {
+        return null;                                   // fixo, incompleto ou vazio
+    }
+    return 'https://wa.me/55' . $d . '?text=' . rawurlencode($mensagem);
+}
+
+function mensagemCancelamento(string $nome, string $servico, string $data, string $hora, float $pago): string {
+    $primeiro = explode(' ', trim($nome))[0] ?: 'cliente';
+    $msg = "Olá, $primeiro! Aqui é do Salão da Maria. "
+         . "Infelizmente precisamos cancelar o seu horário de $servico do dia "
+         . date('d/m/Y', strtotime($data)) . " às " . date('H:i', strtotime($hora))
+         . " por um imprevisto. Pedimos desculpas pelo transtorno! ";
+    if ($pago > 0) {
+        $msg .= "Sobre o valor que você já pagou (R$ " . number_format($pago, 2, ',', '.')
+              . "), vamos combinar a melhor forma: crédito para um novo horário ou devolução. ";
+    }
+    $msg .= "Quando quiser remarcar, é só agendar pelo site ou falar com a gente.";
+    return $msg;
+}
+
+// Agendamentos cancelados por bloqueio de agenda (de hoje em diante)
+$avisos = [];
+try {
+    $avisos = $pdo->query(
+        "SELECT DISTINCT a.id,
+                COALESCE(c.nome, 'Cliente') AS nome,
+                a.servico, a.data_agendamento, a.hora_agendamento,
+                pe.telefone,
+                (SELECT COALESCE(SUM(pg.valor_pago), 0)
+                   FROM pagamentos pg
+                  WHERE pg.id_agendamento = a.id) AS pago
+           FROM agendamentos a
+           JOIN bloqueios_agenda b ON a.data_agendamento BETWEEN b.data_inicio AND b.data_fim
+      LEFT JOIN cliente c   ON c.id = a.id_cliente
+      LEFT JOIN pessoais pe ON pe.id_cliente = a.id_cliente
+          WHERE a.status = 'cancelado'
+            AND a.data_agendamento >= CURDATE()
+       ORDER BY a.data_agendamento, a.hora_agendamento"
+    )->fetchAll();
+} catch (PDOException $e) {
+    error_log("avisos emergência: " . $e->getMessage());
+}
+
+// Clientes que ainda precisam ser avisadas do cancelamento
+$avisos = [];
+try {
+    $avisos = $pdo->query(
+        "SELECT a.id,
+                COALESCE(c.nome, 'Cliente não cadastrada') AS nome,
+                pe.telefone,
+                a.servico, a.data_agendamento, a.hora_agendamento,
+                (SELECT COALESCE(SUM(p.valor_pago), 0)
+                   FROM pagamentos p
+                  WHERE p.id_agendamento = a.id) AS valor_pago
+           FROM agendamentos a
+      LEFT JOIN cliente c   ON c.id = a.id_cliente
+      LEFT JOIN pessoais pe ON pe.id_cliente = a.id_cliente
+          WHERE a.status = 'cancelado'
+            AND a.data_agendamento >= CURDATE()
+            AND EXISTS (SELECT 1
+                          FROM bloqueios_agenda b
+                         WHERE a.data_agendamento BETWEEN b.data_inicio AND b.data_fim)
+       ORDER BY a.data_agendamento, a.hora_agendamento"
+    )->fetchAll();
+} catch (PDOException $e) {
+    error_log("lista de avisos: " . $e->getMessage());
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -288,7 +398,9 @@ ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
 
     <div id="servico" class="tela">
         <h1>Histórico do Cliente</h1>
-        
+        <div class="busca-historico">
+            <input type="search" id="busca-historico" placeholder="🔍 Buscar cliente pelo nome..." autocomplete="off">
+        </div>
         <input type="search" id="busca-historico" class="campo-busca"
                placeholder="🔍 Buscar cliente pelo nome..." autocomplete="off">
         <p id="busca-vazia" class="busca-vazia">Nenhuma cliente encontrada.</p>
@@ -364,6 +476,8 @@ ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
             </div>
         </div>
 
+        <div id="previa-emergencia" class="previa-emergencia"></div>
+
         <div class="campo-motivo">
             <label for="motivo">Motivo (opcional):</label>
             <input type="text" id="motivo" name="motivo" placeholder="Ex: Emergência de saúde, imprevisto pessoal..." value="<?= htmlspecialchars($formEmerg['motivo'] ?? 'Emergência / Imprevisto Pessoal') ?>">
@@ -380,6 +494,81 @@ ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
         </button>
     </form>
 </div>
+
+<div class="card-avisos">
+    <h3>📲 Clientes para avisar</h3>
+    <?php if (empty($avisos)): ?>
+        <p class="avisos-vazio">Nenhum agendamento cancelado por bloqueio de agenda.</p>
+    <?php else: ?>
+        <p class="avisos-descricao">
+            Agendamentos cancelados pela emergência. Clique em <strong>WhatsApp</strong> para abrir a conversa
+            com a mensagem pronta (você pode editar antes de enviar).
+        </p>
+        <div class="tabela-avisos-wrap">
+            <table class="tabela-avisos">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Serviço</th>
+                        <th>Dia / Hora</th>
+                        <th>Já pagou</th>
+                        <th>Aviso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($avisos as $av):
+                    $pagoAv = (float) $av['pago'];
+                    $link = linkWhatsapp(
+                        $av['telefone'],
+                        mensagemCancelamento($av['nome'], $av['servico'], $av['data_agendamento'], $av['hora_agendamento'], $pagoAv)
+                    );
+                ?>
+                    <tr>
+                        <td><?= htmlspecialchars($av['nome']) ?></td>
+                        <td><?= htmlspecialchars($av['servico']) ?></td>
+                        <td><?= date('d/m/Y', strtotime($av['data_agendamento'])) ?> às <?= date('H:i', strtotime($av['hora_agendamento'])) ?></td>
+                        <td><?= $pagoAv > 0 ? 'R$ ' . number_format($pagoAv, 2, ',', '.') : '—' ?></td>
+                        <td>
+                            <?php if ($link): ?>
+                                <a class="btn-whatsapp" href="<?= htmlspecialchars($link, ENT_QUOTES) ?>" target="_blank" rel="noopener" data-aviso="<?= (int) $av['id'] ?>">WhatsApp</a>
+                            <?php else: ?>
+                                <span class="sem-telefone">Sem telefone válido<?= !empty($av['telefone']) ? ' (' . htmlspecialchars($av['telefone']) . ')' : '' ?></span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</div>
+
+<?php if (!empty($avisos)): ?>
+<div class="card-avisos" id="card-avisos">
+    <h3>📲 Avisar clientes (<span id="qtd-avisos"><?= count($avisos) ?></span>)</h3>
+    <p class="avisos-descricao">Estes horários foram cancelados pela emergência. Clique em WhatsApp, envie a mensagem e depois em "Já avisei".</p>
+
+    <?php foreach ($avisos as $av): $zap = linkAvisoWhatsApp($av); ?>
+    <div class="aviso-item" id="aviso-<?= (int) $av['id'] ?>">
+        <div class="aviso-info">
+            <strong><?= htmlspecialchars($av['nome']) ?></strong>
+            <span><?= htmlspecialchars($av['servico']) ?> — <?= date('d/m/Y', strtotime($av['data_agendamento'])) ?> às <?= htmlspecialchars(substr((string) $av['hora_agendamento'], 0, 5)) ?></span>
+            <?php if ((float) $av['valor_pago'] > 0): ?>
+                <small>Já pagou: R$ <?= number_format((float) $av['valor_pago'], 2, ',', '.') ?></small>
+            <?php endif; ?>
+        </div>
+        <div class="aviso-acoes">
+            <?php if ($zap): ?>
+                <a class="btn-zap" href="<?= htmlspecialchars($zap) ?>" target="_blank" rel="noopener">WhatsApp</a>
+            <?php else: ?>
+                <span class="sem-zap">Telefone inválido ou ausente<?= !empty($av['telefone']) ? ': ' . htmlspecialchars($av['telefone']) : '' ?></span>
+            <?php endif; ?>
+            <button type="button" class="btn-avisada" onclick="marcarAvisada(<?= (int) $av['id'] ?>)">Já avisei</button>
+        </div>
+    </div>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
      </div>
 
 </div>
@@ -418,7 +607,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 const info = await r.json();
                 detalhe = '<strong>' + info.total + '</strong> agendamento(s) serão cancelados.';
                 if (info.pagos > 0) {
-                    detalhe += '<br><strong>' + info.pagos + '</strong> já pagaram (R$ ' + real(info.valor) + ') e ficarão como crédito pendente.';
+                    detalhe += '<br><strong>' + info.pagos + '</strong> já pagaram (total R$ ' + real(info.valor) + ').';
+                }
+                if (info.itens && info.itens.length > 0) {
+                    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+                    detalhe += '<div style="text-align:left;max-height:220px;overflow:auto;margin-top:10px;font-size:14px;border:1px solid #eee;border-radius:6px;padding:4px 10px;">';
+                    info.itens.forEach(it => {
+                        detalhe += '<div style="padding:7px 0;border-bottom:1px solid #eee;">' +
+                            '<strong>' + esc(it.nome) + '</strong><br>' +
+                            esc(it.servico) + ' &middot; ' + esc(it.data) + ' às ' + esc(it.hora) + '<br>' +
+                            (it.pago > 0 ? '<span style="color:#2f855a;">Já pagou: R$ ' + real(it.pago) + '</span>'
+                                         : '<span style="color:#777;">Nada pago</span>') +
+                            '</div>';
+                    });
+                    detalhe += '</div>';
                 }
             }
         } catch (_) { /* segue com a mensagem genérica */ }
@@ -430,11 +632,120 @@ document.addEventListener('DOMContentLoaded', function () {
             title: 'Ativar emergência?',
             html: 'Período: <strong>' + periodo + '</strong><br>' + detalhe + '<br>A agenda será bloqueada para novas marcações.',
             showCancelButton: true,
+            width: 560,
             confirmButtonText: 'Sim, ativar',
             cancelButtonText: 'Voltar',
             confirmButtonColor: '#e53e3e'
         }).then(res => {
             if (res.isConfirmed) form.submit(); // o campo hidden já leva o ativar_emergencia
+        });
+    });
+});
+</script>
+
+<script>
+// "Já avisei": como não existe tabela para isso, a marcação fica guardada neste navegador
+(function () {
+    const chave = id => 'avisada_' + id;
+
+    function atualizarContagem() {
+        const restantes = document.querySelectorAll('.aviso-item:not(.avisada)').length;
+        const qtd = document.getElementById('qtd-avisos');
+        if (qtd) qtd.textContent = restantes;
+        if (restantes === 0) {
+            const card = document.getElementById('card-avisos');
+            if (card) card.remove();
+        }
+    }
+
+    function esconder(linha) {
+        linha.classList.add('avisada');
+        linha.style.display = 'none';
+    }
+
+    window.marcarAvisada = function (id) {
+        try { localStorage.setItem(chave(id), '1'); } catch (_) {}
+        const linha = document.getElementById('aviso-' + id);
+        if (linha) esconder(linha);
+        atualizarContagem();
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.aviso-item').forEach(function (linha) {
+            const id = linha.id.replace('aviso-', '');
+            try { if (localStorage.getItem(chave(id))) esconder(linha); } catch (_) {}
+        });
+        atualizarContagem();
+    });
+})();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ---------- prévia: o que será cancelado no período escolhido ----------
+    const inicioEl = document.getElementById('emergencia_inicio');
+    const fimEl = document.getElementById('emergencia_fim');
+    const previa = document.getElementById('previa-emergencia');
+
+    if (inicioEl && fimEl && previa) {
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const real = v => 'R$ ' + Number(v).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        const br = d => d.split('-').reverse().join('/');
+        let timer;
+        let pedido = 0;
+
+        async function carregarPrevia() {
+            const inicio = inicioEl.value;
+            const fim = fimEl.value;
+            const meu = ++pedido;
+
+            if (!inicio || !fim || fim < inicio) {
+                previa.innerHTML = '';
+                return;
+            }
+            try {
+                const r = await fetch('contar_emergencia.php?inicio=' + encodeURIComponent(inicio) + '&fim=' + encodeURIComponent(fim));
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const info = await r.json();
+                if (meu !== pedido) return;
+
+                if (!info.total) {
+                    previa.innerHTML = '<p class="previa-vazia">Nenhum agendamento neste período.</p>';
+                    return;
+                }
+                let linhas = '';
+                info.agendamentos.forEach(a => {
+                    linhas += '<tr><td>' + br(a.data) + ' ' + esc(a.hora) + '</td><td>' + esc(a.nome) +
+                              '</td><td>' + esc(a.servico) + '</td><td>' + (a.pago > 0 ? real(a.pago) : '—') + '</td></tr>';
+                });
+                previa.innerHTML =
+                    '<p class="previa-titulo"><strong>' + info.total + '</strong> agendamento(s) neste período' +
+                    (info.pagos > 0 ? ' &middot; já pago: <strong>' + real(info.valor) + '</strong>' : '') + '</p>' +
+                    '<div class="previa-tabela-wrap"><table class="previa-tabela"><thead><tr><th>Dia / Hora</th><th>Cliente</th><th>Serviço</th><th>Já pagou</th></tr></thead><tbody>' +
+                    linhas + '</tbody></table></div>';
+            } catch (erro) {
+                if (meu !== pedido) return;
+                console.error('Prévia da emergência:', erro);
+                previa.innerHTML = '<p class="previa-vazia">Não foi possível carregar a prévia.</p>';
+            }
+        }
+
+        [inicioEl, fimEl].forEach(el => el.addEventListener('change', () => {
+            clearTimeout(timer);
+            timer = setTimeout(carregarPrevia, 250);
+        }));
+        carregarPrevia();
+    }
+
+    // ---------- marca "Avisada" depois do clique (fica só neste navegador) ----------
+    document.querySelectorAll('.btn-whatsapp').forEach(function (a) {
+        const chave = 'aviso_enviado_' + a.dataset.aviso;
+        const marcar = () => { a.classList.add('enviado'); a.textContent = 'Avisada ✓'; };
+        try { if (localStorage.getItem(chave)) marcar(); } catch (e) {}
+        a.addEventListener('click', function () {
+            try { localStorage.setItem(chave, '1'); } catch (e) {}
+            setTimeout(marcar, 0);
         });
     });
 });
@@ -447,7 +758,10 @@ document.addEventListener('DOMContentLoaded', function () {
         icon: <?= json_encode($_SESSION['flash']['tipo']) ?>,
         text: <?= json_encode($_SESSION['flash']['msg']) ?>,
         confirmButtonColor: '#734440'
-    });
+    })<?php if ($_SESSION['flash']['tipo'] === 'success'): ?>.then(function () {
+        const lista = document.getElementById('card-avisos');
+        if (lista) lista.scrollIntoView({ behavior: 'smooth' });
+    })<?php endif; ?>;
 </script>
 <?php unset($_SESSION['flash']); endif; ?>
 </body>

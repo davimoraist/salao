@@ -925,3 +925,99 @@
      color: #c53030;
      font-size: 13px;
  }
+
+
+ /* ==========================
+   AGENDA BLOQUEADA (REABRIR)
+========================== */
+ .card-bloqueios {
+     background: #fffaf0;
+     border: 2px solid #fbd38d;
+     border-radius: 10px;
+     padding: 24px;
+     max-width: 900px;
+     margin: 20px auto;
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+     font-family: var(--fonte-texto);
+ }
+
+ .card-bloqueios h3 {
+     color: #744210;
+     margin-bottom: 10px;
+ }
+
+ .bloqueios-descricao {
+     font-size: 0.9rem;
+     color: #4a5568;
+     line-height: 1.4;
+     margin-bottom: 14px;
+ }
+
+ .bloqueio-item {
+     display: flex;
+     flex-wrap: wrap;
+     align-items: center;
+     justify-content: space-between;
+     gap: 12px;
+     padding: 12px 0;
+     border-top: 1px solid #fbd38d;
+ }
+
+ .bloqueio-info {
+     display: flex;
+     flex-direction: column;
+     gap: 2px;
+ }
+
+ .bloqueio-info small {
+     color: #718096;
+ }
+
+ .bloqueio-acao {
+     display: flex;
+     flex-wrap: wrap;
+     align-items: center;
+     gap: 10px;
+ }
+
+ .bloqueio-acao label {
+     font-size: 0.85rem;
+     font-weight: 600;
+     color: #4a5568;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+ }
+
+ .bloqueio-acao input[type="date"] {
+     padding: 8px 10px;
+     border: 1px solid #cbd5e0;
+     border-radius: 6px;
+     font-family: var(--fonte-texto);
+     font-size: 0.95rem;
+ }
+
+ .btn-reabrir {
+     padding: 10px 18px;
+     background: var(--cor2);
+     color: #fff;
+     border: none;
+     border-radius: 100px;
+     font-family: var(--fonte-texto);
+     font-weight: 700;
+     cursor: pointer;
+     transition: background-color 0.2s;
+ }
+
+ .btn-reabrir:hover {
+     background: var(--cor1);
+ }
+
+
+ .zap-numero {
+     display: block;
+     font-size: 12px;
+     color: #718096;
+     margin-top: 4px;
+     text-align: right;
+ }

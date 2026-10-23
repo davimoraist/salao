@@ -23,6 +23,77 @@ try {
     die("Erro ao conectar ao banco.");
 }
 
+// ===================== PRÉVIA DA EMERGÊNCIA (JSON) =====================
+// adm.php?acao=previa_emergencia&inicio=AAAA-MM-DD&fim=AAAA-MM-DD
+// Só consulta: lista o que seria cancelado, com valor já pago e telefone da cliente.
+// (a sessão já foi validada no começo deste arquivo)
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['acao'] ?? '') === 'previa_emergencia') {
+    header('Content-Type: application/json; charset=utf-8');
+
+    $pInicio = $_GET['inicio'] ?? '';
+    $pFim    = $_GET['fim'] ?? '';
+    $pd1 = DateTime::createFromFormat('Y-m-d', $pInicio);
+    $pd2 = DateTime::createFromFormat('Y-m-d', $pFim);
+
+    if (!$pd1 || !$pd2 || $pd1->format('Y-m-d') !== $pInicio || $pd2->format('Y-m-d') !== $pFim || $pFim < $pInicio) {
+        http_response_code(400);
+        echo json_encode(['erro' => 'Datas inválidas']);
+        exit;
+    }
+
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT a.id,
+                    COALESCE(c.nome, 'Cliente não cadastrado') AS nome,
+                    a.servico,
+                    a.data_agendamento,
+                    a.hora_agendamento,
+                    pe.telefone,
+                    (SELECT COALESCE(SUM(pg.valor_pago), 0)
+                       FROM pagamentos pg
+                      WHERE pg.id_agendamento = a.id) AS pago
+               FROM agendamentos a
+          LEFT JOIN cliente c   ON c.id = a.id_cliente
+          LEFT JOIN pessoais pe ON pe.id_cliente = a.id_cliente
+              WHERE a.data_agendamento BETWEEN :inicio AND :fim
+                AND a.status IN ('confirmado', 'pendente')
+           ORDER BY a.data_agendamento, a.hora_agendamento"
+        );
+        $stmt->execute([':inicio' => $pInicio, ':fim' => $pFim]);
+
+        $lista = [];
+        $pagos = 0;
+        $valor = 0.0;
+        foreach ($stmt->fetchAll() as $l) {
+            $pago = (float) $l['pago'];
+            if ($pago > 0) {
+                $pagos++;
+                $valor += $pago;
+            }
+            $lista[] = [
+                'nome'     => $l['nome'],
+                'servico'  => $l['servico'],
+                'data'     => $l['data_agendamento'],
+                'hora'     => substr((string) $l['hora_agendamento'], 0, 5),
+                'pago'     => $pago,
+                'telefone' => $l['telefone'],
+            ];
+        }
+
+        echo json_encode([
+            'total'        => count($lista),
+            'pagos'        => $pagos,
+            'valor'        => $valor,
+            'agendamentos' => $lista,
+        ]);
+    } catch (PDOException $e) {
+        error_log("previa emergência: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['erro' => 'Erro ao consultar']);
+    }
+    exit;
+}
+
 // ===================== CONFERIR SENHA DO USUÁRIO LOGADO =====================
 // Aceita senha com hash (password_hash) e também senha em texto puro (como o login atual usa).
 function conferirSenhaUsuario(PDO $pdo, int $idUsuario, string $senhaDigitada): bool {
@@ -48,17 +119,26 @@ function conferirSenhaUsuario(PDO $pdo, int $idUsuario, string $senhaDigitada): 
 }
 
 // ===================== AVISO DE CANCELAMENTO (WHATSAPP) =====================
-// Só aceita celular completo: DDD (2 dígitos) + 9 + 8 dígitos. Nunca "adivinha" dígito faltando,
-// para não mandar a mensagem para o número errado.
+// Celular com DDD. Aceita:
+//  - 11 dígitos (DDD + 9 + 8 dígitos): usa como está;
+//  - 10 dígitos cujo número começa com 6-9 depois do DDD (celular antigo, sem o 9 na frente):
+//    acrescenta o 9 depois do DDD, como o WhatsApp exige hoje.
+// Telefone fixo (começa com 2-5) ou número com tamanho estranho: não gera botão.
 function telefoneWhatsApp(?string $tel): ?string {
-    $d = preg_replace('/\D+/', '', (string) $tel);
+    $d = ltrim(preg_replace('/\D+/', '', (string) $tel), '0');
     if (strlen($d) >= 12 && substr($d, 0, 2) === '55') {
         $d = substr($d, 2);
     }
-    if (preg_match('/^[1-9][1-9]9\d{8}$/', $d)) {
-        return '55' . $d;
+    if (strlen($d) === 10 && preg_match('/^[1-9][1-9][6-9]/', $d)) {
+        $d = substr($d, 0, 2) . '9' . substr($d, 2);
     }
-    return null;
+    return preg_match('/^[1-9][1-9]9\d{8}$/', $d) ? '55' . $d : null;
+}
+
+// 5561999408277 -> (61) 99940-8277
+function formatarFone(string $fone55): string {
+    $n = substr($fone55, 2);
+    return '(' . substr($n, 0, 2) . ') ' . substr($n, 2, 5) . '-' . substr($n, 7);
 }
 
 function linkAvisoWhatsApp(array $av): ?string {
@@ -79,6 +159,55 @@ function linkAvisoWhatsApp(array $av): ?string {
     $msg .= " Quando quiser remarcar, é só acessar o site ou responder esta mensagem. 💅";
 
     return 'https://wa.me/' . $fone . '?text=' . rawurlencode($msg);
+}
+
+// ===================== REABRIR AGENDA (Maria voltou antes do previsto) =====================
+// O bloqueio é identificado pelas datas (data_inicio + data_fim), então não depende da coluna "id".
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reabrir_agenda'])) {
+
+    $bInicio  = $_POST['data_inicio'] ?? '';
+    $bFim     = $_POST['data_fim'] ?? '';
+    $novaData = $_POST['nova_data'] ?? '';
+
+    $okData = function (string $d): bool {
+        $o = DateTime::createFromFormat('Y-m-d', $d);
+        return $o && $o->format('Y-m-d') === $d;
+    };
+
+    if (!$okData($bInicio) || !$okData($bFim) || !$okData($novaData)) {
+        $_SESSION['flash'] = ['tipo' => 'error', 'msg' => 'Dados inválidos para reabrir a agenda. Escolha a data de volta e tente de novo.'];
+    } elseif ($novaData < $bInicio || $novaData > $bFim) {
+        $_SESSION['flash'] = ['tipo' => 'error', 'msg' => 'A data de volta precisa estar dentro do período bloqueado.'];
+    } else {
+        try {
+            if ($novaData === $bInicio) {
+                // volta já no primeiro dia: o bloqueio inteiro deixa de existir
+                $stmt = $pdo->prepare("DELETE FROM bloqueios_agenda WHERE data_inicio = :i AND data_fim = :f");
+                $stmt->execute([':i' => $bInicio, ':f' => $bFim]);
+            } else {
+                // o bloqueio termina na véspera do dia em que ela volta
+                $novoFim = (new DateTime($novaData))->modify('-1 day')->format('Y-m-d');
+                $stmt = $pdo->prepare("UPDATE bloqueios_agenda SET data_fim = :novo WHERE data_inicio = :i AND data_fim = :f");
+                $stmt->execute([':novo' => $novoFim, ':i' => $bInicio, ':f' => $bFim]);
+            }
+
+            if ($stmt->rowCount() > 0) {
+                $_SESSION['flash'] = [
+                    'tipo' => 'success',
+                    'msg'  => 'Agenda reaberta a partir de ' . date('d/m/Y', strtotime($novaData))
+                              . '. Os agendamentos já cancelados continuam cancelados; as clientes podem marcar de novo pelo site.'
+                ];
+            } else {
+                $_SESSION['flash'] = ['tipo' => 'error', 'msg' => 'Bloqueio não encontrado (talvez já tenha sido reaberto). Nada foi alterado.'];
+            }
+        } catch (PDOException $e) {
+            error_log("Erro ao reabrir agenda: " . $e->getMessage());
+            $_SESSION['flash'] = ['tipo' => 'error', 'msg' => 'Erro ao reabrir a agenda. Nada foi alterado.'];
+        }
+    }
+
+    header("Location: adm.php");
+    exit;
 }
 
 // ===================== EMERGÊNCIA / AUSÊNCIA =====================
@@ -174,8 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ativar_emergencia']))
 
             $msg = "Emergência ativada! Agenda bloqueada de "
                  . $d1->format('d/m/Y') . " a " . $d2->format('d/m/Y')
-                 . ". Agendamentos cancelados: $cancelados."
-                 . ($cancelados > 0 ? " Avise as clientes pelo WhatsApp na lista abaixo." : "");
+                 . ". Agendamentos cancelados: $cancelados.";
             if (count($comPagamento) > 0) {
                 $msg .= " Atenção: " . count($comPagamento)
                       . " cliente(s) já tinham pago, total de R$ "
@@ -204,58 +332,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ativar_emergencia']))
 $formEmerg = $_SESSION['emerg_form'] ?? [];
 unset($_SESSION['emerg_form']);
 
-// ===================== AVISO DAS CLIENTES (WHATSAPP) =====================
-function linkWhatsapp(?string $telefone, string $mensagem): ?string {
-    $d = ltrim(preg_replace('/\D/', '', (string) $telefone), '0');
-    if (strlen($d) >= 12 && substr($d, 0, 2) === '55') {
-        $d = substr($d, 2);                            // já veio com o código do Brasil
-    }
-    if (strlen($d) === 10 && preg_match('/^[6-9]/', substr($d, 2, 1))) {
-        $d = substr($d, 0, 2) . '9' . substr($d, 2);   // celular antigo (8 dígitos): acrescenta o 9
-    }
-    if (strlen($d) !== 11) {
-        return null;                                   // fixo, incompleto ou vazio
-    }
-    return 'https://wa.me/55' . $d . '?text=' . rawurlencode($mensagem);
-}
-
-function mensagemCancelamento(string $nome, string $servico, string $data, string $hora, float $pago): string {
-    $primeiro = explode(' ', trim($nome))[0] ?: 'cliente';
-    $msg = "Olá, $primeiro! Aqui é do Salão da Maria. "
-         . "Infelizmente precisamos cancelar o seu horário de $servico do dia "
-         . date('d/m/Y', strtotime($data)) . " às " . date('H:i', strtotime($hora))
-         . " por um imprevisto. Pedimos desculpas pelo transtorno! ";
-    if ($pago > 0) {
-        $msg .= "Sobre o valor que você já pagou (R$ " . number_format($pago, 2, ',', '.')
-              . "), vamos combinar a melhor forma: crédito para um novo horário ou devolução. ";
-    }
-    $msg .= "Quando quiser remarcar, é só agendar pelo site ou falar com a gente.";
-    return $msg;
-}
-
-// Agendamentos cancelados por bloqueio de agenda (de hoje em diante)
-$avisos = [];
-try {
-    $avisos = $pdo->query(
-        "SELECT DISTINCT a.id,
-                COALESCE(c.nome, 'Cliente') AS nome,
-                a.servico, a.data_agendamento, a.hora_agendamento,
-                pe.telefone,
-                (SELECT COALESCE(SUM(pg.valor_pago), 0)
-                   FROM pagamentos pg
-                  WHERE pg.id_agendamento = a.id) AS pago
-           FROM agendamentos a
-           JOIN bloqueios_agenda b ON a.data_agendamento BETWEEN b.data_inicio AND b.data_fim
-      LEFT JOIN cliente c   ON c.id = a.id_cliente
-      LEFT JOIN pessoais pe ON pe.id_cliente = a.id_cliente
-          WHERE a.status = 'cancelado'
-            AND a.data_agendamento >= CURDATE()
-       ORDER BY a.data_agendamento, a.hora_agendamento"
-    )->fetchAll();
-} catch (PDOException $e) {
-    error_log("avisos emergência: " . $e->getMessage());
-}
-
 // Clientes que ainda precisam ser avisadas do cancelamento
 $avisos = [];
 try {
@@ -279,6 +355,20 @@ try {
     )->fetchAll();
 } catch (PDOException $e) {
     error_log("lista de avisos: " . $e->getMessage());
+}
+
+// Períodos bloqueados que ainda não terminaram (para a Maria poder reabrir)
+$bloqueiosAtivos = [];
+try {
+    $bloqueiosAtivos = $pdo->query(
+        "SELECT DISTINCT data_inicio, data_fim, motivo,
+                GREATEST(data_inicio, CURDATE()) AS min_data
+           FROM bloqueios_agenda
+          WHERE data_fim >= CURDATE()
+       ORDER BY data_inicio, data_fim"
+    )->fetchAll();
+} catch (PDOException $e) {
+    error_log("bloqueios ativos: " . $e->getMessage());
 }
 
 ?>
@@ -495,60 +585,48 @@ ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
     </form>
 </div>
 
-<div class="card-avisos">
-    <h3>📲 Clientes para avisar</h3>
-    <?php if (empty($avisos)): ?>
-        <p class="avisos-vazio">Nenhum agendamento cancelado por bloqueio de agenda.</p>
-    <?php else: ?>
-        <p class="avisos-descricao">
-            Agendamentos cancelados pela emergência. Clique em <strong>WhatsApp</strong> para abrir a conversa
-            com a mensagem pronta (você pode editar antes de enviar).
-        </p>
-        <div class="tabela-avisos-wrap">
-            <table class="tabela-avisos">
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Serviço</th>
-                        <th>Dia / Hora</th>
-                        <th>Já pagou</th>
-                        <th>Aviso</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($avisos as $av):
-                    $pagoAv = (float) $av['pago'];
-                    $link = linkWhatsapp(
-                        $av['telefone'],
-                        mensagemCancelamento($av['nome'], $av['servico'], $av['data_agendamento'], $av['hora_agendamento'], $pagoAv)
-                    );
-                ?>
-                    <tr>
-                        <td><?= htmlspecialchars($av['nome']) ?></td>
-                        <td><?= htmlspecialchars($av['servico']) ?></td>
-                        <td><?= date('d/m/Y', strtotime($av['data_agendamento'])) ?> às <?= date('H:i', strtotime($av['hora_agendamento'])) ?></td>
-                        <td><?= $pagoAv > 0 ? 'R$ ' . number_format($pagoAv, 2, ',', '.') : '—' ?></td>
-                        <td>
-                            <?php if ($link): ?>
-                                <a class="btn-whatsapp" href="<?= htmlspecialchars($link, ENT_QUOTES) ?>" target="_blank" rel="noopener" data-aviso="<?= (int) $av['id'] ?>">WhatsApp</a>
-                            <?php else: ?>
-                                <span class="sem-telefone">Sem telefone válido<?= !empty($av['telefone']) ? ' (' . htmlspecialchars($av['telefone']) . ')' : '' ?></span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
+<?php if (!empty($bloqueiosAtivos)): ?>
+<div class="card-bloqueios">
+    <h3>🔒 Agenda bloqueada</h3>
+    <p class="bloqueios-descricao">
+        Se a Maria voltar antes do previsto, escolha o primeiro dia em que ela volta a atender e clique em
+        <strong>Reabrir agenda</strong>. Os agendamentos já cancelados continuam cancelados; as clientes poderão marcar de novo pelo site.
+    </p>
+
+    <?php foreach ($bloqueiosAtivos as $bl): ?>
+    <form method="POST" action="" class="form-reabrir bloqueio-item">
+        <input type="hidden" name="reabrir_agenda" value="1">
+        <input type="hidden" name="data_inicio" value="<?= htmlspecialchars($bl['data_inicio']) ?>">
+        <input type="hidden" name="data_fim" value="<?= htmlspecialchars($bl['data_fim']) ?>">
+
+        <div class="bloqueio-info">
+            <strong>
+                <?= date('d/m/Y', strtotime($bl['data_inicio'])) ?>
+                <?= $bl['data_inicio'] !== $bl['data_fim'] ? ' a ' . date('d/m/Y', strtotime($bl['data_fim'])) : '' ?>
+            </strong>
+            <small><?= htmlspecialchars($bl['motivo']) ?></small>
         </div>
-    <?php endif; ?>
+
+        <div class="bloqueio-acao">
+            <label>Voltar a atender em:
+                <input type="date" name="nova_data"
+                       value="<?= htmlspecialchars($bl['data_fim']) ?>"
+                       min="<?= htmlspecialchars($bl['min_data']) ?>"
+                       max="<?= htmlspecialchars($bl['data_fim']) ?>" required>
+            </label>
+            <button type="submit" class="btn-reabrir">Reabrir agenda</button>
+        </div>
+    </form>
+    <?php endforeach; ?>
 </div>
+<?php endif; ?>
 
 <?php if (!empty($avisos)): ?>
 <div class="card-avisos" id="card-avisos">
     <h3>📲 Avisar clientes (<span id="qtd-avisos"><?= count($avisos) ?></span>)</h3>
     <p class="avisos-descricao">Estes horários foram cancelados pela emergência. Clique em WhatsApp, envie a mensagem e depois em "Já avisei".</p>
 
-    <?php foreach ($avisos as $av): $zap = linkAvisoWhatsApp($av); ?>
+    <?php foreach ($avisos as $av): $zap = linkAvisoWhatsApp($av); $foneZap = telefoneWhatsApp($av['telefone'] ?? ''); ?>
     <div class="aviso-item" id="aviso-<?= (int) $av['id'] ?>">
         <div class="aviso-info">
             <strong><?= htmlspecialchars($av['nome']) ?></strong>
@@ -560,6 +638,7 @@ ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
         <div class="aviso-acoes">
             <?php if ($zap): ?>
                 <a class="btn-zap" href="<?= htmlspecialchars($zap) ?>" target="_blank" rel="noopener">WhatsApp</a>
+                <small class="zap-numero">Enviar para <?= htmlspecialchars(formatarFone($foneZap)) ?></small>
             <?php else: ?>
                 <span class="sem-zap">Telefone inválido ou ausente<?= !empty($av['telefone']) ? ': ' . htmlspecialchars($av['telefone']) : '' ?></span>
             <?php endif; ?>
@@ -602,7 +681,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // pergunta ao servidor quantos agendamentos serão afetados
         let detalhe = 'Os agendamentos do período serão cancelados.';
         try {
-            const r = await fetch('contar_emergencia.php?inicio=' + encodeURIComponent(inicio) + '&fim=' + encodeURIComponent(fim));
+            const r = await fetch('adm.php?acao=previa_emergencia&inicio=' + encodeURIComponent(inicio) + '&fim=' + encodeURIComponent(fim));
             if (r.ok) {
                 const info = await r.json();
                 detalhe = '<strong>' + info.total + '</strong> agendamento(s) serão cancelados.';
@@ -705,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             try {
-                const r = await fetch('contar_emergencia.php?inicio=' + encodeURIComponent(inicio) + '&fim=' + encodeURIComponent(fim));
+                const r = await fetch('adm.php?acao=previa_emergencia&inicio=' + encodeURIComponent(inicio) + '&fim=' + encodeURIComponent(fim));
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 const info = await r.json();
                 if (meu !== pedido) return;
@@ -738,14 +817,44 @@ document.addEventListener('DOMContentLoaded', function () {
         carregarPrevia();
     }
 
-    // ---------- marca "Avisada" depois do clique (fica só neste navegador) ----------
-    document.querySelectorAll('.btn-whatsapp').forEach(function (a) {
-        const chave = 'aviso_enviado_' + a.dataset.aviso;
-        const marcar = () => { a.classList.add('enviado'); a.textContent = 'Avisada ✓'; };
-        try { if (localStorage.getItem(chave)) marcar(); } catch (e) {}
-        a.addEventListener('click', function () {
-            try { localStorage.setItem(chave, '1'); } catch (e) {}
-            setTimeout(marcar, 0);
+
+});
+</script>
+
+<script>
+// Confirmação ao reabrir a agenda.
+// Se qualquer coisa falhar aqui (ex.: SweetAlert não carregou), o formulário é enviado direto:
+// o botão NUNCA fica "morto".
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.form-reabrir').forEach(function (f) {
+        f.addEventListener('submit', function (e) {
+            if (f.dataset.confirmado === '1') return;            // já confirmou: deixa enviar
+            if (typeof Swal === 'undefined') return;            // sem SweetAlert: envia direto
+
+            let dia = '';
+            try {
+                const campo = f.querySelector('input[name="nova_data"]');
+                dia = campo && campo.value ? campo.value.split('-').reverse().join('/') : '';
+            } catch (erro) {
+                console.error('Reabrir agenda:', erro);
+                return;                                          // envia direto
+            }
+
+            e.preventDefault();
+            Swal.fire({
+                icon: 'question',
+                title: 'Reabrir a agenda?',
+                html: 'As clientes poderão marcar a partir de <strong>' + dia + '</strong>.<br>Os agendamentos já cancelados continuam cancelados.',
+                showCancelButton: true,
+                confirmButtonText: 'Sim, reabrir',
+                cancelButtonText: 'Voltar',
+                confirmButtonColor: '#734440'
+            }).then(function (res) {
+                if (res.isConfirmed) {
+                    f.dataset.confirmado = '1';
+                    HTMLFormElement.prototype.submit.call(f);    // não depende do nome dos campos
+                }
+            });
         });
     });
 });

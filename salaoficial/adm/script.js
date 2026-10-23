@@ -273,3 +273,4 @@ function confirmarFinalizar(id, valorPago, valorRestante) {
         }
     });
 }
+

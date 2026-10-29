@@ -1021,3 +1021,114 @@
      margin-top: 4px;
      text-align: right;
  }
+
+ /* ==========================
+   FATURAMENTO
+========================== */
+ .fat-cards {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 16px;
+     margin-top: 20px;
+ }
+
+ .fat-card {
+     flex: 1 1 200px;
+     display: flex;
+     flex-direction: column;
+     gap: 4px;
+     background: #fff;
+     border: 2px solid var(--cor1);
+     border-radius: 10px;
+     padding: 18px 20px;
+     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+ }
+
+ .fat-rotulo {
+     font-size: 0.85rem;
+     font-weight: 700;
+     text-transform: uppercase;
+     color: var(--cor4);
+ }
+
+ .fat-valor {
+     font-family: var(--fonte-texto);
+     font-size: 1.8rem;
+     color: var(--cor2);
+ }
+
+ .fat-card small {
+     color: #718096;
+ }
+
+ .fat-nota {
+     font-size: 0.85rem;
+     color: #4a5568;
+     line-height: 1.4;
+     margin-top: 12px;
+ }
+
+ .fat-subtitulo {
+     font-family: var(--fonte-titulo);
+     color: var(--cor2);
+     margin-top: 32px;
+ }
+
+ .fat-tabela-wrap {
+     overflow-x: auto;
+ }
+
+ .fat-sinal {
+     color: #a94444;
+     font-weight: 700;
+ }
+
+ .fat-filtro {
+     display: flex;
+     flex-wrap: wrap;
+     align-items: center;
+     gap: 10px;
+     margin-top: 12px;
+ }
+
+ .fat-filtro label {
+     font-size: 0.85rem;
+     font-weight: 600;
+     color: #4a5568;
+ }
+
+ .fat-filtro input[type="month"] {
+     padding: 8px 10px;
+     border: 1px solid #cbd5e0;
+     border-radius: 6px;
+     font-family: var(--fonte-texto);
+     font-size: 0.95rem;
+     background: #fff;
+ }
+
+ .fat-filtro button {
+     padding: 9px 16px;
+     border: none;
+     border-radius: 100px;
+     background: var(--cor5);
+     color: #fff;
+     font-family: var(--fonte-texto);
+     cursor: pointer;
+     transition: background-color 0.2s;
+ }
+
+ .fat-filtro button:hover {
+     background: #f1bcb2;
+ }
+
+ .fat-resumo {
+     margin-top: 12px;
+     font-size: 0.95rem;
+     color: #333;
+ }
+
+ @media (max-width: 480px) {
+     .fat-valor {
+         font-size: 1.5rem;
+     }
+ }

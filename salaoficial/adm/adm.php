@@ -371,6 +371,95 @@ try {
     error_log("bloqueios ativos: " . $e->getMessage());
 }
 
+// ===================== FATURAMENTO =====================
+// Só leitura: usa as tabelas que já existem (agendamentos, pagamentos, cliente, bloqueios_agenda).
+//
+// O que conta como dinheiro recebido:
+//  1) o sinal pago online (pagamentos.valor_pago com status 'Confirmado'), no dia em que foi pago (criado_em),
+//     desde que o agendamento NÃO esteja cancelado;
+//  2) o restante do atendimento, no dia em que ele foi finalizado (finalizado_em),
+//     somente para agendamentos 'concluido'. Restante = valor total - sinal confirmado.
+// Pendentes e cancelados nunca entram na receita.
+function moeda($v): string {
+    return 'R$ ' . number_format((float) $v, 2, ',', '.');
+}
+
+// Subconsulta reaproveitada: total e sinal confirmado de cada agendamento
+$subPagamentos =
+    "SELECT id_agendamento,
+            MAX(valor_total) AS total,
+            SUM(CASE WHEN status_pagamento = 'Confirmado' THEN valor_pago ELSE 0 END) AS pago
+       FROM pagamentos
+   GROUP BY id_agendamento";
+
+$fat = ['dia' => 0, 'mes' => 0, 'ano' => 0];
+try {
+    $fat = $pdo->query(
+        "SELECT COALESCE(SUM(CASE WHEN e.dia = CURDATE() THEN e.valor END), 0) AS dia,
+                COALESCE(SUM(CASE WHEN YEAR(e.dia) = YEAR(CURDATE())
+                                   AND MONTH(e.dia) = MONTH(CURDATE()) THEN e.valor END), 0) AS mes,
+                COALESCE(SUM(CASE WHEN YEAR(e.dia) = YEAR(CURDATE()) THEN e.valor END), 0) AS ano
+           FROM (
+                SELECT DATE(p.criado_em) AS dia, p.valor_pago AS valor
+                  FROM pagamentos p
+                  JOIN agendamentos a ON a.id = p.id_agendamento
+                 WHERE p.status_pagamento = 'Confirmado'
+                   AND a.status <> 'cancelado'
+                UNION ALL
+                SELECT DATE(COALESCE(a.finalizado_em, a.data_agendamento)) AS dia,
+                       GREATEST(COALESCE(t.total, a.preco_servico, 0) - COALESCE(t.pago, 0), 0) AS valor
+                  FROM agendamentos a
+             LEFT JOIN ($subPagamentos) t ON t.id_agendamento = a.id
+                 WHERE a.status = 'concluido'
+           ) e"
+    )->fetch();
+} catch (PDOException $e) {
+    error_log("faturamento: " . $e->getMessage());
+}
+
+// Cancelamentos das clientes (os da emergência ficam de fora: eles já aparecem em "Avisar clientes")
+$cancelamentos = [];
+try {
+    $cancelamentos = $pdo->query(
+        "SELECT a.id,
+                COALESCE(c.nome, 'Cliente não cadastrado') AS nome,
+                a.servico, a.data_agendamento, a.hora_agendamento, a.status,
+                (SELECT COALESCE(SUM(p.valor_pago), 0)
+                   FROM pagamentos p
+                  WHERE p.id_agendamento = a.id
+                    AND p.status_pagamento = 'Confirmado') AS sinal
+           FROM agendamentos a
+      LEFT JOIN cliente c ON c.id = a.id_cliente
+          WHERE a.status = 'cancelado'
+            AND NOT EXISTS (SELECT 1
+                              FROM bloqueios_agenda b
+                             WHERE a.data_agendamento BETWEEN b.data_inicio AND b.data_fim)
+       ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC
+          LIMIT 200"
+    )->fetchAll();
+} catch (PDOException $e) {
+    error_log("faturamento cancelamentos: " . $e->getMessage());
+}
+
+// Atendimentos concluídos e o valor de cada um
+$concluidos = [];
+try {
+    $concluidos = $pdo->query(
+        "SELECT a.id,
+                COALESCE(c.nome, 'Cliente não cadastrado') AS nome,
+                a.servico, a.data_agendamento, a.hora_agendamento, a.finalizado_em,
+                COALESCE(t.total, a.preco_servico, 0) AS valor
+           FROM agendamentos a
+      LEFT JOIN cliente c ON c.id = a.id_cliente
+      LEFT JOIN ($subPagamentos) t ON t.id_agendamento = a.id
+          WHERE a.status = 'concluido'
+       ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC
+          LIMIT 500"
+    )->fetchAll();
+} catch (PDOException $e) {
+    error_log("faturamento concluídos: " . $e->getMessage());
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -488,9 +577,7 @@ ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
 
     <div id="servico" class="tela">
         <h1>Histórico do Cliente</h1>
-        <div class="busca-historico">
-            <input type="search" id="busca-historico" placeholder="🔍 Buscar cliente pelo nome..." autocomplete="off">
-        </div>
+        
         <input type="search" id="busca-historico" class="campo-busca"
                placeholder="🔍 Buscar cliente pelo nome..." autocomplete="off">
         <p id="busca-vazia" class="busca-vazia">Nenhuma cliente encontrada.</p>
@@ -538,7 +625,115 @@ ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC");
         </table>
     </div>
 
-    <div id="faturamento" class="tela"><h1>Faturamento</h1></div>
+    <div id="faturamento" class="tela">
+        <h1>Faturamento</h1>
+
+        <!-- Totais recebidos -->
+        <div class="fat-cards">
+            <div class="fat-card">
+                <span class="fat-rotulo">Hoje</span>
+                <strong class="fat-valor"><?= moeda($fat['dia']) ?></strong>
+                <small><?= date('d/m/Y') ?></small>
+            </div>
+            <div class="fat-card">
+                <span class="fat-rotulo">Este mês</span>
+                <strong class="fat-valor"><?= moeda($fat['mes']) ?></strong>
+                <small><?= date('m/Y') ?></small>
+            </div>
+            <div class="fat-card">
+                <span class="fat-rotulo">Este ano</span>
+                <strong class="fat-valor"><?= moeda($fat['ano']) ?></strong>
+                <small><?= date('Y') ?></small>
+            </div>
+        </div>
+        <p class="fat-nota">
+            Conta só dinheiro recebido: o sinal pago online (no dia do pagamento) e o restante dos atendimentos
+            finalizados (no dia da finalização). Pendentes e cancelados não entram.
+        </p>
+
+        <!-- Cancelamentos -->
+        <h2 class="fat-subtitulo">Cancelamentos (<?= count($cancelamentos) ?>)</h2>
+        <p class="fat-nota">Fora do faturamento. Não inclui os cancelados pela emergência (esses estão em Configurações). "Sinal pago" é o valor que a cliente já tinha pago.</p>
+        <div class="fat-tabela-wrap">
+            <table class="tabela-agendamentos">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Serviço</th>
+                        <th>Data</th>
+                        <th>Hora</th>
+                        <th>Status</th>
+                        <th>Sinal pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($cancelamentos)): ?>
+                        <?php foreach ($cancelamentos as $cn): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($cn['nome']) ?></td>
+                            <td><?= htmlspecialchars($cn['servico']) ?></td>
+                            <td><?= date('d/m/Y', strtotime($cn['data_agendamento'])) ?></td>
+                            <td><?= htmlspecialchars(substr((string) $cn['hora_agendamento'], 0, 5)) ?></td>
+                            <td><strong><?= htmlspecialchars($cn['status']) ?></strong></td>
+                            <td>
+                                <?php if ((float) $cn['sinal'] > 0): ?>
+                                    <span class="fat-sinal"><?= moeda($cn['sinal']) ?></span>
+                                <?php else: ?>
+                                    —
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr><td colspan="6" style="text-align: center;">Nenhum cancelamento.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Concluídos -->
+        <h2 class="fat-subtitulo">Agendamentos concluídos</h2>
+        <div class="fat-filtro">
+            <label for="filtro-concluidos">Mês:</label>
+            <input type="month" id="filtro-concluidos" value="<?= date('Y-m') ?>">
+            <button type="button" id="btn-todos-concluidos">Ver todos</button>
+        </div>
+        <p class="fat-resumo">
+            <span id="qtd-concluidos">0</span> atendimento(s) &middot; total
+            <strong id="total-concluidos">R$ 0,00</strong>
+        </p>
+        <div class="fat-tabela-wrap">
+            <table class="tabela-agendamentos" id="tabela-concluidos">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Serviço</th>
+                        <th>Data</th>
+                        <th>Hora</th>
+                        <th>Finalizado em</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($concluidos)): ?>
+                        <?php foreach ($concluidos as $cc): ?>
+                        <tr data-mes="<?= htmlspecialchars(substr((string) $cc['data_agendamento'], 0, 7)) ?>"
+                            data-valor="<?= htmlspecialchars((string) (float) $cc['valor']) ?>">
+                            <td><?= htmlspecialchars($cc['nome']) ?></td>
+                            <td><?= htmlspecialchars($cc['servico']) ?></td>
+                            <td><?= date('d/m/Y', strtotime($cc['data_agendamento'])) ?></td>
+                            <td><?= htmlspecialchars(substr((string) $cc['hora_agendamento'], 0, 5)) ?></td>
+                            <td><?= $cc['finalizado_em'] ? date('d/m/Y H:i', strtotime($cc['finalizado_em'])) : '—' ?></td>
+                            <td><strong><?= moeda($cc['valor']) ?></strong></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr><td colspan="6" style="text-align: center;">Nenhum atendimento concluído.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
     
     <div id="config" class="tela">
     <h1>Configurações</h1>
@@ -857,6 +1052,42 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+});
+</script>
+
+<script>
+// Faturamento: filtro por mês na lista de concluídos (total e quantidade acompanham o filtro)
+document.addEventListener('DOMContentLoaded', function () {
+    const filtro = document.getElementById('filtro-concluidos');
+    const btnTodos = document.getElementById('btn-todos-concluidos');
+    const totalEl = document.getElementById('total-concluidos');
+    const qtdEl = document.getElementById('qtd-concluidos');
+    const linhas = document.querySelectorAll('#tabela-concluidos tbody tr[data-mes]');
+    if (!filtro || !totalEl || !qtdEl) return;
+
+    const real = v => 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    function aplicar() {
+        let total = 0;
+        let qtd = 0;
+        linhas.forEach(function (l) {
+            const mostrar = !filtro.value || l.dataset.mes === filtro.value;
+            l.style.display = mostrar ? '' : 'none';
+            if (mostrar) {
+                total += parseFloat(l.dataset.valor) || 0;
+                qtd++;
+            }
+        });
+        totalEl.textContent = real(total);
+        qtdEl.textContent = qtd;
+    }
+
+    filtro.addEventListener('change', aplicar);
+    btnTodos.addEventListener('click', function () {
+        filtro.value = '';
+        aplicar();
+    });
+    aplicar();
 });
 </script>
 

@@ -1,17 +1,12 @@
  <?php
 session_start();
 
-// Carrega o arquivo de conexão
+// Carrega o arquivo de conexão PDO
 require_once __DIR__ . "/conecte.php";
 
-$db = $conn ?? $conexao ?? $mysqli ?? null;
-
-if (!$db || !($db instanceof mysqli)) {
-    die("Erro crítico: A conexão MySQLi não foi encontrada. Verifique o arquivo de conexão.");
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    die("Erro crítico: A conexão PDO com o banco não foi encontrada. Verifique o arquivo de conexão.");
 }
-
-// Faz o mysqli lançar exceções em caso de erro de SQL (necessário para o rollback funcionar)
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 // Ative (true) só para diagnosticar o problema da senha. Depois volte para false.
 $DEBUG = false;
@@ -34,11 +29,9 @@ function sel(array $dados, string $campo, string $valor, string $padrao = ''): s
 
 // 2. Se o formulário foi enviado, valida a senha e atualiza os dados
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // IMPORTANTE: a senha NÃO leva trim() nem htmlspecialchars()
     $senha_atual       = $_POST['senha_atual'] ?? '';
 
-    // Dados pessoais editáveis (nome, email, cpf, data de nascimento e
-    // "como nos conheceu" NÃO são lidos do formulário: não podem ser alterados)
+    // Dados pessoais editáveis
     $telefone          = trim($_POST['telefone'] ?? '');
     $endereco          = trim($_POST['endereco'] ?? '');
 
@@ -62,19 +55,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($senha_atual === '') {
         $erro = "Por favor, digite a sua senha atual para confirmar as alterações.";
     } else {
-        // Busca a senha criptografada guardada na tabela 'cliente'
-        $stmtPass = $db->prepare("SELECT password FROM cliente WHERE id = ? LIMIT 1");
-        $stmtPass->bind_param("i", $id);
-        $stmtPass->execute();
-        $stmtPass->bind_result($hash_senha);
-        $achou = $stmtPass->fetch();
-        $stmtPass->close();
+        // Busca a senha criptografada guardada na tabela 'cliente' usando PDO
+        $stmtPass = $pdo->prepare("SELECT password FROM cliente WHERE id = ? LIMIT 1");
+        $stmtPass->execute([$id]);
+        $clientePass = $stmtPass->fetch();
+        $hash_senha = $clientePass['password'] ?? null;
 
         if ($DEBUG) {
             echo "<pre>";
             var_dump([
                 'id_sessao'    => $id,
-                'achou'        => (bool) $achou,
+                'achou'        => (bool) $hash_senha,
                 'hash_len'     => $hash_senha ? strlen($hash_senha) : null,
                 'hash_prefixo' => $hash_senha ? substr($hash_senha, 0, 4) : null,
                 'senha_len'    => strlen($senha_atual),
@@ -82,43 +73,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "</pre>";
         }
 
-        if (!$achou) {
+        if (!$hash_senha) {
             $erro = "Cliente não encontrado. Faça login novamente.";
         } elseif (!password_verify($senha_atual, $hash_senha)) {
             $erro = "Senha atual incorreta. As alterações não foram salvas.";
         } else {
             try {
-                // As duas tabelas são atualizadas juntas, ou nenhuma é
-                $db->begin_transaction();
+                // Inicia transação com PDO
+                $pdo->beginTransaction();
 
                 // A. Atualiza ou Insere na tabela 'pessoais' (só telefone e endereco)
-                $stmtCheckP = $db->prepare("SELECT COUNT(*) FROM pessoais WHERE id_cliente = ?");
-                $stmtCheckP->bind_param("i", $id);
-                $stmtCheckP->execute();
-                $stmtCheckP->bind_result($existePes);
-                $stmtCheckP->fetch();
-                $stmtCheckP->close();
+                $stmtCheckP = $pdo->prepare("SELECT COUNT(*) FROM pessoais WHERE id_cliente = ?");
+                $stmtCheckP->execute([$id]);
+                $existePes = $stmtCheckP->fetchColumn();
 
                 if ($existePes > 0) {
-                    $stmtPes = $db->prepare("UPDATE pessoais SET telefone = ?, endereco = ? WHERE id_cliente = ?");
-                    $stmtPes->bind_param("ssi", $telefone, $endereco, $id);
+                    $stmtPes = $pdo->prepare("UPDATE pessoais SET telefone = ?, endereco = ? WHERE id_cliente = ?");
+                    $stmtPes->execute([$telefone, $endereco, $id]);
                 } else {
-                    $stmtPes = $db->prepare("INSERT INTO pessoais (id_cliente, telefone, endereco) VALUES (?, ?, ?)");
-                    $stmtPes->bind_param("iss", $id, $telefone, $endereco);
+                    $stmtPes = $pdo->prepare("INSERT INTO pessoais (id_cliente, telefone, endereco) VALUES (?, ?, ?)");
+                    $stmtPes->execute([$id, $telefone, $endereco]);
                 }
-                $stmtPes->execute();
-                $stmtPes->close();
 
                 // B. Atualiza ou Insere na tabela 'ficha_anamnese'
-                $stmtCheckA = $db->prepare("SELECT COUNT(*) FROM ficha_anamnese WHERE id_cliente = ?");
-                $stmtCheckA->bind_param("i", $id);
-                $stmtCheckA->execute();
-                $stmtCheckA->bind_result($existeAna);
-                $stmtCheckA->fetch();
-                $stmtCheckA->close();
+                $stmtCheckA = $pdo->prepare("SELECT COUNT(*) FROM ficha_anamnese WHERE id_cliente = ?");
+                $stmtCheckA->execute([$id]);
+                $existeAna = $stmtCheckA->fetchColumn();
 
                 if ($existeAna > 0) {
-                    $stmtAna = $db->prepare(
+                    $stmtAna = $pdo->prepare(
                         "UPDATE ficha_anamnese SET
                             diabetes = ?, gestante = ?, alergias = ?, especificar_alergia = ?,
                             cuticula = ?, onicomicose = ?, especificar_onico = ?,
@@ -126,16 +109,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             lamina = ?, outro_lamina_texto = ?, encravada = ?, onicofagia = ?, esporte = ?, piscina = ?
                          WHERE id_cliente = ?"
                     );
-                    $stmtAna->bind_param(
-                        "sssssssssssssssi",
+                    $stmtAna->execute([
                         $diabetes, $gestante, $alergias, $especificar_alerg,
                         $cuticula, $onicomicose, $especificar_onico,
                         $medicamento, $qual_medicamento,
                         $lamina, $outro_lamina, $encravada, $onicofagia, $esporte, $piscina,
                         $id
-                    );
+                    ]);
                 } else {
-                    $stmtAna = $db->prepare(
+                    $stmtAna = $pdo->prepare(
                         "INSERT INTO ficha_anamnese
                             (id_cliente, diabetes, gestante, alergias, especificar_alergia,
                              cuticula, onicomicose, especificar_onico,
@@ -143,23 +125,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              lamina, outro_lamina_texto, encravada, onicofagia, esporte, piscina)
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     );
-                    $stmtAna->bind_param(
-                        "isssssssssssssss",
+                    $stmtAna->execute([
                         $id,
                         $diabetes, $gestante, $alergias, $especificar_alerg,
                         $cuticula, $onicomicose, $especificar_onico,
                         $medicamento, $qual_medicamento,
                         $lamina, $outro_lamina, $encravada, $onicofagia, $esporte, $piscina
-                    );
+                    ]);
                 }
-                $stmtAna->execute();
-                $stmtAna->close();
 
-                $db->commit();
-
+                $pdo->commit();
                 $mensagem = "Dados e ficha de saúde atualizados com sucesso!";
             } catch (Throwable $e) {
-                $db->rollback();
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
                 error_log("perfil.php: " . $e->getMessage());
                 $erro = "Não foi possível salvar as alterações. Tente novamente.";
             }
@@ -167,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// 3. Busca os dados unidos das três tabelas para preencher o formulário
+// 3. Busca os dados unidos das três tabelas para preencher o formulário com PDO
 $sql = "SELECT c.nome, c.email,
                p.telefone, p.cpf, p.endereco, p.data_nascimento, p.como_conheceu, p.data_cadastro,
                a.diabetes, a.gestante, a.alergias, a.especificar_alergia,
@@ -179,12 +159,9 @@ $sql = "SELECT c.nome, c.email,
         LEFT JOIN ficha_anamnese a ON c.id = a.id_cliente
         WHERE c.id = ? LIMIT 1";
 
-$stmt = $db->prepare($sql);
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$resultado = $stmt->get_result();
-$dados = $resultado->fetch_assoc() ?? [];
-$stmt->close();
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$id]);
+$dados = $stmt->fetch() ?: [];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -213,15 +190,15 @@ $stmt->close();
     <h2>Meus Dados e Ficha de Saúde</h2>
 
     <?php if (!empty($dados['data_cadastro'])): ?>
-        <p class="data-cadastro">Data de Cadastro: <?= htmlspecialchars(date('d/m/Y', strtotime($dados['data_cadastro']))) ?></p>
+        <p class="data-cadastro">Data de Cadastro: <?= htmlspecialchars(date('d/m/Y', strtotime($dados['data_cadastro'])), ENT_QUOTES, 'UTF-8') ?></p>
     <?php endif; ?>
 
     <?php if (!empty($mensagem)): ?>
-        <p class="msg msg-sucesso"><?= htmlspecialchars($mensagem) ?></p>
+        <p class="msg msg-sucesso"><?= htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8') ?></p>
     <?php endif; ?>
 
     <?php if (!empty($erro)): ?>
-        <p class="msg msg-erro"><?= htmlspecialchars($erro) ?></p>
+        <p class="msg msg-erro"><?= htmlspecialchars($erro, ENT_QUOTES, 'UTF-8') ?></p>
     <?php endif; ?>
 
     <form action="perfil.php" method="POST" autocomplete="off">
@@ -230,37 +207,37 @@ $stmt->close();
 
         <div class="campo">
             <label>Nome:</label>
-            <input type="text" class="bloqueado" value="<?= htmlspecialchars($dados['nome'] ?? '') ?>" readonly tabindex="-1">
+            <input type="text" class="bloqueado" value="<?= htmlspecialchars($dados['nome'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
         </div>
 
         <div class="campo">
             <label>Email:</label>
-            <input type="email" class="bloqueado" value="<?= htmlspecialchars($dados['email'] ?? '') ?>" readonly tabindex="-1">
+            <input type="email" class="bloqueado" value="<?= htmlspecialchars($dados['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
         </div>
 
         <div class="campo">
             <label>Telefone:</label>
-            <input type="text" name="telefone" value="<?= htmlspecialchars($dados['telefone'] ?? '') ?>">
+            <input type="text" name="telefone" value="<?= htmlspecialchars($dados['telefone'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
 
         <div class="campo">
             <label>CPF:</label>
-            <input type="text" class="bloqueado" value="<?= htmlspecialchars($dados['cpf'] ?? '') ?>" readonly tabindex="-1">
+            <input type="text" class="bloqueado" value="<?= htmlspecialchars($dados['cpf'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
         </div>
 
         <div class="campo">
             <label>Data de Nascimento:</label>
-            <input type="date" class="bloqueado" value="<?= htmlspecialchars($dados['data_nascimento'] ?? '') ?>" readonly tabindex="-1">
+            <input type="date" class="bloqueado" value="<?= htmlspecialchars($dados['data_nascimento'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
         </div>
 
         <div class="campo">
             <label>Endereço:</label>
-            <input type="text" name="endereco" value="<?= htmlspecialchars($dados['endereco'] ?? '') ?>">
+            <input type="text" name="endereco" value="<?= htmlspecialchars($dados['endereco'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
 
         <div class="campo">
             <label>Como nos conheceu:</label>
-            <input type="text" class="bloqueado" value="<?= htmlspecialchars($dados['como_conheceu'] ?? '') ?>" readonly tabindex="-1">
+            <input type="text" class="bloqueado" value="<?= htmlspecialchars($dados['como_conheceu'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly tabindex="-1">
         </div>
 
         <hr class="separador">
@@ -293,7 +270,7 @@ $stmt->close();
 
         <div class="campo">
             <label>Especificar Alergia:</label>
-            <input type="text" name="especificar_alergia" value="<?= htmlspecialchars($dados['especificar_alergia'] ?? '') ?>">
+            <input type="text" name="especificar_alergia" value="<?= htmlspecialchars($dados['especificar_alergia'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
 
         <div class="campo">
@@ -314,7 +291,7 @@ $stmt->close();
 
         <div class="campo">
             <label>Especificar Onicomicose:</label>
-            <input type="text" name="especificar_onico" value="<?= htmlspecialchars($dados['especificar_onico'] ?? '') ?>">
+            <input type="text" name="especificar_onico" value="<?= htmlspecialchars($dados['especificar_onico'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
 
         <div class="campo">
@@ -327,17 +304,17 @@ $stmt->close();
 
         <div class="campo">
             <label>Qual Medicamento:</label>
-            <input type="text" name="qual_medicamento" value="<?= htmlspecialchars($dados['qual_medicamento'] ?? '') ?>">
+            <input type="text" name="qual_medicamento" value="<?= htmlspecialchars($dados['qual_medicamento'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
 
         <div class="campo">
             <label>Lamina:</label>
-            <input type="text" name="lamina" value="<?= htmlspecialchars($dados['lamina'] ?? '') ?>">
+            <input type="text" name="lamina" value="<?= htmlspecialchars($dados['lamina'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
 
         <div class="campo">
             <label>Outro Lamina:</label>
-            <input type="text" name="outro_lamina" value="<?= htmlspecialchars($dados['outro_lamina'] ?? '') ?>">
+            <input type="text" name="outro_lamina" value="<?= htmlspecialchars($dados['outro_lamina'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
 
         <div class="campo">
@@ -389,8 +366,6 @@ $stmt->close();
 </div>
 
 <script>
-// Garante que o navegador não preencha a senha sozinho:
-// limpa o campo logo após o carregamento, se a cliente ainda não digitou nada.
 (function () {
     const campo = document.getElementById('senha_atual');
     let digitou = false;

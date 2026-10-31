@@ -1,0 +1,166 @@
+ <?php
+session_start();
+require_once __DIR__ . "/conecte.php";
+
+if (!isset($_SESSION['id'])) {
+    die("Você precisa estar logado.");
+}
+
+if (!isset($_SESSION['agendamento_temporario'])) {
+    die("Nenhum agendamento encontrado.");
+}
+
+$id = (int)$_SESSION['id'];
+
+$stmt = $conn->prepare("
+SELECT
+    c.nome,
+    c.email,
+    p.cpf
+FROM cliente c
+INNER JOIN pessoais p
+ON p.id_cliente = c.id
+WHERE c.id = ?
+LIMIT 1
+");
+
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$user) {
+    die("Cliente não encontrado.");
+}
+
+$agendamento  = $_SESSION['agendamento_temporario'];
+$servico      = $agendamento['servico'];
+$preco_total  = (float)$agendamento['preco_servico'];
+$valor_sinal  = (float)$agendamento['valor_sinal'];
+
+$data = date("d/m/Y", strtotime($agendamento['data_agendamento']));
+$hora = substr($agendamento['hora_agendamento'], 0, 5);
+?>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mtnaildesigner.com</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/paga.css">
+</head>
+
+<body>
+
+<div id="pagamento">
+
+    <div class="paga" id="dados">
+
+        <label>Nome Completo</label>
+        <input type="text" id="cliente_nome" value="<?= htmlspecialchars($user['nome']) ?>" readonly>
+
+        <label>CPF</label>
+        <input type="text" id="cliente_cpf" value="<?= htmlspecialchars($user['cpf']) ?>" readonly>
+
+        <p>Forma de pagamento</p>
+
+        <div class="forma-pix">
+            <button id="btn-pix" onclick="pixgera()">PIX</button>
+        </div>
+
+        <div class="forma-credito">
+            <button id="btn-credito" onclick="creditopaga()">Crédito</button>
+        </div>
+
+        <div class="forma-debito">
+            <button id="btn-debito" onclick="debitopaga()">Débito</button>
+        </div>
+
+    </div>
+
+    <div class="paga" id="peco">
+
+        <p>Importante: O pagamento realizado nesta etapa corresponde apenas ao sinal de 30% do valor do serviço. O valor restante deverá ser pago no salão após a realização do atendimento.</p>
+
+        <p>
+            <strong>Serviços:</strong> <?= htmlspecialchars($servico) ?>
+        </p>
+
+        <p>
+            <strong>Data:</strong> <?= $data ?>
+            <strong>Horário:</strong> <?= $hora ?>
+        </p>
+
+        <p>
+            R$ <?= number_format($valor_sinal, 2, ",", ".") ?>
+        </p>
+        <input type="hidden" id="valor_sinal" value="<?= $valor_sinal ?>">
+
+        <!-- METODO 1: PIX -->
+        <div id="container-pix" class="metodo-pagamento">
+            <button class="btn-pagar" id="btn-gerar-pix" onclick="enviarPagamento('PIX')">
+                Gerar QR Code Pix
+            </button>
+
+            <div id="area-qr-code" style="display: none; margin-top: 15px; text-align: center;">
+                <p>Escaneie o QR Code abaixo para pagar:</p>
+                <img id="img-qrcode" src="" alt="QR Code Pix" style="max-width: 200px; width: 100%; height: auto;">
+
+                <p style="margin-top: 10px;">Ou copie o código Pix abaixo:</p>
+                <input type="text" id="input-copia-cola" readonly style="width: 100%; padding: 8px; text-align: center;">
+                <button type="button" onclick="copiarPix()" style="margin-top: 8px; padding: 6px 12px; cursor: pointer;">
+                    Copiar Código Pix
+                </button>
+            </div>
+        </div>
+
+        <!-- METODO 2: CRÉDITO (pago na página segura do Asaas) -->
+        <div id="container-credito" class="metodo-pagamento paga-credito">
+            <p style="margin-bottom: 10px;">
+                O pagamento no crédito é feito em uma página segura do Asaas, que abrirá em uma nova aba. Nessa página, deixe selecionado <strong>"Cartão de Crédito"</strong> e preencha os dados do cartão. Depois de pagar, volte para esta página e seu agendamento será confirmado automaticamente.
+            </p>
+            <button class="btn-pagar" id="btn-pagar-credito" onclick="enviarPagamento('CREDIT_CARD')">
+                Pagar com Crédito
+            </button>
+        </div>
+
+        <!-- METODO 3: DÉBITO (pago na página segura do Asaas) -->
+        <div id="container-debito" class="metodo-pagamento paga-credito">
+            <p style="margin-bottom: 10px;">
+                O pagamento no débito é feito em uma página segura do Asaas, que abrirá em uma nova aba. <strong>Nessa página, clique em "Cartão de Débito" antes de preencher os dados</strong> (ela abre em "Cartão de Crédito"). Depois de pagar, volte para esta página e seu agendamento será confirmado automaticamente.
+            </p>
+            <button class="btn-pagar" id="btn-pagar-debito" onclick="enviarPagamento('DEBIT_CARD')">
+                Pagar com Débito
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Modal de Confirmação com Ícone Check (✓) -->
+<div id="modal-sucesso" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: #fff; padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="width: 60px; height: 60px; background: #4CAF50; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 15px auto;">
+            ✓
+        </div>
+        <h2 style="margin: 0 0 10px 0; color: #333;">Agendamento Confirmado!</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Seu pagamento foi aprovado e seu horário já está garantido.</p>
+        <button onclick="window.location.href='meuagenda.php'" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer;">
+            Concluir
+        </button>
+    </div>
+</div>
+
+<!-- QRious: gera QR code no navegador a partir do "copia e cola",
+     usado quando o Asaas (comum no Sandbox) não devolve a imagem pronta -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="paga.js"></script>
+<!-- SweetAlert2 CSS e JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>

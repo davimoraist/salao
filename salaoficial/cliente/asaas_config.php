@@ -1,6 +1,6 @@
  <?php
 session_start();
-require_once "conecte.php"; // deve definir $conn (mysqli) já conectado
+require_once "conecte.php"; // deve definir $pdo (PDO) já conectado
 
 // Oculta avisos visuais do PHP para evitar quebrar a resposta JSON do JavaScript
 ini_set('display_errors', 0);
@@ -8,9 +8,14 @@ error_reporting(E_ALL);
 
 header("Content-Type: application/json; charset=utf-8");
 
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    echo json_encode(['sucesso' => false, 'mensagem' => 'Erro crítico: Conexão PDO não encontrada.']);
+    exit;
+}
+
 // Configuração do Asaas
 define('ASAAS_API_URL', 'https://sandbox.asaas.com/api/v3'); // Mude para https://www.asaas.com/api/v3 em produção
-$apiKey = 'coloca seu api aqui'; // Insira sua API Key do Asaas aqui
+$apiKey = 'coloca seu api aqui!'; // Insira sua API Key do Asaas aqui
 
 function criarCpfFicticioForcado() {
     $n = [];
@@ -39,95 +44,75 @@ function criarCpfFicticioForcado() {
     return implode('', $todosDigitos);
 }
 
-// ====== FUNÇÃO QUE GRAVA O AGENDAMENTO + O PAGAMENTO NO BANCO ======
-// $metodo: 'PIX', 'CREDIT_CARD' ou 'DEBIT_CARD' (débito vem pela página do Asaas)
-// $paymentIdAsaas: id da cobrança no Asaas (pode vir null)
-function salvarAgendamentoNoBanco($conn, $metodo, $paymentIdAsaas = null) {
+// ====== FUNÇÃO QUE GRAVA O AGENDAMENTO + O PAGAMENTO NO BANCO (PDO) ======
+function salvarAgendamentoNoBanco(PDO $pdo, $metodo, $paymentIdAsaas = null) {
     if (!isset($_SESSION['agendamento_temporario'])) {
         return false;
     }
 
     $dados = $_SESSION['agendamento_temporario'];
 
-    // --- 1. Grava o agendamento ---
-    $sql = "INSERT INTO agendamentos 
-            (id_cliente, servico, preco_servico, data_agendamento, hora_agendamento, status, criado_em, id_servicos) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    try {
+        // --- 1. Grava o agendamento ---
+        $sql = "INSERT INTO agendamentos 
+                (id_cliente, servico, preco_servico, data_agendamento, hora_agendamento, status, criado_em, id_servicos) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-    $stmt = $conn->prepare($sql);
+        $stmt = $pdo->prepare($sql);
 
-    if (!$stmt) {
-        error_log("Erro ao preparar INSERT em agendamentos: " . $conn->error);
-        return false;
-    }
+        $status = 'Confirmado';
+        $criado_em = date('Y-m-d H:i:s');
+        $id_servico = $dados['id_servicos'] ?? 0;
 
-    $status = 'Confirmado';
-    $criado_em = date('Y-m-d H:i:s');
-    $id_servico = $dados['id_servicos'] ?? 0;
+        $sucesso = $stmt->execute([
+            $dados['id_cliente'],
+            $dados['servico'],
+            $dados['preco_servico'],
+            $dados['data_agendamento'],
+            $dados['hora_agendamento'],
+            $status,
+            $criado_em,
+            $id_servico
+        ]);
 
-    $stmt->bind_param(
-        "isdssssi",
-        $dados['id_cliente'],
-        $dados['servico'],
-        $dados['preco_servico'],
-        $dados['data_agendamento'],
-        $dados['hora_agendamento'],
-        $status,
-        $criado_em,
-        $id_servico
-    );
+        $idAgendamento = $pdo->lastInsertId();
 
-    $sucesso = $stmt->execute();
-    $idAgendamento = $conn->insert_id;
-    $stmt->close();
+        if (!$sucesso) {
+            error_log("Erro ao executar INSERT em agendamentos.");
+            return false;
+        }
 
-    if (!$sucesso) {
-        error_log("Erro ao executar INSERT em agendamentos: " . $conn->error);
-        return false;
-    }
+        // --- 2. Grava o pagamento (valor pago agora x valor restante) ---
+        $valorTotal    = (float)($dados['preco_servico'] ?? 0);
+        $valorPago     = (float)($dados['valor_sinal'] ?? 0);
+        $valorRestante = round($valorTotal - $valorPago, 2);
+        $statusPagamento = 'Confirmado';
 
-    // --- 2. Grava o pagamento (valor pago agora x valor restante) ---
-    $valorTotal    = (float)($dados['preco_servico'] ?? 0);
-    $valorPago     = (float)($dados['valor_sinal'] ?? 0);
-    $valorRestante = round($valorTotal - $valorPago, 2);
-    $statusPagamento = 'Confirmado';
+        $sqlPagamento = "INSERT INTO pagamentos
+                (id_agendamento, id_cliente, metodo_pagamento, payment_id_asaas,
+                 valor_total, valor_pago, valor_restante, status_pagamento, criado_em)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    $sqlPagamento = "INSERT INTO pagamentos
-            (id_agendamento, id_cliente, metodo_pagamento, payment_id_asaas,
-             valor_total, valor_pago, valor_restante, status_pagamento, criado_em)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmtPagamento = $pdo->prepare($sqlPagamento);
+        $stmtPagamento->execute([
+            $idAgendamento,
+            $dados['id_cliente'],
+            $metodo,
+            $paymentIdAsaas,
+            $valorTotal,
+            $valorPago,
+            $valorRestante,
+            $statusPagamento,
+            $criado_em
+        ]);
 
-    $stmtPagamento = $conn->prepare($sqlPagamento);
+        unset($_SESSION['agendamento_temporario']);
 
-    if (!$stmtPagamento) {
-        error_log("Erro ao preparar INSERT em pagamentos: " . $conn->error);
-        // O agendamento já foi gravado; retornamos true mesmo assim,
-        // mas registramos o erro pra investigar depois.
         return true;
+    } catch (\PDOException $e) {
+        error_log("Erro no banco de dados (salvarAgendamentoNoBanco): " . $e->getMessage());
+        return false;
     }
-
-    $stmtPagamento->bind_param(
-        "iissdddss",
-        $idAgendamento,
-        $dados['id_cliente'],
-        $metodo,
-        $paymentIdAsaas,
-        $valorTotal,
-        $valorPago,
-        $valorRestante,
-        $statusPagamento,
-        $criado_em
-    );
-
-    if (!$stmtPagamento->execute()) {
-        error_log("Erro ao executar INSERT em pagamentos: " . $stmtPagamento->error);
-    }
-
-    $stmtPagamento->close();
-
-    unset($_SESSION['agendamento_temporario']);
-
-    return true;
 }
 
 // ====== ROTA: CHECAR STATUS DO PIX (chamada via GET pelo polling do JS) ======
@@ -158,7 +143,7 @@ if ($acao === 'checar_status') {
     $status = $res['status'] ?? '';
     if (in_array($status, ['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'])) {
         $metodoSalvo = $_SESSION['agendamento_temporario']['metodo_pagamento'] ?? 'PIX';
-        $gravou = salvarAgendamentoNoBanco($conn, $metodoSalvo, $paymentId);
+        $gravou = salvarAgendamentoNoBanco($pdo, $metodoSalvo, $paymentId);
         echo json_encode(['pago' => true, 'salvo_no_banco' => $gravou]);
     } else {
         echo json_encode(['pago' => false, 'status' => $status]);
@@ -253,12 +238,6 @@ if ($metodo === 'PIX') {
         $_SESSION['agendamento_temporario']['metodo_pagamento'] = 'PIX';
     }
 
-    // Buscar QR Code e Código Copia e Cola.
-    // No ambiente Sandbox do Asaas, a geração da IMAGEM do QR code às
-    // vezes falha de forma intermitente (limitação documentada do
-    // próprio Asaas), mesmo com a cobrança e a chave Pix corretas.
-    // Por isso tentamos algumas vezes, com uma pequena espera entre
-    // as tentativas.
     $resPix = null;
     $tentativas = 3;
 
@@ -279,14 +258,12 @@ if ($metodo === 'PIX') {
         $resPix = json_decode(curl_exec($ch), true);
         curl_close($ch);
 
-        // Já temos imagem + payload: sucesso completo, pode parar.
         if (isset($resPix['encodedImage']) && isset($resPix['payload'])) {
             break;
         }
     }
 
     if (isset($resPix['encodedImage']) && isset($resPix['payload'])) {
-        // Caminho normal: o Asaas devolveu a imagem pronta.
         echo json_encode([
             'sucesso'    => true,
             'tipo'       => 'PIX',
@@ -295,9 +272,6 @@ if ($metodo === 'PIX') {
             'copia_cola' => $resPix['payload']
         ]);
     } elseif (isset($resPix['payload'])) {
-        // A imagem falhou (comum no Sandbox), mas o payload (código
-        // "copia e cola") veio certo — o front gera o QR code a
-        // partir desse texto, sem depender da imagem do Asaas.
         echo json_encode([
             'sucesso'           => true,
             'tipo'              => 'PIX',
@@ -313,12 +287,7 @@ if ($metodo === 'PIX') {
     exit;
 }
 
-// --- 3. PROCESSAR CRÉDITO OU DÉBITO (página de pagamento do Asaas) ---
-// Os dados do cartão nunca passam pelo nosso site: criamos a cobrança sem
-// dados de cartão e mandamos o cliente pra página de fatura do Asaas
-// (invoiceUrl), onde ele escolhe Cartão de Crédito ou Cartão de Débito.
-// Com billingType CREDIT_CARD, a fatura mostra só as opções de cartão,
-// sem boleto nem Pix. A confirmação é feita pelo mesmo polling do Pix.
+// --- 3. PROCESSAR CRÉDITO OU DÉBITO ---
 if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
     $ch = curl_init(ASAAS_API_URL . '/payments');
     curl_setopt_array($ch, [
@@ -366,7 +335,6 @@ if ($metodo === 'CREDIT_CARD' || $metodo === 'DEBIT_CARD') {
     exit;
 }
 
-// Método não reconhecido
 echo json_encode(['sucesso' => false, 'mensagem' => 'Método de pagamento inválido.']);
 exit;
 ?>

@@ -38,6 +38,8 @@ function showError($error){
     <link rel="stylesheet" href="css/clientes.css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+    <!-- Script do reCAPTCHA carregado de forma centralizada e otimizada -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -97,7 +99,7 @@ function showError($error){
                 class="btn-principal">
                 Entrar
             </button>
-
+            <div class="g-recaptcha" data-sitekey="6Lc1AQouAAAAABUogEDt3O_RbynKl-hUJOLTLKO6"></div>
         </form>
 
         <form 
@@ -148,7 +150,7 @@ function showError($error){
                 class="btn-principal">
                 Criar conta
             </button>
-
+            <div class="g-recaptcha" data-sitekey="6Lc1AQouAAAAABUogEDt3O_RbynKl-hUJOLTLKO6"></div>
         </form>
 
     </div>

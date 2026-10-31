@@ -1,0 +1,131 @@
+/* ===== perfil.css | MT Nail Designer ===== */
+
+/* Caixa principal */
+.perfil-box {
+    max-width: 650px;
+    margin: 40px auto;
+    padding: 25px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.data-cadastro {
+    color: #666;
+    margin-top: 0;
+}
+
+/* Mensagens */
+.msg {
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.msg-sucesso {
+    background: #d4edda;
+    color: #155724;
+}
+
+.msg-erro {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Textos auxiliares */
+.aviso-campos {
+    color: #888;
+    font-size: 13px;
+    margin-top: 0;
+}
+
+/* Campos do formulário */
+.campo {
+    margin-bottom: 15px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.campo input,
+.campo select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+/* Campos bloqueados (não editáveis) */
+.campo input.bloqueado {
+    background: #f1f1f1;
+    color: #555;
+    cursor: not-allowed;
+}
+
+/* Separador */
+.separador {
+    margin: 25px 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+}
+
+/* Confirmação de senha */
+.confirmar-senha {
+    margin-bottom: 20px;
+    background: #fff3cd;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #ffeeba;
+}
+
+.confirmar-senha label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #856404;
+}
+
+.senha-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.campo .senha-wrapper input,
+.senha-wrapper input {
+    width: 100%;
+    padding: 8px;
+    padding-right: 40px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.btn-olho {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+}
+
+/* Botões e links */
+.btn-salvar {
+    padding: 10px 20px;
+    background: #d81b60;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.link-voltar {
+    margin-left: 15px;
+    color: #666;
+    text-decoration: none;
+}

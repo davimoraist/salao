@@ -5,6 +5,12 @@ require_once "conecte.php";
 
 header('Content-Type: application/json; charset=utf-8');
 
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    http_response_code(500);
+    echo json_encode([]);
+    exit;
+}
+
 $data = $_GET['data'] ?? '';
 $dataObj = DateTime::createFromFormat('Y-m-d', $data);
 
@@ -18,26 +24,16 @@ $sql = "SELECT hora_agendamento
           FROM agendamentos
          WHERE data_agendamento = ?
            AND (status IS NULL OR status <> 'cancelado')";
-$stmt = $conn->prepare($sql);
 
-if (!$stmt) {
-    error_log("buscar_horarios.php: " . $conn->error);
+try {
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$data]);
+    $horarios = $stmt->fetchAll(PDO::FETCH_COLUMN); // Retorna diretamente um array com os valores da coluna 'hora_agendamento'
+
+    echo json_encode($horarios);
+} catch (\PDOException $e) {
+    error_log("buscar_horarios.php: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([]);
-    exit;
 }
-
-$stmt->bind_param("s", $data);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$horarios = [];
-while ($row = $result->fetch_assoc()) {
-    $horarios[] = $row['hora_agendamento'];
-}
-
-echo json_encode($horarios);
-
-$stmt->close();
-$conn->close();
 ?>

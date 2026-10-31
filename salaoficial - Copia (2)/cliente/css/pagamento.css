@@ -1,0 +1,111 @@
+ @charset "UTF-8";
+
+ /* Import das fontes */
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+ /* VARIÁVEIS */
+ :root {
+     --cor1: #c88c8e;
+     --cor2: #734440;
+     --cor3: #bf93be;
+     --cor4: #a67272;
+     --cor5: #EDB8AE;
+     --cor6: #C89991;
+
+     --fonte-logo: "Great Vibes", cursive;
+     --fonte-titulo: "Cinzel", serif;
+     --fonte-texto: "Nunito", sans-serif;
+ }
+
+ /* RESET */
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+     font-family: var(--fonte-texto);
+ }
+
+ body {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     min-height: 100vh;
+     background: #fff7f6;
+ }
+
+ /* CARD */
+ .paga {
+     width: 850px;
+     min-height: 550px;
+     background: white;
+     border-radius: 40px;
+     border: 4px solid var(--cor5);
+     padding: 40px;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+ }
+
+ /* TÍTULO */
+ .paga h1 {
+     text-align: center;
+     color: var(--cor2);
+     font-size: 32px;
+     margin-bottom: 50px;
+     font-family: var(--fonte-titulo);
+ }
+
+ /* TABELA */
+ .paga table {
+     width: 100%;
+     border-collapse: collapse;
+     margin-bottom: 40px;
+ }
+
+ /* LINHAS */
+ .paga table tr {
+     border-bottom: 2px solid #f3d6d1;
+ }
+
+ /* CÉLULAS */
+ .paga table td {
+     padding: 18px;
+     font-size: 20px;
+     color: var(--cor2);
+ }
+
+ /* PRIMEIRA COLUNA */
+ .paga table td:first-child {
+     font-weight: bold;
+     width: 40%;
+     color: var(--cor4);
+ }
+
+ .paga p{
+    text-align: center;
+    padding: 14px 0;
+ }
+
+ /* BOTÃO */
+ .paga a {
+     display: block;
+     width: 300px;
+     margin: auto;
+     padding: 15px;
+     border: none;
+     background: var(--cor5);
+     color: white;
+     border-radius: 30px;
+     font-size: 20px;
+     font-weight: bold;
+     cursor: pointer;
+     transition: 0.3s;
+     text-align: center;
+     text-decoration: none;
+ }
+
+ /* HOVER */
+ .paga a:hover {
+     background: var(--cor2);
+     transform: scale(1.03);
+ }

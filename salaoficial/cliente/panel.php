@@ -2,27 +2,27 @@
 session_start();
 require_once __DIR__ . "/conecte.php";
 
- if (!isset($_SESSION['id']) || !isset($_SESSION['nome'])) {
+if (!isset($_SESSION['id']) || !isset($_SESSION['nome'])) {
     header("Location: cliente.php");
     exit();
 }
 
 $id = $_SESSION['id'];
 
-$sql = "SELECT  c.id, c.nome, c.email, p.endereco,  p.telefone, p.cpf, p.data_nascimento, p.como_conheceu,  p.data_cadastro FROM cliente c INNER JOIN pessoais p ON c.id = p.id_cliente WHERE c.id = ?";
+// Consulta SQL com INNER JOIN preservada e adaptada para PDO
+$sql = "SELECT c.id, c.nome, c.email, p.endereco, p.telefone, p.cpf, p.data_nascimento, p.como_conheceu, p.data_cadastro 
+        FROM cliente c 
+        INNER JOIN pessoais p ON c.id = p.id_cliente 
+        WHERE c.id = ?";
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id);
-$stmt->execute();
-
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$id]);
+$user = $stmt->fetch();
 
 if (!$user) {
     echo "Cliente não encontrado.";
     exit();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -39,36 +39,35 @@ if (!$user) {
 
 <div class="container">
     <div class="logo">
-    <img src="imagem/Maria.png" alt="logo da empresa">
-</div>
- <div class="menu user-container">
-    <span class="material-symbols-outlined" id="userIcon">account_circle</span>
-    <h2>Olá, <?= htmlspecialchars(explode(' ', $user['nome'])[0]) ?></h2>
-    
-    <div class="menu-contra" id="userMenu">
-        <a href="perfil.php">Minha conta</a>
-        <a href="logout.php">Sair</a>
+        <img src="imagem/Maria.png" alt="logo da empresa">
     </div>
-</div>
-    
-</div>
-    <div class="agendamedo">
-        <div class="horario">
-            <p>Escolha o melhor horário e confirme seu agendamento abaixo.</p>
-            <a href="agenda.php">agendar</a>
-            <a href="meuagenda.php">meu agendamento</a>
-        </div>
-          
-        <div class="frase">
-            <p>“Um espaço feito para cuidar <br> da beleza e do bem-estar da mulher.”</p>
+    <div class="menu user-container">
+        <span class="material-symbols-outlined" id="userIcon">account_circle</span>
+        <h2>Olá, <?= htmlspecialchars(explode(' ', $user['nome'])[0], ENT_QUOTES, 'UTF-8') ?></h2>
+        
+        <div class="menu-contra" id="userMenu">
+            <a href="perfil.php">Minha conta</a>
+            <a href="logout.php">Sair</a>
         </div>
     </div>
+</div>
 
-    <section class="trabalhos">
+<div class="agendamedo">
+    <div class="horario">
+        <p>Escolha o melhor horário e confirme seu agendamento abaixo.</p>
+        <a href="agenda.php">agendar</a>
+        <a href="meuagenda.php">meu agendamento</a>
+    </div>
+      
+    <div class="frase">
+        <p>“Um espaço feito para cuidar <br> da beleza e do bem-estar da mulher.”</p>
+    </div>
+</div>
+
+<section class="trabalhos">
     <h2>Nossos Trabalhos</h2>
 
     <div class="galeria">
-
         <div class="item">
             <img src="imagem/pe-mao.jpeg" alt="">
             <p>Pé Mão</p>
@@ -108,9 +107,9 @@ if (!$user) {
             <img src="imagem/WhatsApp Image 2026-01-27 at 09.52.04.jpeg" alt="">
             <p>Decoração</p>
         </div>
-
     </div>
 </section>
+
 <script>
     const userIcon = document.getElementById('userIcon');
     const userMenu = document.getElementById('userMenu');

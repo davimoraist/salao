@@ -1,14 +1,13 @@
  <?php
-
 ob_start();
 session_start();
 
 /* =========================
-   CONEXÃO COM O BANCO
+   CONEXÃO COM O BANCO (PDO)
 ========================= */
 require_once __DIR__ . "/conecte.php";
 
-if (!isset($conn)) {
+if (!isset($pdo)) {
     die("Erro: conexão com o banco não encontrada.");
 }
 
@@ -21,10 +20,46 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: cliente.php");
         exit;
     }
+
+    /* =========================
+       VALIDAÇÃO DO RECAPTCHA
+    ========================= */
+    $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
+    $secretKey = '6Lc1AQouAAAAAP4_EJT1hB7Pp0kDnjE6IsoYsk94'; // Sua chave secreta
+
+    if (empty($recaptchaResponse)) {
+        $formOrigem = isset($_POST['criar']) ? 'criar' : 'login';
+        $_SESSION[$formOrigem . '_error'] = '❌ Por favor, confirme que você não é um robô.';
+        $_SESSION['active_form'] = $formOrigem;
+        header("Location: cliente.php");
+        exit;
+    }
+
+    // Validação usando cURL
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "https://www.google.com/recaptcha/api/siteverify");
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+        'secret' => $secretKey,
+        'response' => $recaptchaResponse
+    ]));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $respostaGoogle = curl_exec($ch);
+    curl_close($ch);
+
+    $resultado = json_decode($respostaGoogle);
+
+    if (!$resultado || !$resultado->success) {
+        $formOrigem = isset($_POST['criar']) ? 'criar' : 'login';
+        $_SESSION[$formOrigem . '_error'] = '❌ Falha na verificação do reCAPTCHA. Tente novamente.';
+        $_SESSION['active_form'] = $formOrigem;
+        header("Location: cliente.php");
+        exit;
+    }
 }
 
 /* =========================
-   CRIAR CONTA
+   CRIAR CONTA (PDO)
 ========================= */
 if (isset($_POST['criar'])) {
 
@@ -32,7 +67,6 @@ if (isset($_POST['criar'])) {
     $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
     $senha = $_POST['senha'] ?? '';
 
-    // Verifica campos vazios e validação do formato de e-mail no back-end
     if ($nome === '' || !$email || $senha === '') {
         $_SESSION['criar_error'] = '❌ Preencha todos os campos com dados válidos.';
         $_SESSION['active_form'] = 'criar';
@@ -40,31 +74,28 @@ if (isset($_POST['criar'])) {
         exit;
     }
 
-    // Verifica se email já existe
-    $stmt = $conn->prepare("SELECT id FROM cliente WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $checkEmail = $stmt->get_result();
+    // Verifica se email já existe usando PDO
+    $stmt = $pdo->prepare("SELECT id FROM cliente WHERE email = ?");
+    $stmt->execute([$email]);
+    $checkEmail = $stmt->fetch();
 
-    if ($checkEmail && $checkEmail->num_rows > 0) {
+    if ($checkEmail) {
         $_SESSION['criar_error'] = '❌ Este e-mail já está cadastrado.';
         $_SESSION['active_form'] = 'criar';
         header("Location: cliente.php");
         exit;
     }
 
-    // Cria hash da senha
+    // Cria hash da senha com Bcrypt/Argon2 nativo
     $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
-    // Insere cliente
-    $stmt = $conn->prepare("INSERT INTO cliente (nome, email, password, sit) VALUES (?, ?, ?, 1)");
-    $stmt->bind_param("sss", $nome, $email, $senhaHash);
-
-    if ($stmt->execute()) {
-        // LOGIN AUTOMÁTICO APÓS CADASTRO (Muda o ID da sessão por segurança)
+    // Insere cliente com PDO Prepared Statement
+    $stmt = $pdo->prepare("INSERT INTO cliente (nome, email, password, sit) VALUES (?, ?, ?, 1)");
+    
+    if ($stmt->execute([$nome, $email, $senhaHash])) {
         session_regenerate_id(true);
 
-        $_SESSION['id']    = $conn->insert_id;
+        $_SESSION['id']    = $pdo->lastInsertId();
         $_SESSION['nome']  = $nome;
         $_SESSION['email'] = $email;
 
@@ -79,7 +110,7 @@ if (isset($_POST['criar'])) {
 }
 
 /* =========================
-   LOGIN
+   LOGIN (PDO)
 ========================= */
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_POST['senha']) && !isset($_POST['criar'])) {
 
@@ -93,17 +124,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_P
         exit;
     }
 
-    $stmt = $conn->prepare("SELECT * FROM cliente WHERE email = ? LIMIT 1");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt = $pdo->prepare("SELECT * FROM cliente WHERE email = ? LIMIT 1");
+    $stmt->execute([$email]);
+    $cliente = $stmt->fetch();
 
-    // Mensagem genérica unificada para mitigar ataques de enumeração de e-mails
     $loginGenericError = '❌ E-mail ou senha incorretos.';
 
-    if ($result && $result->num_rows === 1) {
-        $cliente = $result->fetch_assoc();
-
+    if ($cliente) {
         if (password_verify($senha, $cliente['password'])) {
             session_regenerate_id(true);
 
@@ -111,12 +138,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_P
             $_SESSION['nome'] = $cliente['nome'];
             $_SESSION['email'] = $cliente['email'];
 
-            // VERIFICA SE OUTROS DADOS FORAM PREENCHIDOS
-            $stmt2 = $conn->prepare("SELECT cpf FROM pessoais WHERE id_cliente = ? LIMIT 1");
-            $stmt2->bind_param("i", $cliente['id']);
-            $stmt2->execute();
-            $res2 = $stmt2->get_result();
-            $dados = $res2->fetch_assoc();
+            // VERIFICA SE OUTROS DADOS FORAM PREENCHIDOS (PDO)
+            $stmt2 = $pdo->prepare("SELECT cpf FROM pessoais WHERE id_cliente = ? LIMIT 1");
+            $stmt2->execute([$cliente['id']]);
+            $dados = $stmt2->fetch();
 
             if (!empty($dados['cpf'])) {
                 header("Location: panel.php");
@@ -140,5 +165,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email']) && isset($_P
         exit;
     }
 }
-
 ?>

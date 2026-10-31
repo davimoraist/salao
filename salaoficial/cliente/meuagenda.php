@@ -2,6 +2,10 @@
 session_start();
 require_once __DIR__ . "/conecte.php";
 
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    die("Erro: conexão com o banco não encontrada.");
+}
+
 if (!isset($_SESSION['id'])) {
     header("Location: login.php");
     exit;
@@ -15,19 +19,14 @@ $sql = "SELECT a.id, a.servico, a.data_agendamento, a.hora_agendamento, a.status
         WHERE a.id_cliente = ?
         ORDER BY a.data_agendamento DESC, a.hora_agendamento DESC";
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id_cliente); // "i" = integer
-$stmt->execute();
-$resultado = $stmt->get_result(); // transforma o resultado em algo percorrível
-$agendamentos = $resultado->fetch_all(MYSQLI_ASSOC); // pega tudo como array associativo
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$id_cliente]);
+$agendamentos = $stmt->fetchAll();
 
 $proximos = [];
 $historico = [];
 
 foreach ($agendamentos as $ag) {
-    // Comparação em minúsculas: no banco o status é gravado como
-    // "Confirmado", "Cancelado", etc. — sem strtolower() aqui, a
-    // comparação exata nunca batia e nada caía em "Próximos".
     if (strtolower($ag['status']) === 'confirmado') {
         $proximos[] = $ag;
     } else {
@@ -68,17 +67,17 @@ function formatarDataHora($dataHora) {
                 <p>Você não tem agendamentos futuros.</p>
             <?php else: ?>
                 <?php foreach ($proximos as $ag): ?>
-                    <div class="card-agendamento" id="agendamento-<?= $ag['id'] ?>">
-                        <p><strong>Serviço:</strong> <?= htmlspecialchars($ag['servico']) ?></p>
+                    <div class="card-agendamento" id="agendamento-<?= (int)$ag['id'] ?>">
+                        <p><strong>Serviço:</strong> <?= htmlspecialchars($ag['servico'], ENT_QUOTES, 'UTF-8') ?></p>
                         <p><strong>Data:</strong> <?= formatarData($ag['data_agendamento']) ?></p>
-                        <p><strong>Horário:</strong> <?= htmlspecialchars($ag['hora_agendamento']) ?></p>
+                        <p><strong>Horário:</strong> <?= htmlspecialchars($ag['hora_agendamento'], ENT_QUOTES, 'UTF-8') ?></p>
                         <p><strong>Entrada paga:</strong>
                             <span class="valor-pago"><?= formatarValor($ag['valor_pago']) ?></span>
                         </p>
                         <p><strong>Falta pagar:</strong>
                             <span class="valor-falta"><?= formatarValor($ag['valor_restante']) ?></span>
                         </p>
-                        <button type="button" class="Cancelar" onclick="cancelar(<?= $ag['id'] ?>)">
+                        <button type="button" class="Cancelar" onclick="cancelar(<?= (int)$ag['id'] ?>)">
                             Cancelar o Serviço
                         </button>
                     </div>
@@ -91,9 +90,9 @@ function formatarDataHora($dataHora) {
             <?php else: ?>
                 <?php foreach ($historico as $ag): ?>
                     <div class="card-agendamento historico">
-                        <p><strong>Serviço:</strong> <?= htmlspecialchars($ag['servico']) ?></p>
+                        <p><strong>Serviço:</strong> <?= htmlspecialchars($ag['servico'], ENT_QUOTES, 'UTF-8') ?></p>
                         <p><strong>Data:</strong> <?= formatarData($ag['data_agendamento']) ?></p>
-                        <p><strong>Status:</strong> <?= htmlspecialchars(ucfirst($ag['status'])) ?></p>
+                        <p><strong>Status:</strong> <?= htmlspecialchars(ucfirst($ag['status']), ENT_QUOTES, 'UTF-8') ?></p>
                         <?php if (strtolower($ag['status']) === 'concluido' && !empty($ag['finalizado_em'])): ?>
                             <p><strong>Finalizado em:</strong> <?= formatarDataHora($ag['finalizado_em']) ?></p>
                         <?php endif; ?>
@@ -104,8 +103,6 @@ function formatarDataHora($dataHora) {
         </div>
     </main>
 
-    <!-- SweetAlert2 precisa carregar ANTES do meuagenda.js, senão
-         Swal.fire() ainda não existe quando o cancelar() é chamado -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="meuagenda.js"></script>
 </body>

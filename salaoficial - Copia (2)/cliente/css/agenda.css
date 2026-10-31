@@ -1,0 +1,304 @@
+ @charset "UTF-8";
+
+/* =========================
+   IMPORTAÇÃO DE FONTES
+========================= */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+/* =========================
+   VARIÁVEIS
+========================= */
+:root {
+    --cor1: #c88c8e; 
+    --cor2: #734440;
+    --cor3: #bf93be;
+    --cor4: #a67272;
+    --cor5: #EDB8AE;
+    --cor6: #C89991;
+
+    --fonte-logo: "Great Vibes", cursive;
+    --fonte-titulo: "Cinzel", serif;
+    --fonte-texto: "Nunito", sans-serif;
+}
+
+/* =========================
+   RESET
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--fonte-texto);
+}
+
+/* =========================
+   BODY
+========================= */
+body {
+    display: flex;
+    justify-content: center;
+    background-color: #fff;
+    padding: 40px;
+}
+
+/* =========================
+   FORMULÁRIO
+========================= */
+form {
+    background-color: var(--cor5);
+    width: 100%;
+    max-width: 500px;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* =========================
+   TÍTULO
+========================= */
+form h1 {
+    text-align: center;
+    font-family: var(--fonte-titulo);
+    color: var(--cor2);
+    margin-bottom: 10px;
+}
+
+/* =========================
+   LINHA DECORATIVA
+========================= */
+form .linha {
+    width: 60%;
+    height: 2px;
+    margin: 10px auto 20px auto;
+    background-image: linear-gradient(
+        to right,
+        transparent,
+        #fff,
+        transparent
+    );
+}
+
+/* =========================
+   CAMPOS
+========================= */
+form .nome {
+    margin-bottom: 15px;
+    background-color: aqua;
+}
+ 
+
+h1{
+    font-size:40px;
+    margin-bottom:20px;
+}
+
+.carrossel{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:15px;
+    margin-bottom:40px;
+}
+
+.seta{
+    font-size:40px;
+    cursor:pointer;
+    color:#8d6e63;
+}
+
+.datas{
+    display:flex;
+    gap:15px;
+}
+
+.data-box{
+    border:2px solid #8d6e63;
+    padding:15px 25px;
+    cursor:pointer;
+    font-size:22px;
+    background:#e8c1b7;
+}
+
+.data-box.ativa{
+    background:#c48b80;
+}
+
+.titulo{
+    display: inline-block;
+    text-align: center;
+    background-color:  var(--cor1);
+    margin:32px 0;
+    padding: 12px;
+    font-size:25px;
+    border-radius: 30px;
+}
+
+.horarios{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+    max-width:500px;
+    margin:auto;
+}
+
+.hora{
+    border:2px solid #8d6e63;
+    padding:15px 30px;
+    font-size:22px;
+    cursor:pointer;
+    background:#e8c1b7;
+}
+
+.hora:hover{
+    background:#c48b80;
+}
+
+.pagamento {
+    display: flex;
+    justify-content: center;
+    /* centraliza horizontal */
+    align-items: center;
+    /* centraliza vertical */
+
+    margin: 50px 0 10px 0;
+}
+
+.pagamento button {
+    width: 100%;
+    height: 48px;
+    background-color: var(--cor6);
+    border: none;
+    border-radius: 28px;
+    cursor: pointer;
+    font-size: 18px; 
+    color: white;   
+}
+
+.pagamento button:hover {
+    background-color: var(--cor4);
+}
+
+ .hora {
+     display: inline-block;
+     background: #e3c4b8;
+     padding: 10px 20px;
+     margin: 8px;
+     border-radius: 8px;
+     border: 2px solid #8c6f66;
+     color: white;
+     cursor: pointer;
+ }
+
+ .hora.ativa {
+     background: #33713d;
+ }
+
+ .hora.ocupado {
+     background: red;
+     cursor: not-allowed;
+   }
+
+   /* =========================
+   RESPONSIVO CELULAR
+========================= */
+   @media (max-width: 480px) {
+
+       body {
+           padding: 10px;
+       }
+
+       .form-box {
+           width: 95%;
+           max-width: 100%;
+           margin: 20px auto;
+           padding: 20px;
+           border-radius: 25px;
+           box-sizing: border-box;
+       }
+
+       .form-box h1 {
+           font-size: 2rem;
+           text-align: center;
+       }
+
+       .none h2 {
+           font-size: 1.5rem;
+           line-height: 1.4;
+       }
+
+       .titulo {
+           width: fit-content;
+           margin: 25px auto;
+           font-size: 1.3rem;
+           text-align: center;
+       }
+
+       /* DATAS */
+       .carrossel {
+           gap: 5px;
+       }
+
+       .seta {
+           font-size: 20px;
+           min-width: 25px;
+       }
+
+       .datas {
+           gap: 8px;
+           width: 100%;
+           overflow: hidden;
+       }
+
+       .data {
+           min-width: 75px;
+           height: 50px;
+           font-size: 1.1rem;
+       }
+
+       /* HORÁRIOS */
+       .horarios {
+           display: grid;
+           grid-template-columns: repeat(2, 1fr);
+           gap: 12px;
+           margin-top: 20px;
+       }
+
+       .horario {
+           width: 100%;
+           height: 50px;
+           font-size: 1.1rem;
+       }
+
+       /* SERVIÇOS */
+       .servico-box {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           gap: 10px;
+           padding: 12px;
+           border-radius: 12px;
+           margin-bottom: 10px;
+       }
+
+       .servico-box label {
+           font-size: 1rem;
+           flex: 1;
+       }
+
+       .servico-box p {
+           font-size: 1rem;
+           margin: 0;
+       }
+
+       /* BOTÃO */
+       .pagamento button {
+           width: 100%;
+           height: 55px;
+           font-size: 1.2rem;
+           border-radius: 15px;
+           margin-top: 20px;
+       }
+   }

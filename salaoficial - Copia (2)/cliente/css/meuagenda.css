@@ -1,0 +1,137 @@
+ @charset "UTF-8";
+
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+ :root {
+     --cor1: #c88c8e;
+     --cor2: #734440;
+     --cor3: #bf93be;
+     --cor4: #a67272;
+     --cor5: #EDB8AE;
+     --cor6: #C89991;
+
+     --fonte-logo: "Great Vibes", cursive;
+     --fonte-titulo: "Cinzel", serif;
+     --fonte-texto: "Nunito", sans-serif;
+ }
+
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+     font-family: var(--fonte-texto);
+ }
+
+ body {
+     background: #f8f7f7;
+     min-height: 100vh;
+     padding: 20px;
+ }
+
+ .container {
+     width: 100%;
+     max-width: 500px;
+     margin: 0 auto;
+ }
+
+ /* CARD PRINCIPAL */
+ .meus-agendamentos {
+     background: #ffffff;
+     padding: 30px;
+     border: 2px solid var(--cor2);
+     border-radius: 12px;
+     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+ }
+
+ .meus-agendamentos h1 {
+     font-family: var(--fonte-titulo);
+     color: var(--cor2);
+     text-align: center;
+     font-size: 24px;
+     margin-bottom: 20px;
+     border-bottom: 2px solid var(--cor5);
+     padding-bottom: 10px;
+ }
+
+ .meus-agendamentos h2 {
+     font-family: var(--fonte-titulo);
+     color: var(--cor2);
+     font-size: 18px;
+     margin-top: 24px;
+     margin-bottom: 12px;
+ }
+
+ .meus-agendamentos h2:first-of-type {
+     margin-top: 0;
+ }
+
+ /* CADA AGENDAMENTO VIRA UM CARD SEPARADO */
+ .card-agendamento {
+     background: #faf9f9;
+     border: 1px solid var(--cor5);
+     border-radius: 10px;
+     padding: 16px 18px;
+     margin-bottom: 14px;
+ }
+
+ .card-agendamento p {
+     font-size: 15px;
+     color: #444;
+     margin-bottom: 6px;
+     line-height: 1.4;
+ }
+
+ .card-agendamento p:last-child {
+     margin-bottom: 0;
+ }
+
+ .card-agendamento p strong {
+     color: var(--cor2);
+ }
+
+ /* CARDS DO HISTÓRICO — visual mais discreto, sem destaque forte */
+ .card-agendamento.historico {
+     background: #f2f2f2;
+     border-color: #ddd;
+     opacity: 0.85;
+ }
+
+ /* MENSAGEM QUANDO A LISTA ESTÁ VAZIA */
+ .meus-agendamentos>p {
+     font-size: 14px;
+     color: #888;
+     font-style: italic;
+     margin-bottom: 20px;
+ }
+
+ /* DESTAQUES DE PAGAMENTO */
+ .valor-pago {
+     color: #28a745;
+     font-weight: 700;
+ }
+
+ .valor-falta {
+     color: #dc3545;
+     font-weight: 700;
+ }
+
+ /* BOTÃO CANCELAR */
+ .Cancelar {
+     width: 100%;
+     padding: 12px;
+     margin-top: 10px;
+     background-color: var(--cor4);
+     color: #ffffff;
+     border: none;
+     border-radius: 6px;
+     font-size: 15px;
+     font-weight: 700;
+     cursor: pointer;
+     transition: 0.3s ease;
+ }
+
+ .Cancelar:hover {
+     background-color: var(--cor2);
+ }

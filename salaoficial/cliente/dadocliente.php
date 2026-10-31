@@ -6,12 +6,9 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . "/conecte.php";
 
-if (!isset($conn) || !($conn instanceof mysqli)) {
+if (!isset($pdo) || !($pdo instanceof PDO)) {
     die("Erro: conexão com o banco não encontrada.");
 }
-
-// Configura o MySQLi para lançar exceções em caso de erro
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 /* =======================================================
    TRAVA DE SEGURANÇA 1: VALIDAÇÃO DE SESSÃO E DE TOKEN CSRF
@@ -128,22 +125,20 @@ if (!$dataOk) {
 }
 
 /* =======================================================
-   VERIFICAÇÃO E GRAVAÇÃO NA BASE DE DADOS
+   VERIFICAÇÃO E GRAVAÇÃO NA BASE DE DADOS (PDO)
 ======================================================= */
 $id_cliente = (int) $_SESSION['id'];
 
 try {
-    // Verifica se o CPF já pertence a outro cliente
-    $stmt = $conn->prepare(
+    // Verifica se o CPF já pertence a outro cliente usando PDO
+    $stmt = $pdo->prepare(
         "SELECT id_cliente FROM pessoais
           WHERE REPLACE(REPLACE(cpf, '.', ''), '-', '') = ?
             AND id_cliente <> ?
           LIMIT 1"
     );
-    $stmt->bind_param("si", $cpfDigitos, $id_cliente);
-    $stmt->execute();
-    $cpfEmUso = $stmt->get_result()->num_rows > 0;
-    $stmt->close();
+    $stmt->execute([$cpfDigitos, $id_cliente]);
+    $cpfEmUso = $stmt->fetch() ? true : false;
 
     if ($cpfEmUso) {
         $_SESSION['criar_error'] = '❌ Este CPF já está cadastrado por outro usuário.';
@@ -152,39 +147,34 @@ try {
     }
 
     // Verifica se o cliente já tem registo criado para atualizar ou inserir
-    $stmt = $conn->prepare("SELECT id_cliente FROM pessoais WHERE id_cliente = ? LIMIT 1");
-    $stmt->bind_param("i", $id_cliente);
-    $stmt->execute();
-    $jaExiste = $stmt->get_result()->num_rows > 0;
-    $stmt->close();
+    $stmt = $pdo->prepare("SELECT id_cliente FROM pessoais WHERE id_cliente = ? LIMIT 1");
+    $stmt->execute([$id_cliente]);
+    $jaExiste = $stmt->fetch() ? true : false;
 
     if ($jaExiste) {
-        $stmt = $conn->prepare(
+        $stmt = $pdo->prepare(
             "UPDATE pessoais
                 SET endereco = ?, telefone = ?, cpf = ?, data_nascimento = ?, como_conheceu = ?
               WHERE id_cliente = ?"
         );
-        $stmt->bind_param("sssssi", $endereco, $telDigitos, $cpfDigitos, $idade, $como_conheceu, $id_cliente);
+        $stmt->execute([$endereco, $telDigitos, $cpfDigitos, $idade, $como_conheceu, $id_cliente]);
     } else {
-        $stmt = $conn->prepare(
+        $stmt = $pdo->prepare(
             "INSERT INTO pessoais (id_cliente, endereco, telefone, cpf, data_nascimento, como_conheceu)
              VALUES (?, ?, ?, ?, ?, ?)"
         );
-        $stmt->bind_param("isssss", $id_cliente, $endereco, $telDigitos, $cpfDigitos, $idade, $como_conheceu);
+        $stmt->execute([$id_cliente, $endereco, $telDigitos, $cpfDigitos, $idade, $como_conheceu]);
     }
-
-    $stmt->execute();
-    $stmt->close();
-    $conn->close();
 
     $_SESSION['criar_sucesso'] = '✅ Cadastro realizado com sucesso!';
     header("Location: anamnes.php"); // Avança para a página de anamnese após o sucesso!
     exit;
 
-} catch (mysqli_sql_exception $e) {
+} catch (\PDOException $e) {
     error_log("Erro no banco de dados (dadocliente.php): " . $e->getMessage());
 
-    if ($e->getCode() === 1062) {
+    // Código 23000 ou mensagem de duplicidade (Erro 1062 do MySQL)
+    if ($e->getCode() == 23000 || str_contains($e->getMessage(), '1062')) {
         $_SESSION['criar_error'] = '❌ CPF já cadastrado.';
     } else {
         $_SESSION['criar_error'] = '❌ Erro ao cadastrar os dados. Tente novamente mais tarde.';

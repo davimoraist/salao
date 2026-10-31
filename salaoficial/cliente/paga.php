@@ -2,6 +2,10 @@
 session_start();
 require_once __DIR__ . "/conecte.php";
 
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    die("Erro: conexão com o banco não encontrada.");
+}
+
 if (!isset($_SESSION['id'])) {
     die("Você precisa estar logado.");
 }
@@ -12,22 +16,20 @@ if (!isset($_SESSION['agendamento_temporario'])) {
 
 $id = (int)$_SESSION['id'];
 
-$stmt = $conn->prepare("
-SELECT
-    c.nome,
-    c.email,
-    p.cpf
-FROM cliente c
-INNER JOIN pessoais p
-ON p.id_cliente = c.id
-WHERE c.id = ?
-LIMIT 1
+$stmt = $pdo->prepare("
+    SELECT
+        c.nome,
+        c.email,
+        p.cpf
+    FROM cliente c
+    INNER JOIN pessoais p
+    ON p.id_cliente = c.id
+    WHERE c.id = ?
+    LIMIT 1
 ");
 
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$user = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$stmt->execute([$id]);
+$user = $stmt->fetch();
 
 if (!$user) {
     die("Cliente não encontrado.");
@@ -60,10 +62,10 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
     <div class="paga" id="dados">
 
         <label>Nome Completo</label>
-        <input type="text" id="cliente_nome" value="<?= htmlspecialchars($user['nome']) ?>" readonly>
+        <input type="text" id="cliente_nome" value="<?= htmlspecialchars($user['nome'], ENT_QUOTES, 'UTF-8') ?>" readonly>
 
         <label>CPF</label>
-        <input type="text" id="cliente_cpf" value="<?= htmlspecialchars($user['cpf']) ?>" readonly>
+        <input type="text" id="cliente_cpf" value="<?= htmlspecialchars($user['cpf'], ENT_QUOTES, 'UTF-8') ?>" readonly>
 
         <p>Forma de pagamento</p>
 
@@ -86,12 +88,12 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
         <p>Importante: O pagamento realizado nesta etapa corresponde apenas ao sinal de 30% do valor do serviço. O valor restante deverá ser pago no salão após a realização do atendimento.</p>
 
         <p>
-            <strong>Serviços:</strong> <?= htmlspecialchars($servico) ?>
+            <strong>Serviços:</strong> <?= htmlspecialchars($servico, ENT_QUOTES, 'UTF-8') ?>
         </p>
 
         <p>
-            <strong>Data:</strong> <?= $data ?>
-            <strong>Horário:</strong> <?= $hora ?>
+            <strong>Data:</strong> <?= htmlspecialchars($data, ENT_QUOTES, 'UTF-8') ?>
+            <strong>Horário:</strong> <?= htmlspecialchars($hora, ENT_QUOTES, 'UTF-8') ?>
         </p>
 
         <p>
@@ -117,7 +119,7 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
             </div>
         </div>
 
-        <!-- METODO 2: CRÉDITO (pago na página segura do Asaas) -->
+        <!-- METODO 2: CRÉDITO -->
         <div id="container-credito" class="metodo-pagamento paga-credito">
             <p style="margin-bottom: 10px;">
                 O pagamento no crédito é feito em uma página segura do Asaas, que abrirá em uma nova aba. Nessa página, deixe selecionado <strong>"Cartão de Crédito"</strong> e preencha os dados do cartão. Depois de pagar, volte para esta página e seu agendamento será confirmado automaticamente.
@@ -127,7 +129,7 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
             </button>
         </div>
 
-        <!-- METODO 3: DÉBITO (pago na página segura do Asaas) -->
+        <!-- METODO 3: DÉBITO -->
         <div id="container-debito" class="metodo-pagamento paga-credito">
             <p style="margin-bottom: 10px;">
                 O pagamento no débito é feito em uma página segura do Asaas, que abrirá em uma nova aba. <strong>Nessa página, clique em "Cartão de Débito" antes de preencher os dados</strong> (ela abre em "Cartão de Crédito"). Depois de pagar, volte para esta página e seu agendamento será confirmado automaticamente.
@@ -155,11 +157,8 @@ $hora = substr($agendamento['hora_agendamento'], 0, 5);
     </div>
 </div>
 
-<!-- QRious: gera QR code no navegador a partir do "copia e cola",
-     usado quando o Asaas (comum no Sandbox) não devolve a imagem pronta -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script src="paga.js"></script>
-<!-- SweetAlert2 CSS e JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 

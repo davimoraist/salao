@@ -91,7 +91,7 @@
      color: white;
  }
 
- /* ANIMAÇÃO LEVE DOS FORMULÁRIOS (Apenas opacidade e transform de 0.25 segundos) */
+ /* ANIMAÇÃO LEVE DOS FORMULÁRIOS */
  .form-auth {
      display: flex;
      flex-direction: column;
@@ -101,17 +101,16 @@
      transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
  }
 
- /* Estado escondido super otimizado (Sem usar display:none) */
+ /* Estado escondido otimizado para evitar estouro de altura */
  .hidden {
      position: absolute;
-     top: 84px;
-     /* Ajusta para ficar perfeitamente alinhado abaixo das abas */
+     top: 95px;
+     /* Alinhado de forma dinâmica abaixo das abas */
      left: 30px;
      right: 30px;
      opacity: 0;
      visibility: hidden;
      transform: scale(0.98);
-     /* Dá um efeito sutil de aproximação quando aparece */
      pointer-events: none;
  }
 
@@ -155,6 +154,7 @@
      font-weight: 700;
      cursor: pointer;
      transition: 0.2s, transform 0.1s;
+     margin-top: 5px;
  }
 
  .btn-principal:hover {
@@ -169,7 +169,7 @@
      display: flex;
      align-items: center;
      gap: 10px;
-     margin: 10px 0 20px;
+     margin: 12px 0;
      font-size: 14px;
  }
 
@@ -183,16 +183,24 @@
      user-select: none;
  }
 
- .g-recaptcha{
-    margin: 10px;
-    display: flex;
-    align-items: center;
+ /* RECAPTCHA RESPONSIVO E CENTRALIZADO */
+ .g-recaptcha {
+     margin: 12px auto 0 auto;
+     display: flex;
+     justify-content: center;
+     transform: scale(0.92);
+     /* Ajusta levemente para encaixar perfeito em celulares */
+     transform-origin: 0 0;
  }
 
- /* RESPONSIVO */
- @media(max-width:480px) {
+ /* RESPONSIVO PARA TELEMÓVEIS */
+ @media(max-width: 480px) {
+     body {
+         padding: 15px;
+     }
+
      .card-auth {
-         padding: 22px;
+         padding: 20px;
          border-radius: 25px;
      }
 
@@ -201,12 +209,22 @@
      }
 
      .input-box input {
-         height: 54px;
+         height: 50px;
+         font-size: 15px;
+     }
+
+     .btn-principal {
+         height: 50px;
      }
 
      .hidden {
-         top: 76px;
-         left: 22px;
-         right: 22px;
+         top: 85px;
+         left: 20px;
+         right: 20px;
+     }
+
+     /* Reduz um pouco o reCAPTCHA em telas muito pequenas para não cortar nas bordas */
+     .g-recaptcha {
+         transform: scale(0.82);
      }
  }
